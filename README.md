@@ -40,6 +40,19 @@ Create a `.env` file in the project root and add the following:
 
 ```env
 PEXELS_API_KEY=""
+S3_BUCKET="react-video-editor"
+S3_REGION="us-east-1"
+S3_ENDPOINT="http://127.0.0.1:9000"
+S3_PUBLIC_URL="http://localhost:9000"
+S3_ACCESS_KEY="minioadmin"
+S3_SECRET_KEY="minioadmin"
+S3_FORCE_PATH_STYLE="true"
+```
+
+Start MinIO locally before running the app:
+
+```bash
+docker compose up -d
 ```
 
 Clone locally:

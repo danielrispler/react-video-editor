@@ -22,25 +22,11 @@ export async function processFileUpload(
   callbacks: UploadCallbacks
 ): Promise<any> {
   try {
-    // Get presigned URL
-    const {
-      data: { uploads }
-    } = await axios.post(
-      "/api/uploads/presign",
-      {
-        userId: "PJ1nkaufw0hZPyhN7bWCP",
-        fileNames: [file.name]
-      },
-      {
-        headers: { "Content-Type": "application/json" }
-      }
-    );
+    const formData = new FormData();
+    formData.append("userId", "PJ1nkaufw0hZPyhN7bWCP");
+    formData.append("file", file);
 
-    const uploadInfo = uploads[0];
-
-    // Upload file with progress tracking
-    await axios.put(uploadInfo.presignedUrl, file, {
-      headers: { "Content-Type": uploadInfo.contentType },
+    const uploadResponse = await axios.post("/api/uploads/file", formData, {
       onUploadProgress: (progressEvent) => {
         const percent = Math.round(
           (progressEvent.loaded * 100) / (progressEvent.total || 1)
@@ -49,6 +35,16 @@ export async function processFileUpload(
       },
       validateStatus: () => true
     });
+
+    if (uploadResponse.status < 200 || uploadResponse.status >= 300) {
+      throw new Error(`Upload failed with status ${uploadResponse.status}`);
+    }
+
+    const { upload: uploadInfo } = uploadResponse.data;
+
+    if (!uploadInfo) {
+      throw new Error("Upload route returned no upload payload");
+    }
 
     // Construct upload data from uploadInfo
     const uploadData = {
@@ -103,7 +99,11 @@ export async function processUrlUpload(
       filePath: uploadInfo.filePath,
       fileSize: 0,
       contentType: uploadInfo.contentType,
-      metadata: { originalUrl: uploadInfo.originalUrl },
+      metadata: {
+        originalUrl: uploadInfo.originalUrl,
+        uploadedUrl: uploadInfo.url
+      },
+      url: uploadInfo.url,
       folder: uploadInfo.folder || null,
       type: uploadInfo.contentType.split("/")[0],
       method: "url",

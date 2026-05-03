@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { Droppable } from "@/components/ui/droppable";
 import { Loader2, PlusIcon } from "lucide-react";
 import { DroppableArea } from "./droppable";
+import useUploadStore from "../store/use-upload-store";
 
 const SceneEmpty = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -10,6 +11,7 @@ const SceneEmpty = () => {
   const [isDraggingOver, setIsDraggingOver] = useState(false);
   const [desiredSize, setDesiredSize] = useState({ width: 0, height: 0 });
   const { size } = useStore();
+  const { addPendingUploads, processUploads } = useUploadStore();
 
   useEffect(() => {
     const container = containerRef.current!;
@@ -30,7 +32,18 @@ const SceneEmpty = () => {
   }, [size]);
 
   const onSelectFiles = (files: File[]) => {
-    console.log({ files });
+    const fileUploads = files.map((f) => ({
+      id: crypto.randomUUID(),
+      file: f,
+      type: f.type,
+      status: "pending" as const,
+      progress: 0
+    }));
+
+    addPendingUploads(fileUploads);
+    setTimeout(() => {
+      processUploads();
+    }, 0);
   };
 
   return (
@@ -40,8 +53,13 @@ const SceneEmpty = () => {
     >
       {!isLoading ? (
         <Droppable
-          maxFileCount={4}
-          maxSize={4 * 1024 * 1024}
+          maxFileCount={10}
+          maxSize={50 * 1024 * 1024}
+          accept={{
+            "video/*": [],
+            "image/*": [],
+            "audio/*": []
+          }}
           disabled={false}
           onValueChange={onSelectFiles}
           className="h-full w-full flex-1"

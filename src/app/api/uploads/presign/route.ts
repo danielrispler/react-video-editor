@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createPresignedUpload } from "@/lib/storage";
 
 interface PresignRequest {
   userId: string;
   fileNames: string[];
+  contentTypes?: string[];
 }
 
-interface ExternalPresignResponse {
+interface PresignedUploadResponse {
   fileName: string;
   filePath: string;
   contentType: string;
@@ -14,14 +16,10 @@ interface ExternalPresignResponse {
   url: string;
 }
 
-interface ExternalPresignsResponse {
-  uploads: ExternalPresignResponse[];
-}
-
 export async function POST(request: NextRequest) {
   try {
     const body: PresignRequest = await request.json();
-    const { userId, fileNames } = body;
+    const { userId, fileNames, contentTypes } = body;
 
     if (!userId) {
       return NextResponse.json(
@@ -37,39 +35,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Call external presigned URL service
-    const externalResponse = await fetch(
-      "https://upload-file-j43uyuaeza-uc.a.run.app/presigned",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
+    const uploads: PresignedUploadResponse[] = await Promise.all(
+      fileNames.map((fileName, index) =>
+        createPresignedUpload({
           userId,
-          fileNames
+          fileName,
+          contentType: contentTypes?.[index]
         })
-      }
+      )
     );
-
-    if (!externalResponse.ok) {
-      const errorData = await externalResponse.json();
-      return NextResponse.json(
-        {
-          error: "External presigned URL service failed",
-          details: errorData
-        },
-        { status: externalResponse.status }
-      );
-    }
-
-    const externalData: ExternalPresignsResponse =
-      await externalResponse.json();
-    const { uploads = [] } = externalData;
 
     return NextResponse.json({
       success: true,
-      uploads: uploads
+      uploads
     });
   } catch (error) {
     console.error("Error in presign route:", error);

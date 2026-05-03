@@ -14,6 +14,7 @@ import { generateId } from "@designcombo/timeline";
 import { Button } from "@/components/ui/button";
 import useUploadStore from "../store/use-upload-store";
 import ModalUpload from "@/components/modal-upload";
+import { getUploadAssetUrl } from "../utils/upload-media";
 
 export const Uploads = () => {
   const { setShowUploadModal, uploads, pendingUploads, activeUploads } =
@@ -31,7 +32,7 @@ export const Uploads = () => {
   );
 
   const handleAddVideo = (video: any) => {
-    const srcVideo = video.metadata?.uploadedUrl || video.url;
+    const srcVideo = getUploadAssetUrl(video);
 
     dispatch(ADD_VIDEO, {
       payload: {
@@ -51,7 +52,7 @@ export const Uploads = () => {
   };
 
   const handleAddImage = (image: any) => {
-    const srcImage = image.metadata?.uploadedUrl || image.url;
+    const srcImage = getUploadAssetUrl(image);
 
     dispatch(ADD_IMAGE, {
       payload: {
@@ -71,7 +72,7 @@ export const Uploads = () => {
   };
 
   const handleAddAudio = (audio: any) => {
-    const srcAudio = audio.metadata?.uploadedUrl || audio.url;
+    const srcAudio = getUploadAssetUrl(audio);
     dispatch(ADD_AUDIO, {
       payload: {
         id: generateId(),

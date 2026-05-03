@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
+import { sanitizeFileName, uploadBufferToStorage } from "@/lib/storage";
 
 interface UploadUrlRequest {
   userId: string;
   urls: string[];
 }
 
-interface ExternalUploadResponse {
+interface UploadedUrlResponse {
   fileName: string;
   filePath: string;
   contentType: string;
@@ -14,8 +15,14 @@ interface ExternalUploadResponse {
   url: string;
 }
 
-interface ExternalUploadsResponse {
-  uploads: ExternalUploadResponse[];
+function getFileNameFromUrl(url: string) {
+  try {
+    const parsed = new URL(url);
+    const fromPath = parsed.pathname.split("/").pop();
+    return sanitizeFileName(fromPath || "remote-file");
+  } catch {
+    return "remote-file";
+  }
 }
 
 export async function POST(request: NextRequest) {
@@ -37,38 +44,39 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Call external upload service
-    const externalResponse = await fetch(
-      "https://upload-file-j43uyuaeza-uc.a.run.app/url",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
+    const uploads: UploadedUrlResponse[] = await Promise.all(
+      urls.map(async (url) => {
+        const remoteResponse = await fetch(url);
+
+        if (!remoteResponse.ok) {
+          throw new Error(
+            `Failed to fetch remote asset: ${url} (${remoteResponse.status})`
+          );
+        }
+
+        const contentType =
+          remoteResponse.headers.get("content-type") ||
+          "application/octet-stream";
+        const fileName = getFileNameFromUrl(url);
+        const body = Buffer.from(await remoteResponse.arrayBuffer());
+
+        const uploaded = await uploadBufferToStorage({
           userId,
-          urls
-        })
-      }
+          fileName,
+          contentType,
+          body
+        });
+
+        return {
+          ...uploaded,
+          originalUrl: url
+        };
+      })
     );
-
-    if (!externalResponse.ok) {
-      const errorData = await externalResponse.json();
-      return NextResponse.json(
-        {
-          error: "External upload service failed",
-          details: errorData
-        },
-        { status: externalResponse.status }
-      );
-    }
-
-    const externalData: ExternalUploadsResponse = await externalResponse.json();
-    const { uploads = [] } = externalData;
 
     return NextResponse.json({
       success: true,
-      uploads: uploads
+      uploads
     });
   } catch (error) {
     console.error("Error in upload URL route:", error);
