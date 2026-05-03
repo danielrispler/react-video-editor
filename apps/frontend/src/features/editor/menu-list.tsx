@@ -34,12 +34,6 @@ const MENU_ITEMS = [
     icon: Icons.transition, // Custom SVG for transitions
     label: "Transitions",
     ariaLabel: "Add transition effects"
-  },
-  {
-    id: "sfx",
-    icon: Icons.sfx,
-    label: "SFX",
-    ariaLabel: "Generate SFX from text"
   }
 ] as const;
 

@@ -139,12 +139,6 @@ export default function Navbar({
           >
             <Keyboard className="size-5" />
           </Button>
-          <a href="https://discord.gg/Jmxsd5f2jp" target="_blank" rel="noreferrer">
-            <Button className="h-8 rounded-lg" variant={"outline"}>
-              <LogoIcons.discord className="w-6 h-6" />
-              <span className="hidden md:block">Join Us</span>
-            </Button>
-          </a>
           <ModeToggle />
 
           {/* <Button

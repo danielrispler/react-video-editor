@@ -7,8 +7,7 @@ export type IMenuItem =
   | "audios"
   | "transitions"
   | "texts"
-  | "elements"
-  | "sfx";
+  | "elements";
 export interface ILayoutState {
   cropTarget: ITrackItem | null;
   trackItem: ITrackItem | null;

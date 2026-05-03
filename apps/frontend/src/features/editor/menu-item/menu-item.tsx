@@ -4,7 +4,6 @@ import { Texts } from "./texts";
 import { Audios } from "./audios";
 import { Elements } from "./elements";
 import { Uploads } from "./uploads";
-import { SFX } from "./sfx";
 
 const ActiveMenuItem = () => {
   const { activeMenuItem } = useLayoutStore();
@@ -27,10 +26,6 @@ const ActiveMenuItem = () => {
   }
   if (activeMenuItem === "uploads") {
     return <Uploads />;
-  }
-
-  if (activeMenuItem === "sfx") {
-    return <SFX />;
   }
 
   return null;

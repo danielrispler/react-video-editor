@@ -12,7 +12,6 @@ Video Editor application using React and TypeScript.
 <p align="center">
     <a href="https://designcombo.dev/">Combo</a>
     ·  
-    <a href="https://discord.gg/jrZs3wZyM5">Discord</a>
     ·  
     <a href="https://github.com/designcombo/react-video-editor">X</a>
 </p>
