@@ -28,7 +28,6 @@ import { ITrackItem } from "@designcombo/types";
 import useLayoutStore from "./store/use-layout-store";
 import ControlItemHorizontal from "./control-item-horizontal";
 import { design } from "./mock";
-import { Separator } from "@/components/ui/separator";
 
 const stateManager = new StateManager({
   size: {
@@ -69,9 +68,8 @@ const SceneContainer = ({
 const Sidebar = () => {
   return (
     <div className="bg-card w-full flex flex-none border-r border-border/80 h-[calc(100vh-52px)]">
-      <div className="flex flex-col w-full">
+      <div className="flex h-full w-full min-w-0">
         <MenuList />
-        <Separator orientation="horizontal" />
         <ControlItem />
       </div>
     </div>

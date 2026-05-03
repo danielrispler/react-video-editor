@@ -64,7 +64,7 @@ const MenuButton = memo<{
         <TooltipTrigger asChild>
           <IconComponent width={20} height={20} />
         </TooltipTrigger>
-        <TooltipContent side="bottom" align="center" sideOffset={8}>
+        <TooltipContent side="right" align="center" sideOffset={8}>
           {item.label}
         </TooltipContent>
       </Tooltip>
@@ -114,9 +114,9 @@ function MenuList() {
     const element = scrollRef.current;
     if (!element) return;
 
-    const { scrollLeft, scrollWidth, clientWidth } = element;
-    setShowLeftFade(scrollLeft > 0);
-    setShowRightFade(scrollLeft < scrollWidth - clientWidth - 1);
+    const { scrollTop, scrollHeight, clientHeight } = element;
+    setShowLeftFade(scrollTop > 0);
+    setShowRightFade(scrollTop < scrollHeight - clientHeight - 1);
   };
 
   useEffect(() => {
@@ -137,15 +137,15 @@ function MenuList() {
 
   return (
     <>
-      <div className="relative flex items-center py-2 px-2 bg-primary/7">
+      <div className="relative flex h-full w-16 flex-none flex-col items-center gap-2 border-r border-border/80 bg-primary/7 px-2 py-3">
         {showLeftFade && (
-          <div className="absolute left-0 top-0 bottom-0 w-8 bg-linear-to-r from-card to-transparent z-10 pointer-events-none" />
+          <div className="pointer-events-none absolute left-0 right-0 top-0 z-10 h-8 bg-linear-to-b from-card to-transparent" />
         )}
         <div
           ref={scrollRef}
-          className="overflow-x-auto scrollbar-hidden! w-full"
+          className="scrollbar-hidden! h-full w-full overflow-y-auto overflow-x-hidden"
         >
-          <div className="flex items-center gap-2 w-fit mx-auto px-4">
+          <div className="flex w-full flex-col items-center gap-2 py-1">
             {MENU_ITEMS.map((item) => {
               const isActive =
                 (drawerOpen && activeMenuItem === item.id) ||
@@ -163,7 +163,7 @@ function MenuList() {
         </div>
 
         {showRightFade && (
-          <div className="absolute right-0 top-0 bottom-0 w-8 bg-linear-to-l from-card to-transparent z-10 pointer-events-none" />
+          <div className="pointer-events-none absolute bottom-0 left-0 right-0 z-10 h-8 bg-linear-to-t from-card to-transparent" />
         )}
       </div>
 
