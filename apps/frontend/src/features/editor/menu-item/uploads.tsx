@@ -16,6 +16,48 @@ import useUploadStore from "../store/use-upload-store";
 import ModalUpload from "@/components/modal-upload";
 import { getUploadAssetUrl } from "../utils/upload-media";
 
+const getUploadLabel = (upload: any, fallback: string) =>
+  upload.fileName || upload.file?.name || upload.url || fallback;
+
+const UploadPreview = ({
+  upload,
+  kind
+}: {
+  upload: any;
+  kind: "image" | "video";
+}) => {
+  const src = getUploadAssetUrl(upload);
+
+  if (!src) {
+    return kind === "image" ? (
+      <ImageIcon className="w-8 h-8 text-muted-foreground" />
+    ) : (
+      <VideoIcon className="w-8 h-8 text-muted-foreground" />
+    );
+  }
+
+  if (kind === "image") {
+    return (
+      <img
+        src={src}
+        alt={getUploadLabel(upload, "Image")}
+        className="h-full w-full object-cover"
+        draggable={false}
+      />
+    );
+  }
+
+  return (
+    <video
+      src={src}
+      className="h-full w-full object-cover"
+      muted
+      playsInline
+      preload="metadata"
+    />
+  );
+};
+
 export const Uploads = () => {
   const { setShowUploadModal, uploads, pendingUploads, activeUploads } =
     useUploadStore();
@@ -172,10 +214,10 @@ export const Uploads = () => {
                       className="w-16 h-16 flex items-center justify-center overflow-hidden relative cursor-pointer"
                       onClick={() => handleAddVideo(video)}
                     >
-                      <VideoIcon className="w-8 h-8 text-muted-foreground" />
+                      <UploadPreview upload={video} kind="video" />
                     </Card>
                     <div className="text-xs text-muted-foreground truncate w-full text-center">
-                      {video.file?.name || video.url || "Video"}
+                      {getUploadLabel(video, "Video")}
                     </div>
                   </div>
                 ))}
@@ -202,10 +244,10 @@ export const Uploads = () => {
                       className="w-16 h-16 flex items-center justify-center overflow-hidden relative cursor-pointer"
                       onClick={() => handleAddImage(image)}
                     >
-                      <ImageIcon className="w-8 h-8 text-muted-foreground" />
+                      <UploadPreview upload={image} kind="image" />
                     </Card>
                     <div className="text-xs text-muted-foreground truncate w-full text-center">
-                      {image.file?.name || image.url || "Image"}
+                      {getUploadLabel(image, "Image")}
                     </div>
                   </div>
                 ))}

@@ -52,6 +52,7 @@ export async function processFileUpload(
       filePath: uploadInfo.filePath,
       fileSize: file.size,
       contentType: uploadInfo.contentType,
+      url: uploadInfo.url,
       metadata: { uploadedUrl: uploadInfo.url },
       folder: uploadInfo.folder || null,
       type: uploadInfo.contentType.split("/")[0],

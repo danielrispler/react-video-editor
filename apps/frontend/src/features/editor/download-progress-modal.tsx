@@ -6,14 +6,13 @@ import { DialogDescription, DialogTitle } from "@radix-ui/react-dialog";
 import { download } from "@/utils/download";
 
 const DownloadProgressModal = () => {
-  const { progress, displayProgressModal, output, actions } =
+  const { progress, displayProgressModal, output, exporting, actions } =
     useDownloadState();
-  const isCompleted = progress === 100;
+  const isCompleted = Boolean(output?.url) && !exporting;
 
   const handleDownload = async () => {
     if (output?.url) {
       await download(output.url, "untitled.mp4");
-      console.log("downloading");
     }
   };
   return (

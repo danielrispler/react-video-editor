@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { processUpload, type UploadCallbacks } from "@/utils/upload-service";
-import { autoAddUploadedVideo } from "../utils/upload-media";
+import { autoAddUploadedMedia } from "../utils/upload-media";
 
 interface UploadFile {
   id: string;
@@ -146,16 +146,12 @@ const useUploadStore = create<IUploadStore>()(
                   // URL uploads return an array
                   setUploads((prev) => [...prev, ...uploadData]);
                   for (const item of uploadData) {
-                    if (item.type === "video") {
-                      autoAddUploadedVideo(item);
-                    }
+                    autoAddUploadedMedia(item);
                   }
                 } else {
                   // File uploads return a single object
                   setUploads((prev) => [...prev, uploadData]);
-                  if (uploadData.type === "video") {
-                    autoAddUploadedVideo(uploadData);
-                  }
+                  autoAddUploadedMedia(uploadData);
                 }
               }
             })

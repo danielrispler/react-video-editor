@@ -25,6 +25,14 @@ interface DownloadState {
   };
 }
 
+const IN_PROGRESS_EXPORT_STATUSES = new Set([
+  "PENDING",
+  "PROCESSING",
+  "PROGRESS",
+  "IN_PROGRESS",
+  "QUEUED"
+]);
+
 //const baseUrl = "https://api.combo.sh/v1";
 
 export const useDownloadState = create<DownloadState>((set, get) => ({
@@ -45,7 +53,12 @@ export const useDownloadState = create<DownloadState>((set, get) => ({
     startExport: async () => {
       try {
         // Set exporting to true at the start
-        set({ exporting: true, displayProgressModal: true });
+        set({
+          exporting: true,
+          displayProgressModal: true,
+          progress: 0,
+          output: undefined
+        });
 
         // Assume payload to be stored in the state for POST request
         const { payload } = get();
@@ -71,32 +84,70 @@ export const useDownloadState = create<DownloadState>((set, get) => ({
         if (!response.ok) throw new Error("Failed to submit export request.");
 
         const jobInfo = await response.json();
-        const jobId = jobInfo.render.id;
+        const jobId =
+          jobInfo?.render?.id || jobInfo?.renderId || jobInfo?.id || "";
+
+        if (!jobId) {
+          throw new Error("Export request succeeded without a render job id.");
+        }
 
         // Step 2 & 3: Polling for status updates
-        const checkStatus = async () => {
-          const statusResponse = await fetch(`/api/render/${jobId}`, {
-            headers: {
-              "Content-Type": "application/json"
+        const pollUntilComplete = async (): Promise<void> => {
+          const statusResponse = await fetch(
+            `/api/render?id=${encodeURIComponent(jobId)}&type=${get().exportType}`,
+            {
+              headers: {
+                "Content-Type": "application/json"
+              }
             }
-          });
+          );
 
-          if (!statusResponse.ok)
-            throw new Error("Failed to fetch export status.");
+          if (!statusResponse.ok) {
+            const errorText = await statusResponse.text();
+            throw new Error(
+              `Failed to fetch export status (${statusResponse.status}): ${errorText}`
+            );
+          }
 
           const statusInfo = await statusResponse.json();
-          const { status, progress, presigned_url: url } = statusInfo.render;
+          const render = statusInfo?.render ?? statusInfo;
+          const status = String(render?.status ?? "").toUpperCase();
+          const progressValue =
+            typeof render?.progress === "number"
+              ? render.progress
+              : typeof render?.percentage === "number"
+                ? render.percentage
+                : undefined;
+          const url =
+            render?.presigned_url || render?.url || render?.download_url || "";
 
-          set({ progress });
+          if (typeof progressValue === "number") {
+            set({ progress: progressValue });
+          }
 
           if (status === "COMPLETED") {
-            set({ exporting: false, output: { url, type: get().exportType } });
-          } else if (status === "PROCESSING" || status === "PENDING") {
-            setTimeout(checkStatus, 2500);
+            if (!url) {
+              throw new Error("Export completed without a download URL.");
+            }
+
+            set({
+              exporting: false,
+              progress: 100,
+              output: { url, type: get().exportType }
+            });
+            return;
           }
+
+          if (IN_PROGRESS_EXPORT_STATUSES.has(status)) {
+            await new Promise((resolve) => setTimeout(resolve, 2500));
+            await pollUntilComplete();
+            return;
+          }
+
+          throw new Error(`Export failed with status: ${status || "UNKNOWN"}`);
         };
 
-        checkStatus();
+        await pollUntilComplete();
       } catch (error) {
         console.error(error);
         set({ exporting: false });
