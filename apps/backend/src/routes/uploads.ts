@@ -3,7 +3,7 @@ import {
 	uploadBufferToStorage,
 	createPresignedUpload,
 	sanitizeFileName,
-} from "../lib/storage.js";
+} from "../lib/storage.ts";
 
 interface UploadUrlBody {
 	userId: string;

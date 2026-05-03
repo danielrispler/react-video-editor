@@ -2,11 +2,11 @@ import "dotenv/config";
 import Fastify from "fastify";
 import cors from "@fastify/cors";
 import multipart from "@fastify/multipart";
-import { uploadsRoutes } from "./routes/uploads.js";
-import { renderRoutes } from "./routes/render.js";
-import { pexelsRoutes } from "./routes/pexels.js";
-import { voicesRoutes } from "./routes/voices.js";
-import { transcribeRoutes } from "./routes/transcribe.js";
+import { uploadsRoutes } from "./routes/uploads.ts";
+import { renderRoutes } from "./routes/render.ts";
+import { pexelsRoutes } from "./routes/pexels.ts";
+import { voicesRoutes } from "./routes/voices.ts";
+import { transcribeRoutes } from "./routes/transcribe.ts";
 
 const app = Fastify({ logger: true });
 
