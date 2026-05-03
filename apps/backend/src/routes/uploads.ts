@@ -2,28 +2,12 @@ import type { FastifyPluginAsync } from "fastify";
 import {
 	uploadBufferToStorage,
 	createPresignedUpload,
-	sanitizeFileName,
 } from "../lib/storage.ts";
-
-interface UploadUrlBody {
-	userId: string;
-	urls: string[];
-}
 
 interface PresignBody {
 	userId: string;
 	fileNames: string[];
 	contentTypes?: string[];
-}
-
-function getFileNameFromUrl(url: string) {
-	try {
-		const parsed = new URL(url);
-		const fromPath = parsed.pathname.split("/").pop();
-		return sanitizeFileName(fromPath || "remote-file");
-	} catch {
-		return "remote-file";
-	}
 }
 
 export const uploadsRoutes: FastifyPluginAsync = async (app) => {
@@ -66,56 +50,6 @@ export const uploadsRoutes: FastifyPluginAsync = async (app) => {
 			return { success: true, upload: uploaded };
 		} catch (error) {
 			app.log.error({ err: error }, "Error in file upload route:");
-			return reply.status(500).send({
-				error: "Internal server error",
-				details: error instanceof Error ? error.message : String(error),
-			});
-		}
-	});
-
-	app.post<{ Body: UploadUrlBody }>("/url", async (request, reply) => {
-		try {
-			const { userId, urls } = request.body;
-
-			if (!userId) {
-				return reply.status(400).send({ error: "userId is required" });
-			}
-			if (!Array.isArray(urls) || urls.length === 0) {
-				return reply
-					.status(400)
-					.send({ error: "urls array is required and must not be empty" });
-			}
-
-			const uploads = await Promise.all(
-				urls.map(async (url) => {
-					const remoteResponse = await fetch(url);
-
-					if (!remoteResponse.ok) {
-						throw new Error(
-							`Failed to fetch remote asset: ${url} (${remoteResponse.status})`,
-						);
-					}
-
-					const ct =
-						remoteResponse.headers.get("content-type") ||
-						"application/octet-stream";
-					const name = getFileNameFromUrl(url);
-					const body = Buffer.from(await remoteResponse.arrayBuffer());
-
-					const uploaded = await uploadBufferToStorage({
-						userId,
-						fileName: name,
-						contentType: ct,
-						body,
-					});
-
-					return { ...uploaded, originalUrl: url };
-				}),
-			);
-
-			return { success: true, uploads };
-		} catch (error) {
-			app.log.error({ err: error }, "Error in upload URL route:");
 			return reply.status(500).send({
 				error: "Internal server error",
 				details: error instanceof Error ? error.message : String(error),

@@ -312,8 +312,6 @@ export const Icons = {
 
   upload: UploadIcon,
   video: VideoIcon,
-  voiceOver: AudioLinesIcon,
-
   radix: (props: LucideProps) => (
     <svg viewBox="0 0 25 25" fill="none" {...props}>
       <path

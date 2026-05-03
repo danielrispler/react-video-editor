@@ -4,9 +4,6 @@ import cors from "@fastify/cors";
 import multipart from "@fastify/multipart";
 import { uploadsRoutes } from "./routes/uploads.ts";
 import { renderRoutes } from "./routes/render.ts";
-import { pexelsRoutes } from "./routes/pexels.ts";
-import { voicesRoutes } from "./routes/voices.ts";
-import { transcribeRoutes } from "./routes/transcribe.ts";
 
 const app = Fastify({ logger: true });
 
@@ -15,9 +12,6 @@ await app.register(multipart, { limits: { fileSize: 500 * 1024 * 1024 } });
 
 await app.register(uploadsRoutes, { prefix: "/api/uploads" });
 await app.register(renderRoutes, { prefix: "/api/render" });
-await app.register(pexelsRoutes, { prefix: "/api" });
-await app.register(voicesRoutes, { prefix: "/api/voices" });
-await app.register(transcribeRoutes, { prefix: "/api/transcribe" });
 
 app.get("/health", async () => ({ status: "ok" }));
 

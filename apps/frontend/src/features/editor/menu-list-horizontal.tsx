@@ -1,6 +1,5 @@
 import useLayoutStore from "./store/use-layout-store";
 import { Icons } from "@/components/shared/icons";
-import { cn } from "@/lib/utils";
 import {
   Drawer,
   DrawerContent,
@@ -27,21 +26,6 @@ const menuItems: MenuItemData[] = [
     id: "texts",
     label: "Text",
     icon: Icons.type
-  },
-  {
-    id: "videos",
-    label: "Video",
-    icon: Icons.video
-  },
-  {
-    id: "captions",
-    label: "Captions",
-    icon: Icons.captions
-  },
-  {
-    id: "images",
-    label: "Images",
-    icon: Icons.image
   },
   {
     id: "audios",

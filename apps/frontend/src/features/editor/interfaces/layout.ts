@@ -3,16 +3,11 @@ import { ITrackItem } from "@designcombo/types";
 export type IMenuItem =
   | "uploads"
   | "templates"
-  | "videos"
-  | "images"
   | "shapes"
   | "audios"
   | "transitions"
   | "texts"
-  | "captions"
-  | "voiceOver"
   | "elements"
-  | "ai-voice"
   | "sfx";
 export interface ILayoutState {
   cropTarget: ITrackItem | null;

@@ -1,15 +1,7 @@
 import { memo, useCallback, useEffect, useRef, useState } from "react";
 import useLayoutStore from "./store/use-layout-store";
 import { Icons } from "@/components/shared/icons";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import {
-  Drawer,
-  DrawerContent,
-  DrawerHeader,
-  DrawerTitle
-} from "@/components/ui/drawer";
-import { MenuItem } from "./menu-item/menu-item";
 import { useIsLargeScreen } from "@/hooks/use-media-query";
 import {
   Tooltip,
@@ -32,24 +24,6 @@ const MENU_ITEMS = [
     ariaLabel: "Add and edit text elements"
   },
   {
-    id: "videos",
-    icon: Icons.video,
-    label: "Videos",
-    ariaLabel: "Add and manage video content"
-  },
-  {
-    id: "captions",
-    icon: Icons.captions,
-    label: "Captions",
-    ariaLabel: "Add and edit captions"
-  },
-  {
-    id: "images",
-    icon: Icons.image,
-    label: "Images",
-    ariaLabel: "Add and manage images"
-  },
-  {
     id: "audios",
     icon: Icons.audio,
     label: "Audio",
@@ -60,12 +34,6 @@ const MENU_ITEMS = [
     icon: Icons.transition, // Custom SVG for transitions
     label: "Transitions",
     ariaLabel: "Add transition effects"
-  },
-  {
-    id: "ai-voice",
-    icon: Icons.volume,
-    label: "AI Voice",
-    ariaLabel: "Generate AI voice from text"
   },
   {
     id: "sfx",

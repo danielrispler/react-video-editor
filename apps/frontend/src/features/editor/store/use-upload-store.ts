@@ -6,7 +6,6 @@ import { autoAddUploadedMedia } from "../utils/upload-media";
 interface UploadFile {
   id: string;
   file?: File;
-  url?: string;
   type?: string;
   status?: "pending" | "uploading" | "uploaded" | "failed";
   progress?: number;
@@ -16,14 +15,6 @@ interface UploadFile {
 interface IUploadStore {
   showUploadModal: boolean;
   setShowUploadModal: (showUploadModal: boolean) => void;
-  uploadProgress: Record<string, number>;
-  setUploadProgress: (uploadProgress: Record<string, number>) => void;
-  uploadsVideos: any[];
-  setUploadsVideos: (uploadsVideos: any[]) => void;
-  uploadsAudios: any[];
-  setUploadsAudios: (uploadsAudios: any[]) => void;
-  uploadsImages: any[];
-  setUploadsImages: (uploadsImages: any[]) => void;
   files: UploadFile[];
   setFiles: (
     files: UploadFile[] | ((prev: UploadFile[]) => UploadFile[])
@@ -31,7 +22,6 @@ interface IUploadStore {
 
   pendingUploads: UploadFile[];
   addPendingUploads: (uploads: UploadFile[]) => void;
-  clearPendingUploads: () => void;
   activeUploads: UploadFile[];
   processUploads: () => void;
   updateUploadProgress: (id: string, progress: number) => void;
@@ -52,19 +42,6 @@ const useUploadStore = create<IUploadStore>()(
       setShowUploadModal: (showUploadModal: boolean) =>
         set({ showUploadModal }),
 
-      uploadProgress: {},
-      setUploadProgress: (uploadProgress: Record<string, number>) =>
-        set({ uploadProgress }),
-
-      uploadsVideos: [],
-      setUploadsVideos: (uploadsVideos: any[]) => set({ uploadsVideos }),
-
-      uploadsAudios: [],
-      setUploadsAudios: (uploadsAudios: any[]) => set({ uploadsAudios }),
-
-      uploadsImages: [],
-      setUploadsImages: (uploadsImages: any[]) => set({ uploadsImages }),
-
       files: [],
       setFiles: (
         files: UploadFile[] | ((prev: UploadFile[]) => UploadFile[])
@@ -82,7 +59,6 @@ const useUploadStore = create<IUploadStore>()(
           pendingUploads: [...state.pendingUploads, ...uploads]
         }));
       },
-      clearPendingUploads: () => set({ pendingUploads: [] }),
 
       activeUploads: [],
       processUploads: () => {
@@ -133,26 +109,12 @@ const useUploadStore = create<IUploadStore>()(
         for (const upload of currentActiveUploads.filter(
           (upload) => upload.status === "uploading"
         )) {
-          console.log("upload", upload);
-          processUpload(
-            upload.id,
-            { file: upload.file, url: upload.url },
-            callbacks
-          )
+          processUpload(upload.id, { file: upload.file }, callbacks)
             .then((uploadData) => {
               // Add the complete upload data to the uploads array
               if (uploadData) {
-                if (Array.isArray(uploadData)) {
-                  // URL uploads return an array
-                  setUploads((prev) => [...prev, ...uploadData]);
-                  for (const item of uploadData) {
-                    autoAddUploadedMedia(item);
-                  }
-                } else {
-                  // File uploads return a single object
-                  setUploads((prev) => [...prev, uploadData]);
-                  autoAddUploadedMedia(uploadData);
-                }
+                setUploads((prev) => [...prev, uploadData]);
+                autoAddUploadedMedia(uploadData);
               }
             })
             .catch((error) => {

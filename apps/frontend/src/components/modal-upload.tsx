@@ -1,4 +1,4 @@
-import React, { use, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -12,8 +12,6 @@ import { ScrollArea } from "./ui/scroll-area";
 import { motion, AnimatePresence } from "framer-motion";
 import clsx from "clsx";
 import useUploadStore from "@/features/editor/store/use-upload-store";
-import axios from "axios";
-import { Input } from "./ui/input";
 type ModalUploadProps = {
   type?: string;
 };
@@ -48,9 +46,7 @@ const ModalUpload: React.FC<ModalUploadProps> = ({ type = "all" }) => {
   const [videoThumbnails, setVideoThumbnails] = useState<{
     [name: string]: string;
   }>({});
-  const [videoUrl, setVideoUrl] = useState("");
   const [isDragOver, setIsDragOver] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const triggerFileInput = () => {
@@ -120,48 +116,11 @@ const ModalUpload: React.FC<ModalUploadProps> = ({ type = "all" }) => {
     }
   };
 
-  const handleRemoveFile = (id: string, file: File) => {
+  const handleRemoveFile = (id: string) => {
     setFiles(files.filter((f) => f.id !== id));
   };
-  function getTypeFromContentType(contentType: string): string {
-    if (contentType.startsWith("video/")) return "video";
-    if (contentType.startsWith("image/")) return "image";
-    if (contentType.startsWith("audio/")) return "audio";
-    if (contentType === "application/pdf") return "document";
-    return "other";
-  }
 
-  async function createUpload(uploadData: {
-    fileName: string;
-    filePath: string;
-    fileSize: number;
-    contentType: string;
-    metadata?: any;
-    folder?: string;
-    type: string;
-    method: string;
-    origin: string;
-    status: string;
-    isPreview?: boolean;
-  }) {
-    const response = await fetch("/api/uploads", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(uploadData)
-    });
-
-    const result = await response.json();
-
-    if (!response.ok) {
-      throw new Error(result.error || "Failed to create upload");
-    }
-
-    return result.upload;
-  }
   const handleUpload = async () => {
-    // Prepare UploadFile objects for files
     const fileUploads = files
       .filter((f) => f.file?.type)
       .map((f) => ({
@@ -172,28 +131,12 @@ const ModalUpload: React.FC<ModalUploadProps> = ({ type = "all" }) => {
         progress: 0
       }));
 
-    // Prepare UploadFile object for URL if present
-    const urlUploads = videoUrl.trim()
-      ? [
-          {
-            id: crypto.randomUUID(),
-            url: videoUrl.trim(),
-            type: "url",
-            status: "pending" as const,
-            progress: 0
-          }
-        ]
-      : [];
-
-    // Add to pending uploads
-    addPendingUploads([...fileUploads, ...urlUploads]);
+    addPendingUploads(fileUploads);
 
     setTimeout(() => {
       processUploads();
-      // Clear modal state and close
       setFiles([]);
       setShowUploadModal(false);
-      setVideoUrl("");
     }, 0);
   };
   const getAcceptType = () => {
@@ -210,7 +153,7 @@ const ModalUpload: React.FC<ModalUploadProps> = ({ type = "all" }) => {
   };
   useEffect(() => {
     setFiles([]);
-  }, [showUploadModal]);
+  }, [setFiles, showUploadModal]);
 
   return (
     <div>
@@ -315,10 +258,7 @@ const ModalUpload: React.FC<ModalUploadProps> = ({ type = "all" }) => {
                             </div>
                             <Button
                               variant={"outline"}
-                              onClick={() =>
-                                file.file &&
-                                handleRemoveFile(file.id, file.file)
-                              }
+                              onClick={() => handleRemoveFile(file.id)}
                               size={"icon"}
                               className="cursor-pointer"
                             >
@@ -332,13 +272,6 @@ const ModalUpload: React.FC<ModalUploadProps> = ({ type = "all" }) => {
                 </ScrollArea>
               </div>
             )}
-
-            <Input
-              type="text"
-              placeholder="Paste media link https://..."
-              value={videoUrl}
-              onChange={(e) => setVideoUrl(e.target.value)}
-            />
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowUploadModal(false)}>
@@ -346,7 +279,7 @@ const ModalUpload: React.FC<ModalUploadProps> = ({ type = "all" }) => {
             </Button>
             <Button
               onClick={handleUpload}
-              disabled={(files.length === 0 && !videoUrl) || isUploading}
+              disabled={files.length === 0}
             >
               Upload
             </Button>
