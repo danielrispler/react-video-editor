@@ -8,15 +8,11 @@
 	"files": {
 		"ignoreUnknown": true,
 		"ignore": [
-			".next",
-			"node_modules",
-			"out",
-			"build",
-			"dist",
-			"coverage",
-			".vercel",
-			"*.tsbuildinfo",
-			"next-env.d.ts"
+			"**/node_modules",
+			"**/dist",
+			"**/build",
+			"**/coverage",
+			"**/*.tsbuildinfo"
 		]
 	},
 	"formatter": {
