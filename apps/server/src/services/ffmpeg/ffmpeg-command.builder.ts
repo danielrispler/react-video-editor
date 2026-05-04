@@ -1,4 +1,5 @@
-import ffmpeg, { FfmpegCommand } from 'fluent-ffmpeg';
+import ffmpeg from 'fluent-ffmpeg';
+import type { FfmpegCommand } from 'fluent-ffmpeg';
 import type { RenderRequest, VideoSource } from '../../edit-video/edit-video.types.ts';
 import { FFMPEG_COMMAND } from '../../ffmpeg/ffmpeg.consts.ts';
 import { buildOverlayFilters } from '../overlays/overlay.service.ts';

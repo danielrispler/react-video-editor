@@ -54,6 +54,7 @@ export const downloadFile = (url: string, outputPath: string, timeoutMs: number 
                 fs.unlink(outputPath, () => { });
                 reject(err);
             });
+            return;
         }).on('error', err => {
             cleanup();
             file.close();

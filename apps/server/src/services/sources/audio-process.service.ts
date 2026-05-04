@@ -8,12 +8,10 @@ import type { StorageProvider } from '../storage/storage.types.ts';
 export const getActiveAudioSources = (audioSources: RenderRequest['audioSources']): AudioSource[] => {
     if (!audioSources || audioSources.length === 0) {
         return [];
-    } 
+    }
 
-    // @ts-expect-error
     const hasSolo = audioSources.some(audio => audio.solo);
-    
-    // @ts-expect-error
+
     return audioSources.filter(audio => {
         if (audio.muted) return false;
         return hasSolo ? audio.solo : true;
