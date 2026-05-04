@@ -1,18 +1,20 @@
 import ffmpeg, { FfmpegCommand } from 'fluent-ffmpeg';
-import { RenderRequest, VideoSource } from '../../edit-video/edit-video.types';
-import { FFMPEG_COMMAND } from '../../ffmpeg/ffmpeg.consts';
-import { buildOverlayFilters } from '../overlays/overlay.service';
-import { buildAudioFilters } from '../sources/audio-process.service';
-import { isMpdUrl } from '../sources/dash-process.service';
-import { EnvConfig } from '../../config/env';
+import type { RenderRequest, VideoSource } from '../../edit-video/edit-video.types.ts';
+import { FFMPEG_COMMAND } from '../../ffmpeg/ffmpeg.consts.ts';
+import { buildOverlayFilters } from '../overlays/overlay.service.ts';
+import { buildAudioFilters } from '../sources/audio-process.service.ts';
+import { isMpdUrl } from '../sources/dash-process.service.ts';
+import type { EnvConfig } from '../../config/env.ts';
 
 export class FfmpegCommandBuilder {
     private command: FfmpegCommand;
     private filterParts: string[] = [];
     private inputsCount = 0;
+    private readonly config: EnvConfig;
 
-    constructor(private readonly config: EnvConfig) {
+    constructor(config: EnvConfig) {
         this.command = ffmpeg();
+        this.config = config;
     }
 
     public addVideoSegments(concatFile: string): this {

@@ -1,9 +1,9 @@
-import fs from 'fs';
-import { promises as fsp } from 'fs';
-import https from 'https';
-import http from 'http';
-import os from 'os';
-import path from 'path';
+import fs from 'node:fs';
+import { promises as fsp } from 'node:fs';
+import https from 'node:https';
+import http from 'node:http';
+import os from 'node:os';
+import path from 'node:path';
 
 export async function createTempDir(prefix: string = 'render-'): Promise<string> {
     const tempDir = path.join(os.tmpdir(), `${prefix}${Date.now()}`);

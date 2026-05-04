@@ -1,9 +1,9 @@
-import type { Overlay } from '../../edit-video/edit-video.types';
-import { OverlayType } from '../../types/types';
-import { buildTextOverlayFilter } from './text-overlay.service';
-import { buildImageOverlayFilter, prepareImageOverlays } from './image-overlay.service';
-import { buildCircleOverlayFilter } from './circle-overlay.service';
-import { buildRectangleOverlayFilter } from './rectangle-overlay.service';
+import type { Overlay } from '../../edit-video/edit-video.types.ts';
+import { OverlayType } from '../../types/types.ts';
+import { buildTextOverlayFilter } from './text-overlay.service.ts';
+import { buildImageOverlayFilter, prepareImageOverlays } from './image-overlay.service.ts';
+import { buildCircleOverlayFilter } from './circle-overlay.service.ts';
+import { buildRectangleOverlayFilter } from './rectangle-overlay.service.ts';
 
 interface OverlayFilterResult {
     filterPart: string;

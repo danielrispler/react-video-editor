@@ -1,4 +1,4 @@
-import { prepareRTLText } from '../../utils/font.utils';
+import { prepareRTLText } from '../../utils/font.utils.ts';
 
 export const hexToRgb = (hex: string, opacity: number): string => {
     const cleanedHex = hex.replace(/^#/, '');

@@ -1,12 +1,14 @@
 import cors from '@fastify/cors';
+import multipart from '@fastify/multipart';
 import redis from '@fastify/redis';
 import ffmpeg from 'fluent-ffmpeg';
-import { envPlugin } from './config/env';
-import { editVideoRouter } from './edit-video/edit-video.routes';
-import { createFastifyInstance, TypedFastify } from './fastify/fastify';
-import { getFfmpegPath } from './ffmpeg/ffmpeg.utils';
-import { storagePlugin } from './plugins/storage.plugin';
-import { uploadRouter } from './upload/upload.routes';
+import { envPlugin } from './config/env.ts';
+import { editVideoRouter } from './edit-video/edit-video.routes.ts';
+import { createFastifyInstance, type TypedFastify } from './fastify/fastify.ts';
+import { getFfmpegPath } from './ffmpeg/ffmpeg.utils.ts';
+import { storagePlugin } from './plugins/storage.plugin.ts';
+import { renderRouter } from './render/render.routes.ts';
+import { uploadRouter } from './upload/upload.routes.ts';
 
 export class Server {
     private app: TypedFastify;
@@ -20,6 +22,7 @@ export class Server {
         await this.app.register(envPlugin);
         await this.app.register(storagePlugin);
         await this.app.register(cors, { origin: true });
+        await this.app.register(multipart, { limits: { fileSize: 500 * 1024 * 1024 } });
         await this.app.register(redis, {
             host: this.app.config.REDIS_HOST,
             port: this.app.config.REDIS_PORT,
@@ -27,6 +30,7 @@ export class Server {
         });
         await this.app.register(editVideoRouter, { prefix: '/api' });
         await this.app.register(uploadRouter, { prefix: '/api' });
+        await this.app.register(renderRouter, { prefix: '/api' });
 
         try {
             await this.app.listen({

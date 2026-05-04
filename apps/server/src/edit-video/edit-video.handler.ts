@@ -1,15 +1,15 @@
-import { FastifyInstance } from "fastify";
-import { Request } from '../fastify/fastify';
-import { prepareCircleOverlays } from "../services/overlays/circle-overlay.service";
-import { prepareImageOverlays } from "../services/overlays/image-overlay.service";
-import { prepareAudioSources } from "../services/sources/audio-process.service";
-import { processSources } from "../services/sources/process-sources.service";
-import { extractSegments, finalRenderToS3 } from "../services/video-processor.service";
-import { OverlayType, RenderResponse } from '../types/types';
-import { createTempDir } from "../utils/file.utils";
-import { calculateTotalDurationSegments } from "../utils/segment.utils";
-import { calculateKeepSegments } from "../utils/video.utils";
-import { RenderRequest } from "./edit-video.types";
+import type { FastifyInstance } from "fastify";
+import type { Request } from '../fastify/fastify.ts';
+import { prepareCircleOverlays } from "../services/overlays/circle-overlay.service.ts";
+import { prepareImageOverlays } from "../services/overlays/image-overlay.service.ts";
+import { prepareAudioSources } from "../services/sources/audio-process.service.ts";
+import { processSources } from "../services/sources/process-sources.service.ts";
+import { extractSegments, finalRenderToS3 } from "../services/video-processor.service.ts";
+import { OverlayType, type RenderResponse } from '../types/types.ts';
+import { createTempDir } from "../utils/file.utils.ts";
+import { calculateTotalDurationSegments } from "../utils/segment.utils.ts";
+import { calculateKeepSegments } from "../utils/video.utils.ts";
+import type { RenderRequest } from "./edit-video.types.ts";
 
 interface JobProgress {
     progress: number;

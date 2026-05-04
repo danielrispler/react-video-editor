@@ -1,6 +1,6 @@
 import ffmpegInstaller from '@ffmpeg-installer/ffmpeg';
 import ffmpeg from 'fluent-ffmpeg';
-import { VideoMetadata } from '../types/types';
+import type { VideoMetadata } from '../types/types.ts';
 
 export const getFfmpegPath = (): string => ffmpegInstaller.path;
 

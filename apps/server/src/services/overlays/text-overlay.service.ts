@@ -1,6 +1,6 @@
-import type { TextOverlay } from '../../edit-video/edit-video.types';
-import { getFontFileParameter } from '../../utils/font.utils';
-import { buildEnableExpression, buildPositionExpression, escapeTextForFFmpeg } from './overlay-utils';
+import type { TextOverlay } from '../../edit-video/edit-video.types.ts';
+import { getFontFileParameter } from '../../utils/font.utils.ts';
+import { buildEnableExpression, buildPositionExpression, escapeTextForFFmpeg } from './overlay-utils.ts';
 
 export const buildTextOverlayFilter = (overlay: TextOverlay, currentStream: string, outputLabel: string): string => {
     const fontSize = overlay.fontSize ?? 24;

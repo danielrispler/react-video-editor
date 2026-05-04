@@ -1,5 +1,5 @@
-import type { RectangleOverlay } from '../../edit-video/edit-video.types';
-import { buildEnableExpression, hexToRgb } from './overlay-utils';
+import type { RectangleOverlay } from '../../edit-video/edit-video.types.ts';
+import { buildEnableExpression, hexToRgb } from './overlay-utils.ts';
 
 const DEFAULT_SIZE = 200;
 

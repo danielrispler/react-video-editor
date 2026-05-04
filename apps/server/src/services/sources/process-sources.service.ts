@@ -1,13 +1,13 @@
 import ffmpeg from 'fluent-ffmpeg';
-import { existsSync } from 'fs';
-import { promises as fsp } from 'fs';
-import path from 'path';
-import { isMpdUrl, processMpdSource } from "./dash-process.service";
-import { processImageSource } from "./image-process.service";
-import { StorageProvider } from '../storage/storage.types';
-import { FFMPEG_COMMAND } from '../../ffmpeg/ffmpeg.consts';
-import type { EnvConfig } from '../../config/env';
-import { VideoSource } from '../../edit-video/edit-video.types';
+import { existsSync } from 'node:fs';
+import { promises as fsp } from 'node:fs';
+import path from 'node:path';
+import { isMpdUrl, processMpdSource } from "./dash-process.service.ts";
+import { processImageSource } from "./image-process.service.ts";
+import type { StorageProvider } from '../storage/storage.types.ts';
+import { FFMPEG_COMMAND } from '../../ffmpeg/ffmpeg.consts.ts';
+import type { EnvConfig } from '../../config/env.ts';
+import type { VideoSource } from '../../edit-video/edit-video.types.ts';
 
 export const processSources = async (sources: VideoSource[], tempDir: string, storage: StorageProvider, config: EnvConfig): Promise<string> => {
     if (sources.length === 1) {
@@ -35,6 +35,27 @@ export const processSingleSource = async (source: VideoSource, sourcePath: strin
         return sourcePath;
     } else {
         await storage.downloadToFile(source.url, sourcePath);
+
+        if (source.trimFrom !== undefined || source.trimTo !== undefined) {
+            const trimmedPath = path.join(tempDir, `trimmed-${Date.now()}.mp4`);
+            const seekInput = source.trimFrom ?? 0;
+            await new Promise<void>((resolve, reject) => {
+                const cmd = ffmpeg()
+                    .addOption(FFMPEG_COMMAND.HIDE_BANNER)
+                    .input(sourcePath)
+                    .seekInput(seekInput);
+
+                if (source.trimTo !== undefined) {
+                    cmd.duration(source.trimTo - seekInput);
+                }
+
+                cmd.outputOptions([FFMPEG_COMMAND.OVERWRITE_OUTPUT, ...FFMPEG_COMMAND.COPY])
+                    .save(trimmedPath)
+                    .on('end', () => resolve())
+                    .on('error', (err: Error) => reject(err));
+            });
+            await fsp.rename(trimmedPath, sourcePath);
+        }
 
         return sourcePath;
     }

@@ -1,14 +1,14 @@
 import ffmpeg from 'fluent-ffmpeg';
-import { existsSync, promises as fsp } from 'fs';
-import path from 'path';
-import { PassThrough } from 'stream';
-import type { EnvConfig } from '../config/env';
-import { RenderRequest, VideoSource } from '../edit-video/edit-video.types';
-import { FFMPEG_COMMAND } from '../ffmpeg/ffmpeg.consts';
-import { getFfmpegPath, hasAudioStream, runFfmpeg } from '../ffmpeg/ffmpeg.utils';
-import { TimeRange } from '../types/types';
-import { FfmpegCommandBuilder } from './ffmpeg/ffmpeg-command.builder';
-import { StorageProvider } from './storage/storage.types';
+import { existsSync, promises as fsp } from 'node:fs';
+import path from 'node:path';
+import { PassThrough } from 'node:stream';
+import type { EnvConfig } from '../config/env.ts';
+import type { RenderRequest, VideoSource } from '../edit-video/edit-video.types.ts';
+import { FFMPEG_COMMAND } from '../ffmpeg/ffmpeg.consts.ts';
+import { getFfmpegPath, hasAudioStream, runFfmpeg } from '../ffmpeg/ffmpeg.utils.ts';
+import type { TimeRange } from '../types/types.ts';
+import { FfmpegCommandBuilder } from './ffmpeg/ffmpeg-command.builder.ts';
+import type { StorageProvider } from './storage/storage.types.ts';
 
 const FFMPEG_PREFLIGHT_CONCAT = process.env.FFMPEG_PREFLIGHT_CONCAT !== '0';
 

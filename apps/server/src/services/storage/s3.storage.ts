@@ -1,10 +1,10 @@
 import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand, HeadObjectCommand, HeadBucketCommand, CreateBucketCommand } from '@aws-sdk/client-s3';
 import { Upload } from '@aws-sdk/lib-storage';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import fs from 'fs';
+import fs from 'node:fs';
 import { Readable } from 'stream';
 import { pipeline } from 'stream/promises';
-import { StorageProvider } from './storage.types';
+import type { StorageProvider } from './storage.types.ts';
 
 export interface S3StorageConfig {
     bucket: string;
@@ -19,7 +19,7 @@ export class S3Storage implements StorageProvider {
     protected client: S3Client;
     private readonly bucket: string;
 
-    constructor(private readonly s3Config: S3StorageConfig) {
+    constructor(s3Config: S3StorageConfig) {
         this.bucket = s3Config.bucket;
         this.client = new S3Client({
             region: s3Config.region,

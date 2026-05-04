@@ -1,7 +1,7 @@
 import fp from 'fastify-plugin';
-import { FastifyPluginAsync } from 'fastify';
-import { StorageProvider } from '../services/storage/storage.types';
-import { S3Storage } from '../services/storage/s3.storage';
+import type { FastifyPluginAsync } from 'fastify';
+import type { StorageProvider } from '../services/storage/storage.types.ts';
+import { S3Storage } from '../services/storage/s3.storage.ts';
 
 declare module 'fastify' {
     interface FastifyInstance {

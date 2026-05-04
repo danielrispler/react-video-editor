@@ -1,5 +1,5 @@
-import fs from 'fs';
-import os from 'os';
+import fs from 'node:fs';
+import os from 'node:os';
 
 const FONT_CANDIDATES: Record<string, string[]> = {
     darwin: [

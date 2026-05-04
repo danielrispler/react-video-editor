@@ -1,5 +1,14 @@
-import { Static } from "@sinclair/typebox";
-import { textOverlaySchema, imageOverlaySchema, rectangleOverlaySchema, circleOverlaySchema, overlaySchema, sourceSchema, audioSourceSchema, editVideoRequestSchema } from "./edit-video.schema";
+import type { Static } from "@sinclair/typebox";
+import { 
+    textOverlaySchema, 
+    imageOverlaySchema, 
+    rectangleOverlaySchema, 
+    circleOverlaySchema, 
+    overlaySchema, 
+    sourceSchema, 
+    audioSourceSchema, 
+    editVideoRequestSchema 
+} from "./edit-video.schema.ts";
 
 export type TextOverlay = Static<typeof textOverlaySchema>;
 export type ImageOverlay = Static<typeof imageOverlaySchema>;

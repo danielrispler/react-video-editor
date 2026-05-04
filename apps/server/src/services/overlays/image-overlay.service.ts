@@ -1,10 +1,10 @@
-import { access } from 'fs/promises';
-import path from 'path';
-import { OverlayType } from '../../types/types';
-import { ImageOverlay, Overlay } from '../../edit-video/edit-video.types';
-import { convertWebpToPng, getImageExtension } from '../sources/image-process.service';
-import { downloadFile } from '../../utils/file.utils';
-import { buildEnableExpression, buildPositionExpression } from './overlay-utils';
+import { access } from 'node:fs/promises';
+import path from 'node:path';
+import { OverlayType } from '../../types/types.ts';
+import type { ImageOverlay, Overlay } from '../../edit-video/edit-video.types.ts';
+import { convertWebpToPng, getImageExtension } from '../sources/image-process.service.ts';
+import { downloadFile } from '../../utils/file.utils.ts';
+import { buildEnableExpression, buildPositionExpression } from './overlay-utils.ts';
 
 export const prepareImageOverlays = async (overlays: Overlay[], tempDir: string): Promise<{ imageOverlayPaths: string[]; hasOverlays: boolean }> => {
     const hasOverlays = overlays && overlays.length > 0;

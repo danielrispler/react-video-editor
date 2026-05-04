@@ -1,15 +1,16 @@
-import type { FastifyReply } from 'fastify';
-import path from 'path';
-import { v4 as uuidv4 } from 'uuid';
-import { ALLOWED_MIMES } from './upload.consts';
-import { Request } from '../fastify/fastify';
-import { GetSignedUrlRequest, CleanupRequest } from './upload.schema';
-import { StorageProvider } from '../services/storage/storage.types';
+import type { FastifyReply, FastifyRequest } from 'fastify';
+import path from 'node:path';
+import { ALLOWED_MIMES } from './upload.consts.ts';
+import type { Request } from '../fastify/fastify.ts';
+import type { GetSignedUrlRequest, CleanupRequest } from './upload.schema.ts';
+import type { StorageProvider } from '../services/storage/storage.types.ts';
 import { StatusCodes } from 'http-status-codes';
+import { randomUUID } from 'node:crypto';
 
 export interface UploadHandler {
     getSignedUrl: (request: Request<GetSignedUrlRequest>, reply: FastifyReply) => Promise<FastifyReply>;
     cleanup: (request: Request<CleanupRequest>, reply: FastifyReply) => Promise<FastifyReply>;
+    uploadFile: (request: FastifyRequest, reply: FastifyReply) => Promise<FastifyReply>;
 }
 
 export const UploadHandler = (storage: StorageProvider, uploadPrefix: string): UploadHandler => {
@@ -30,7 +31,7 @@ export const UploadHandler = (storage: StorageProvider, uploadPrefix: string): U
                 });
             }
 
-            const generatedFilename = `${uuidv4()}${ext}`;
+            const generatedFilename = `${randomUUID()}${ext}`;
             const s3Key = `${uploadPrefix}/${generatedFilename}`;
 
             try {
@@ -77,6 +78,52 @@ export const UploadHandler = (storage: StorageProvider, uploadPrefix: string): U
                 deletedFiles,
                 errors: errors.length > 0 ? errors : undefined
             });
+        },
+        uploadFile: async (
+            request: FastifyRequest,
+            reply: FastifyReply
+        ) => {
+            try {
+                const parts = request.parts();
+                let fileName: string | undefined;
+                let contentType: string | undefined;
+                let uploadedKey: string | undefined;
+
+                for await (const part of parts) {
+                    if (part.type === 'file' && part.fieldname === 'file') {
+                        fileName = part.filename;
+                        contentType = part.mimetype;
+
+                        const ext = path.extname(fileName).toLowerCase();
+                        const generatedName = `${randomUUID()}${ext}`;
+                        uploadedKey = `${uploadPrefix}/${generatedName}`;
+
+                        await storage.uploadStream(part.file, uploadedKey, contentType);
+                    } else if (part.type === 'field') {
+                        void part.value;
+                    }
+                }
+
+                if (!uploadedKey || !fileName || !contentType) {
+                    return reply.status(400).send({ error: 'file field is required' });
+                }
+
+                const url = await storage.getPresignedUrl(uploadedKey);
+
+                return reply.status(200).send({
+                    success: true,
+                    upload: {
+                        fileName,
+                        filePath: uploadedKey,
+                        contentType,
+                        url,
+                        folder: null,
+                    },
+                });
+            } catch (err) {
+                console.error('[uploadFile] Error:', err);
+                return reply.status(500).send({ error: err instanceof Error ? err.message : 'Unknown error' });
+            }
         }
     };
 };

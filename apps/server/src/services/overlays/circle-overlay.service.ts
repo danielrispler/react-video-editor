@@ -1,9 +1,9 @@
-import path from 'path';
+import path from 'node:path';
 import sharp from 'sharp';
-import { OverlayType } from '../../types/types';
-import { buildCircleSvg } from '../../icons/circle';
-import { buildEnableExpression, buildPositionExpression } from './overlay-utils';
-import { CircleOverlay, Overlay } from '../../edit-video/edit-video.types';
+import { OverlayType } from '../../types/types.ts';
+import { buildCircleSvg } from '../../icons/circle.ts';
+import { buildEnableExpression, buildPositionExpression } from './overlay-utils.ts';
+import type { CircleOverlay, Overlay } from '../../edit-video/edit-video.types.ts';
 
 const DEFAULT_SIZE = 200;
 

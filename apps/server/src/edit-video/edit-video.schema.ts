@@ -1,5 +1,5 @@
 import { Type } from '@sinclair/typebox';
-import { OverlayType } from "../types/types";
+import { OverlayType } from "../types/types.ts";
 
 export const textOverlaySchema = Type.Object({
     id: Type.String({ format: 'uuid' }),
@@ -68,7 +68,9 @@ export const overlaySchema = Type.Union([
 export const sourceSchema = Type.Object({
     url: Type.String({ format: 'uri' }),
     type: Type.Union([Type.Literal('video'), Type.Literal('image')]),
-    duration: Type.Number({ minimum: 0.1, default: 5 })
+    duration: Type.Number({ minimum: 0.1, default: 5 }),
+    trimFrom: Type.Optional(Type.Number({ minimum: 0 })),
+    trimTo: Type.Optional(Type.Number({ exclusiveMinimum: 0 })),
 });
 
 export const audioSourceSchema = Type.Object({

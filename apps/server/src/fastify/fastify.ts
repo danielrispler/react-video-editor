@@ -1,6 +1,14 @@
-import { TypeBoxTypeProvider, TypeBoxValidatorCompiler } from "@fastify/type-provider-typebox";
-import Fastify, { FastifyBaseLogger, FastifyInstance, FastifyRequest, RawReplyDefaultExpression, RawRequestDefaultExpression, RawServerDefault, RouteGenericInterface } from "fastify";
-import { StatusCodes } from "http-status-codes";
+import { type TypeBoxTypeProvider, TypeBoxValidatorCompiler } from "@fastify/type-provider-typebox";
+import Fastify, {
+    type FastifyBaseLogger,
+    type FastifyInstance,
+    type FastifyRequest,
+    type RawReplyDefaultExpression,
+    type RawRequestDefaultExpression,
+    type RawServerDefault,
+    type RouteGenericInterface
+} from 'fastify';
+import { StatusCodes } from 'http-status-codes';
 
 export type registerRouter = (fastify: TypedFastify) => void | Promise<void>;
 

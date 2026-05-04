@@ -1,9 +1,9 @@
-import { promises as fsp } from 'fs';
-import { runFfmpeg } from "../../ffmpeg/ffmpeg.utils";
-import { validateMpdRestrictions } from "../../utils/video.utils";
-import { FFMPEG_COMMAND } from '../../ffmpeg/ffmpeg.consts';
-import type { EnvConfig } from '../../config/env';
-import { VideoSource } from '../../edit-video/edit-video.types';
+import { promises as fsp } from 'node:fs';
+import { runFfmpeg } from "../../ffmpeg/ffmpeg.utils.ts";
+import { validateMpdRestrictions } from "../../utils/video.utils.ts";
+import { FFMPEG_COMMAND } from '../../ffmpeg/ffmpeg.consts.ts';
+import type { EnvConfig } from '../../config/env.ts';
+import type { VideoSource } from '../../edit-video/edit-video.types.ts';
 
 export const isMpdUrl = (url: string): boolean => url.toLowerCase().endsWith('.mpd');
 

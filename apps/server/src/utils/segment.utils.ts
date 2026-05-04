@@ -1,4 +1,4 @@
-import { TimeRange } from '../types/types';
+import type { TimeRange } from '../types/types.ts';
 
 export const isValidSegment = (segment: TimeRange): boolean => segment.end > segment.start;
 

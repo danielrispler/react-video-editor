@@ -1,9 +1,9 @@
-import path from "path";
+import path from "node:path";
 import sharp from 'sharp';
-import { VideoSource } from "../../edit-video/edit-video.types";
-import { FFMPEG_COMMAND } from "../../ffmpeg/ffmpeg.consts";
-import { runFfmpeg } from "../../ffmpeg/ffmpeg.utils";
-import { StorageProvider } from "../storage/storage.types";
+import type { VideoSource } from "../../edit-video/edit-video.types.ts";
+import { FFMPEG_COMMAND } from "../../ffmpeg/ffmpeg.consts.ts";
+import { runFfmpeg } from "../../ffmpeg/ffmpeg.utils.ts";
+import type { StorageProvider } from "../storage/storage.types.ts";
 
 export const getImageExtension = (url: string): string => {
     const clean = url.split('?')[0] || url;

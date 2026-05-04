@@ -1,5 +1,5 @@
 import fastifyEnv from '@fastify/env';
-import { Static, Type } from '@sinclair/typebox';
+import { type Static, Type } from '@sinclair/typebox';
 import fp from 'fastify-plugin';
 
 export const envSchema = Type.Object({

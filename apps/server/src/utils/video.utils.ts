@@ -1,8 +1,8 @@
-import { probeMpdMetadata } from '../ffmpeg/ffmpeg.utils';
-import { TimeRange } from '../types/types';
-import { RenderRequest } from '../edit-video/edit-video.types';
-import { isValidSegment } from './segment.utils';
-import { ONE_HOUR_IN_SECONDS } from './time.utils';
+import { probeMpdMetadata } from '../ffmpeg/ffmpeg.utils.ts';
+import type { TimeRange } from '../types/types.ts';
+import type { RenderRequest } from '../edit-video/edit-video.types.ts';
+import { isValidSegment } from './segment.utils.ts';
+import { ONE_HOUR_IN_SECONDS } from './time.utils.ts';
 
 const MAX_MPD_VIDEO_WIDTH = 1920;
 const MAX_MPD_VIDEO_HEIGHT = 1080;
