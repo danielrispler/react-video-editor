@@ -15,9 +15,27 @@ import { Button } from "@/components/ui/button";
 import useUploadStore from "../store/use-upload-store";
 import ModalUpload from "@/components/modal-upload";
 import { getUploadAssetUrl } from "../utils/upload-media";
+import React from "react";
+
+const MAX_UPLOAD_LABEL_LENGTH = 16;
+
+const formatUploadLabel = (value: string, fallback: string) => {
+  const normalized = value
+    .replace(/\.[^/.]+$/, "")
+    .replace(/[_-]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  const displayName = normalized || fallback;
+  if (displayName.length <= MAX_UPLOAD_LABEL_LENGTH) {
+    return displayName;
+  }
+
+  return `${displayName.slice(0, MAX_UPLOAD_LABEL_LENGTH).trimEnd()}...`;
+};
 
 const getUploadLabel = (upload: any, fallback: string) =>
-  upload.fileName || upload.file?.name || fallback;
+  formatUploadLabel(upload.fileName || upload.file?.name || "", fallback);
 
 const UploadPreview = ({
   upload,
@@ -27,12 +45,21 @@ const UploadPreview = ({
   kind: "image" | "video";
 }) => {
   const src = getUploadAssetUrl(upload);
+  const [isVideoReady, setIsVideoReady] = React.useState(false);
+
+  React.useEffect(() => {
+    setIsVideoReady(false);
+  }, [src]);
 
   if (!src) {
-    return kind === "image" ? (
-      <ImageIcon className="w-8 h-8 text-muted-foreground" />
-    ) : (
-      <VideoIcon className="w-8 h-8 text-muted-foreground" />
+    return (
+      <div className="flex h-full w-full items-center justify-center bg-muted/30">
+        {kind === "image" ? (
+          <ImageIcon className="h-8 w-8 text-muted-foreground" />
+        ) : (
+          <VideoIcon className="h-8 w-8 text-muted-foreground" />
+        )}
+      </div>
     );
   }
 
@@ -48,13 +75,25 @@ const UploadPreview = ({
   }
 
   return (
-    <video
-      src={src}
-      className="h-full w-full object-cover"
-      muted
-      playsInline
-      preload="metadata"
-    />
+    <div className="relative h-full w-full bg-muted/30">
+      {!isVideoReady && (
+        <div className="absolute inset-0 flex items-center justify-center">
+          <VideoIcon className="h-8 w-8 text-muted-foreground" />
+        </div>
+      )}
+      <video
+        src={src}
+        className={`h-full w-full object-cover transition-opacity ${
+          isVideoReady ? "opacity-100" : "opacity-0"
+        }`}
+        muted
+        playsInline
+        preload="metadata"
+        onLoadedData={() => setIsVideoReady(true)}
+        onCanPlay={() => setIsVideoReady(true)}
+        onError={() => setIsVideoReady(false)}
+      />
+    </div>
   );
 };
 
@@ -172,7 +211,7 @@ export const Uploads = () => {
             {pendingUploads.map((upload) => (
               <div key={upload.id} className="flex items-center gap-2">
                 <span className="truncate text-xs flex-1">
-                  {upload.file?.name || "Unknown"}
+                  {getUploadLabel(upload, "Unknown")}
                 </span>
                 <span className="text-xs text-muted-foreground">Pending</span>
               </div>
@@ -180,7 +219,7 @@ export const Uploads = () => {
             {activeUploads.map((upload) => (
               <div key={upload.id} className="flex items-center gap-2">
                 <span className="truncate text-xs flex-1">
-                  {upload.file?.name || "Unknown"}
+                  {getUploadLabel(upload, "Unknown")}
                 </span>
                 <div className="flex items-center gap-1">
                   <Loader2 className="w-3 h-3 animate-spin text-muted-foreground" />
@@ -203,11 +242,11 @@ export const Uploads = () => {
               <VideoIcon className="w-4 h-4 text-muted-foreground" />
               <span className="font-medium text-sm">Videos</span>
             </div>
-            <ScrollArea className="max-h-32">
+            <ScrollArea className="h-52">
               <div className="grid grid-cols-3 gap-2 max-w-full">
                 {videos.map((video, idx) => (
                   <div
-                    className="flex items-center gap-2 flex-col w-full"
+                    className="flex w-full flex-col items-center gap-2"
                     key={video.id || idx}
                   >
                     <Card
@@ -216,7 +255,10 @@ export const Uploads = () => {
                     >
                       <UploadPreview upload={video} kind="video" />
                     </Card>
-                    <div className="text-xs text-muted-foreground truncate w-full text-center">
+                    <div
+                      className="w-full truncate text-center text-xs text-muted-foreground"
+                      title={getUploadLabel(video, "Video")}
+                    >
                       {getUploadLabel(video, "Video")}
                     </div>
                   </div>
@@ -233,11 +275,11 @@ export const Uploads = () => {
               <ImageIcon className="w-4 h-4 text-muted-foreground" />
               <span className="font-medium text-sm">Images</span>
             </div>
-            <ScrollArea className="max-h-32">
+            <ScrollArea className="h-52">
               <div className="grid grid-cols-3 gap-2 max-w-full">
                 {images.map((image, idx) => (
                   <div
-                    className="flex items-center gap-2 flex-col w-full"
+                    className="flex w-full flex-col items-center gap-2"
                     key={image.id || idx}
                   >
                     <Card
@@ -246,7 +288,10 @@ export const Uploads = () => {
                     >
                       <UploadPreview upload={image} kind="image" />
                     </Card>
-                    <div className="text-xs text-muted-foreground truncate w-full text-center">
+                    <div
+                      className="w-full truncate text-center text-xs text-muted-foreground"
+                      title={getUploadLabel(image, "Image")}
+                    >
                       {getUploadLabel(image, "Image")}
                     </div>
                   </div>
@@ -263,11 +308,11 @@ export const Uploads = () => {
               <Music className="w-4 h-4 text-muted-foreground" />
               <span className="font-medium text-sm">Audios</span>
             </div>
-            <ScrollArea className="max-h-32">
+            <ScrollArea className="h-52">
               <div className="grid grid-cols-3 gap-2 max-w-full">
                 {audios.map((audio, idx) => (
                   <div
-                    className="flex items-center gap-2 flex-col w-full"
+                    className="flex w-full flex-col items-center gap-2"
                     key={audio.id || idx}
                   >
                     <Card
@@ -276,8 +321,11 @@ export const Uploads = () => {
                     >
                       <Music className="w-8 h-8 text-muted-foreground" />
                     </Card>
-                    <div className="text-xs text-muted-foreground truncate w-full text-center">
-                      {audio.file?.name || "Audio"}
+                    <div
+                      className="w-full truncate text-center text-xs text-muted-foreground"
+                      title={getUploadLabel(audio, "Audio")}
+                    >
+                      {getUploadLabel(audio, "Audio")}
                     </div>
                   </div>
                 ))}
