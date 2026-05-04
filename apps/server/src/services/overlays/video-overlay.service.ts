@@ -82,7 +82,13 @@ const buildRoundedCornerAlpha = (overlay: VideoOverlay): string | null => {
 };
 
 const buildVideoProcessingChain = (overlay: VideoOverlay): string[] => {
-	const stages: string[] = ["setpts=PTS-STARTPTS"];
+	const displayDuration = Math.max(0.01, overlay.end - overlay.start);
+	const stages: string[] = [
+		`trim=duration=${formatNumber(displayDuration)}`,
+		`setpts=PTS-STARTPTS`,
+		` tpad=stop_mode=clone:stop_duration=${formatNumber(displayDuration)}`.trim(),
+		`trim=duration=${formatNumber(displayDuration)}`,
+	];
 
 	if (overlay.width !== undefined || overlay.height !== undefined) {
 		stages.push(
@@ -186,7 +192,16 @@ export const prepareVideoOverlay = async (
 		}
 
 		return ffmpegCommand
-			.outputOptions([FFMPEG_COMMAND.OVERWRITE_OUTPUT, ...FFMPEG_COMMAND.COPY])
+			.videoCodec(FFMPEG_COMMAND.H264_VIDEO_CODEC)
+			.addOption("-preset", config.FFMPEG_PRESET)
+			.addOption("-crf", config.FFMPEG_CRF)
+			.addOption("-pix_fmt", "yuv420p")
+			.noAudio()
+			.outputOptions([
+				FFMPEG_COMMAND.OVERWRITE_OUTPUT,
+				...FFMPEG_COMMAND.AVOID_NEGATIVE_TIMESTAMPS,
+				...FFMPEG_COMMAND.CONSTANT_FRAME_RATE,
+			])
 			.output(preparedPath);
 	});
 
