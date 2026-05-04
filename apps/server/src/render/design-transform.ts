@@ -192,13 +192,13 @@ function getSortedTrackItems(
 		.sort((a, b) => a.display.from - b.display.from);
 }
 
-function getVisualTimelineEnd(
+function getTimelineEnd(
 	tracks: ITrack[],
 	trackItemsMap: Record<string, ITrackItemBase>,
 	designDuration?: number,
 ): number {
 	const itemEnd = tracks
-		.filter((track) => track.type !== "audio" && track.type !== "helper")
+		.filter((track) => track.type !== "helper")
 		.flatMap((track) => track.items)
 		.map((itemId) => trackItemsMap[itemId]?.display.to ?? 0)
 		.reduce((max, current) => Math.max(max, current), 0);
@@ -260,7 +260,7 @@ export function transformDesignToRenderRequest(
 	const mainTrackIndex = mainTrack
 		? tracks.findIndex((track) => track.id === mainTrack.id)
 		: -1;
-	const visualTimelineEnd = getVisualTimelineEnd(
+	const timelineEnd = getTimelineEnd(
 		tracks,
 		trackItemsMap,
 		designDuration,
@@ -279,7 +279,7 @@ export function transformDesignToRenderRequest(
 
 	if (shouldCompositeVideoRows) {
 		const baseDuration =
-			visualTimelineEnd || (designDuration ? designDuration / 1000 : 5);
+			timelineEnd || (designDuration ? designDuration / 1000 : 5);
 		sources.push({
 			url: `internal://blank?w=${size.width}&h=${size.height}&fps=${design.fps}`,
 			type: "video",
@@ -323,7 +323,7 @@ export function transformDesignToRenderRequest(
 	}
 
 	const trimEnd =
-		visualTimelineEnd ||
+		timelineEnd ||
 		timelinePosition ||
 		(designDuration ? designDuration / 1000 : 5);
 
