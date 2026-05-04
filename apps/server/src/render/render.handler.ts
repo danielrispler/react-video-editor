@@ -25,7 +25,12 @@ interface RenderJobState {
 
 interface StartRenderBody {
 	design: IDesign;
-	options?: { fps?: number; format?: string; size?: unknown };
+	options?: {
+		fps?: number;
+		format?: string;
+		size?: unknown;
+		frameTimeMs?: number;
+	};
 }
 
 interface StatusQuery {
@@ -46,6 +51,17 @@ interface RenderHandlerType {
 
 const JOB_KEY = (jobId: string): string => `render:job:${jobId}`;
 const JOB_TTL = 3600;
+
+export const getRequestedFormat = (
+	format?: string,
+): RenderRequest["format"] => (format === "webp" ? "webp" : "mp4");
+
+export const getRequestedFrameTimeMs = (
+	frameTimeMs?: number,
+): number | undefined =>
+	typeof frameTimeMs === "number" && Number.isFinite(frameTimeMs)
+		? frameTimeMs
+		: undefined;
 
 export const RenderHandler = (fastify: FastifyInstance): RenderHandlerType => {
 	const saveJobState = async (
@@ -121,6 +137,7 @@ export const RenderHandler = (fastify: FastifyInstance): RenderHandlerType => {
 				audioPaths,
 				hasAudio,
 				request.audioMixMode || "mix",
+				request.frameTimeMs,
 				s3Key,
 				storage,
 				config,
@@ -158,11 +175,13 @@ export const RenderHandler = (fastify: FastifyInstance): RenderHandlerType => {
 			}
 
 			const jobId = randomUUID();
-			const format = (body.options?.format === "mp4" ? "mp4" : "mp4") as "mp4";
+			const format = getRequestedFormat(body.options?.format);
+			const frameTimeMs = getRequestedFrameTimeMs(body.options?.frameTimeMs);
 
 			const renderRequest: RenderRequest = {
 				...transformDesignToRenderRequest(body.design, format),
 				jobId,
+				frameTimeMs,
 			};
 
 			await saveJobState(jobId, { status: "PROCESSING", progress: 0 });

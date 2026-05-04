@@ -123,6 +123,7 @@ export const EditVideoHandler = (): EditVideoHandlerType => {
 					audioPaths,
 					hasAudio,
 					request.audioMixMode || "mix",
+					request.frameTimeMs,
 					s3Key,
 					storage,
 					config,

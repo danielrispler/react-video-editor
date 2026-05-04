@@ -8,3 +8,10 @@ export const download = (url: string, filename: string) => {
 	link.click();
 	link.parentNode?.removeChild(link);
 };
+
+export type ExportDownloadType = "json" | "mp4" | "webp";
+
+export const getExportFilename = (
+	type: ExportDownloadType,
+	baseName = "untitled",
+) => `${baseName}.${type}`;

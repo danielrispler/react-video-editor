@@ -1,7 +1,9 @@
-import { existsSync, promises as fsp } from "node:fs";
+import fs, { existsSync, promises as fsp } from "node:fs";
 import path from "node:path";
 import { PassThrough } from "node:stream";
 import ffmpeg from "fluent-ffmpeg";
+import type { FfmpegCommand } from "fluent-ffmpeg";
+import sharp from "sharp";
 import type { EnvConfig } from "../config/env.ts";
 import type {
 	RenderRequest,
@@ -115,6 +117,162 @@ const shouldTranscode = (
 	);
 };
 
+export const getOutputContentType = (
+	format: RenderRequest["format"],
+): string => (format === "webp" ? "image/webp" : "video/mp4");
+
+export const clampFrameTimeMs = (
+	frameTimeMs: number | undefined,
+	totalDurationSeconds: number,
+): number => {
+	const totalDurationMs = Math.max(0, Math.round(totalDurationSeconds * 1000));
+	const maxFrameTimeMs = Math.max(0, totalDurationMs - 1);
+
+	if (typeof frameTimeMs !== "number" || !Number.isFinite(frameTimeMs)) {
+		return 0;
+	}
+
+	return Math.min(maxFrameTimeMs, Math.max(0, Math.round(frameTimeMs)));
+};
+
+const attachProgressListener = (
+	command: FfmpegCommand,
+	totalDuration: number,
+	onProgress?: (percent: number) => void,
+) => {
+	if (!onProgress) {
+		return command;
+	}
+
+	return command.on("progress", (progress) => {
+		if (progress.percent && progress.percent > 0) {
+			onProgress(Math.min(99, Math.max(0, Math.round(progress.percent))));
+			return;
+		}
+
+		if (!progress.timemark || totalDuration <= 0) {
+			return;
+		}
+
+		const timeParts = progress.timemark.split(":");
+		if (timeParts.length !== 3) return;
+
+		const [hoursText, minsText, secsText] = timeParts;
+		if (
+			hoursText === undefined ||
+			minsText === undefined ||
+			secsText === undefined
+		) {
+			return;
+		}
+
+		const hours = Number.parseFloat(hoursText);
+		const mins = Number.parseFloat(minsText);
+		const secs = Number.parseFloat(secsText);
+		const currentSeconds = hours * 3600 + mins * 60 + secs;
+		const percent = (currentSeconds / totalDuration) * 100;
+		onProgress(Math.min(99, Math.max(0, Math.round(percent))));
+	});
+};
+
+const runCommandToStream = async (
+	command: FfmpegCommand,
+	totalDuration: number,
+	storage: StorageProvider,
+	s3Key: string,
+	contentType: string,
+	onProgress?: (percent: number) => void,
+): Promise<void> => {
+	const pass = new PassThrough();
+
+	const ffmpegPromise = new Promise<void>((resolve, reject) => {
+		let stderrBuffer = "";
+		const appendStderr = (line: string): void => {
+			stderrBuffer = `${stderrBuffer + line}\n`.slice(-32768);
+		};
+
+		attachProgressListener(command, totalDuration, onProgress)
+			.on("start", (commandLine: string) => {
+				console.log("[ffmpeg]", commandLine);
+			})
+			.on("stderr", appendStderr)
+			.on("error", (err) => {
+				const enriched = new Error(
+					stderrBuffer.trim().length > 0
+						? `${err.message}\n\nFFmpeg stderr (tail):\n${stderrBuffer}`
+						: err.message,
+				);
+				pass.destroy(enriched);
+				reject(enriched);
+			})
+			.on("end", () => {
+				pass.end();
+				resolve();
+			})
+			.pipe(pass, { end: false });
+	});
+
+	await Promise.all([
+		ffmpegPromise,
+		storage.uploadStream(pass, s3Key, contentType),
+	]);
+};
+
+const runCommandToFile = async (
+	command: FfmpegCommand,
+	outputPath: string,
+	totalDuration: number,
+	onProgress?: (percent: number) => void,
+): Promise<void> => {
+	await new Promise<void>((resolve, reject) => {
+		let stderrBuffer = "";
+		const appendStderr = (line: string): void => {
+			stderrBuffer = `${stderrBuffer + line}\n`.slice(-32768);
+		};
+
+		attachProgressListener(command, totalDuration, onProgress)
+			.on("start", (commandLine: string) => {
+				console.log("[ffmpeg]", commandLine);
+			})
+			.on("stderr", appendStderr)
+			.on("error", (err) => {
+				reject(
+					new Error(
+						stderrBuffer.trim().length > 0
+							? `${err.message}\n\nFFmpeg stderr (tail):\n${stderrBuffer}`
+							: err.message,
+					),
+				);
+			})
+			.on("end", () => resolve())
+			.output(outputPath)
+			.run();
+	});
+};
+
+const extractFrameToImage = async (
+	inputPath: string,
+	outputPath: string,
+	frameTimeMs: number,
+): Promise<void> => {
+	const seekTimeSeconds = frameTimeMs / 1000;
+
+	await runFfmpeg((command) =>
+		command
+			.input(inputPath)
+			.seekInput(seekTimeSeconds)
+			.outputOptions([
+				FFMPEG_COMMAND.HIDE_BANNER,
+				FFMPEG_COMMAND.OVERWRITE_OUTPUT,
+				"-frames:v",
+				"1",
+			])
+			.noAudio()
+			.format("image2")
+			.output(outputPath),
+	);
+};
+
 export const finalRenderToS3 = async (
 	segmentPaths: string[],
 	overlayInputs: PreparedOverlayInput[],
@@ -128,6 +286,7 @@ export const finalRenderToS3 = async (
 	audioPaths: { path: string; startTime: number; volume: number }[],
 	hasAudio: boolean,
 	audioMixMode: "mix" | "replace",
+	frameTimeMs: number | undefined,
 	s3Key: string,
 	storage: StorageProvider,
 	config: EnvConfig,
@@ -173,69 +332,44 @@ export const finalRenderToS3 = async (
 		audioStreams,
 		needsProcessing,
 		sources,
-		format,
+		format === "webp" ? "mp4" : format,
 		videoHasAudio,
 	);
 
-	const pass = new PassThrough();
-	const contentType = format === "mp4" ? "video/mp4" : `video/${format}`;
+	if (format === "webp") {
+		const renderedVideoPath = path.join(tempDir, `rendered-${Date.now()}.mp4`);
+		const renderedFramePath = path.join(tempDir, `rendered-${Date.now()}.png`);
+		const renderedWebpPath = path.join(tempDir, `rendered-${Date.now()}.webp`);
+		const safeFrameTimeMs = clampFrameTimeMs(frameTimeMs, totalDuration);
 
-	const ffmpegPromise = new Promise<void>((resolve, reject) => {
-		let stderrBuffer = "";
-		const appendStderr = (line: string): void => {
-			stderrBuffer = `${stderrBuffer + line}\n`.slice(-32768);
-		};
+		await runCommandToFile(
+			command,
+			renderedVideoPath,
+			totalDuration,
+			onProgress,
+		);
+		await extractFrameToImage(
+			renderedVideoPath,
+			renderedFramePath,
+			safeFrameTimeMs,
+		);
+		await sharp(renderedFramePath).webp().toFile(renderedWebpPath);
+		await storage.uploadStream(
+			fs.createReadStream(renderedWebpPath),
+			s3Key,
+			getOutputContentType("webp"),
+		);
+	} else {
+		await runCommandToStream(
+			command,
+			totalDuration,
+			storage,
+			s3Key,
+			getOutputContentType("mp4"),
+			onProgress,
+		);
+	}
 
-		command
-			.on("start", (commandLine: string) => {
-				console.log("[ffmpeg]", commandLine);
-			})
-			.on("progress", (progress) => {
-				if (onProgress) {
-					if (progress.percent && progress.percent > 0) {
-						onProgress(Math.min(99, Math.max(0, Math.round(progress.percent))));
-					} else if (progress.timemark && totalDuration > 0) {
-						const timeParts = progress.timemark.split(":");
-						if (timeParts.length === 3) {
-							const [hoursText, minsText, secsText] = timeParts;
-							if (
-								hoursText === undefined ||
-								minsText === undefined ||
-								secsText === undefined
-							) {
-								return;
-							}
-							const hours = Number.parseFloat(hoursText);
-							const mins = Number.parseFloat(minsText);
-							const secs = Number.parseFloat(secsText);
-							const currentSeconds = hours * 3600 + mins * 60 + secs;
-							const percent = (currentSeconds / totalDuration) * 100;
-							onProgress(Math.min(99, Math.max(0, Math.round(percent))));
-						}
-					}
-				}
-			})
-			.on("stderr", appendStderr)
-			.on("error", (err) => {
-				const enriched = new Error(
-					stderrBuffer.trim().length > 0
-						? `${err.message}\n\nFFmpeg stderr (tail):\n${stderrBuffer}`
-						: err.message,
-				);
-				pass.destroy(enriched);
-				reject(enriched);
-			})
-			.on("end", () => {
-				pass.end();
-				resolve();
-			})
-			.pipe(pass, { end: false });
-	});
-
-	await Promise.all([
-		ffmpegPromise,
-		storage.uploadStream(pass, s3Key, contentType),
-	]);
 	const url = await storage.getPresignedUrl(s3Key, expiresInSeconds);
 	return { s3Key, url };
 };

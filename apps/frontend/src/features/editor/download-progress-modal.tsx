@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { download } from "@/utils/download";
+import { download, getExportFilename } from "@/utils/download";
 import { DialogDescription, DialogTitle } from "@radix-ui/react-dialog";
 import { CircleCheckIcon } from "lucide-react";
 import { useDownloadState } from "./store/use-download-state";
@@ -9,10 +9,11 @@ const DownloadProgressModal = () => {
 	const { progress, displayProgressModal, output, exporting, actions } =
 		useDownloadState();
 	const isCompleted = Boolean(output?.url) && !exporting;
+	const exportLabel = output?.type === "webp" ? "image" : "video";
 
 	const handleDownload = async () => {
 		if (output?.url) {
-			await download(output.url, "untitled.mp4");
+			await download(output.url, getExportFilename(output.type));
 		}
 	};
 	return (
@@ -34,7 +35,7 @@ const DownloadProgressModal = () => {
 							</div>
 							<div className="font-bold">Exported</div>
 							<div className="text-muted-foreground">
-								You can download the video to your device.
+								You can download the {exportLabel} to your device.
 							</div>
 						</div>
 						<Button onClick={handleDownload}>Download</Button>

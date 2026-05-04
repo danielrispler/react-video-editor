@@ -144,7 +144,7 @@ function isSceneAdjustedVisual(
 
 export function transformDesignToRenderRequest(
 	design: IDesign,
-	format: "mp4" = "mp4",
+	format: "mp4" | "webp" = "mp4",
 ): Omit<RenderRequest, "jobId"> {
 	const { tracks, trackItemsMap, size, duration: designDuration } = design;
 

@@ -4,7 +4,7 @@ import type { FastifyReply, FastifyRequest } from "fastify";
 import { StatusCodes } from "http-status-codes";
 import type { Request } from "../fastify/fastify.ts";
 import type { StorageProvider } from "../services/storage/storage.types.ts";
-import { ALLOWED_MIMES } from "./upload.consts.ts";
+import { ALLOWED_EXTENSIONS, ALLOWED_MIMES } from "./upload.consts.ts";
 import type { CleanupRequest, GetSignedUrlRequest } from "./upload.schema.ts";
 
 export interface UploadHandler {
@@ -26,6 +26,13 @@ export const UploadHandler = (
 	storage: StorageProvider,
 	uploadPrefix: string,
 ): UploadHandler => {
+	const isAllowedUpload = (filename: string, mimetype?: string): boolean => {
+		const ext = path.extname(filename).toLowerCase();
+		const mimeAllowed = mimetype ? ALLOWED_MIMES.includes(mimetype) : false;
+		const extAllowed = ALLOWED_EXTENSIONS.includes(ext);
+		return mimeAllowed || extAllowed;
+	};
+
 	return {
 		getSignedUrl: async (
 			request: Request<GetSignedUrlRequest>,
@@ -38,11 +45,10 @@ export const UploadHandler = (
 			const { filename, mimetype } = request.body;
 
 			const ext = path.extname(filename).toLowerCase();
-			const isMpd = ext === ".mpd";
 
-			if (!ALLOWED_MIMES.includes(mimetype) && !isMpd) {
+			if (!isAllowedUpload(filename, mimetype)) {
 				return reply.status(StatusCodes.BAD_REQUEST).send({
-					error: `File type not allowed: ${mimetype}. Allowed types: ${ALLOWED_MIMES.join(", ")}`,
+					error: `File type not allowed: ${mimetype || ext}. Allowed types: ${ALLOWED_MIMES.join(", ")}`,
 				});
 			}
 
@@ -109,6 +115,12 @@ export const UploadHandler = (
 					if (part.type === "file" && part.fieldname === "file") {
 						fileName = part.filename;
 						contentType = part.mimetype;
+
+						if (!isAllowedUpload(fileName, contentType)) {
+							return reply.status(StatusCodes.BAD_REQUEST).send({
+								error: `File type not allowed: ${contentType || path.extname(fileName).toLowerCase()}. Allowed types: ${ALLOWED_MIMES.join(", ")}`,
+							});
+						}
 
 						const ext = path.extname(fileName).toLowerCase();
 						const generatedName = `${randomUUID()}${ext}`;

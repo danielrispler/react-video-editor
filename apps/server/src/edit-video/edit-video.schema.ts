@@ -134,6 +134,9 @@ export const editVideoRequestSchema = Type.Object({
 	audioMixMode: Type.Union([Type.Literal("mix"), Type.Literal("replace")], {
 		default: "mix",
 	}),
-	format: Type.Literal("mp4", { default: "mp4" }),
+	format: Type.Union([Type.Literal("mp4"), Type.Literal("webp")], {
+		default: "mp4",
+	}),
+	frameTimeMs: Type.Optional(Type.Number()),
 	jobId: Type.String(),
 });

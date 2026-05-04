@@ -268,4 +268,27 @@ describe("transformDesignToRenderRequest", () => {
 			["https://example.com/base.mp4"],
 		);
 	});
+
+	it("preserves webp as the requested export format", () => {
+		const design: IDesign = {
+			id: "design-webp",
+			fps: 30,
+			duration: 3000,
+			size: { width: 1920, height: 1080 },
+			tracks: [{ id: "track-base", type: "video", items: ["clip-base"] }],
+			trackItemIds: ["clip-base"],
+			trackItemsMap: {
+				"clip-base": createVideoItem(
+					"clip-base",
+					"https://example.com/base.mp4",
+					0,
+					3000,
+				),
+			},
+		};
+
+		const request = transformDesignToRenderRequest(design, "webp");
+
+		assert.equal(request.format, "webp");
+	});
 });

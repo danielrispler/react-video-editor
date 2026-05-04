@@ -1,14 +1,17 @@
 import { IDesign } from "@designcombo/types";
 import { create } from "zustand";
+import { download, getExportFilename } from "@/utils/download";
+import { getSafeCurrentFrame } from "../utils/time";
+import useStore from "./use-store";
 interface Output {
 	url: string;
-	type: string;
+	type: "json" | "mp4" | "webp";
 }
 
 interface DownloadState {
 	projectId: string;
 	exporting: boolean;
-	exportType: "json" | "mp4";
+	exportType: "json" | "mp4" | "webp";
 	progress: number;
 	output?: Output;
 	payload?: IDesign;
@@ -16,7 +19,7 @@ interface DownloadState {
 	actions: {
 		setProjectId: (projectId: string) => void;
 		setExporting: (exporting: boolean) => void;
-		setExportType: (exportType: "json" | "mp4") => void;
+		setExportType: (exportType: "json" | "mp4" | "webp") => void;
 		setProgress: (progress: number) => void;
 		setState: (state: Partial<DownloadState>) => void;
 		setOutput: (output: Output) => void;
@@ -52,7 +55,20 @@ export const useDownloadState = create<DownloadState>((set, get) => ({
 			set({ displayProgressModal }),
 		startExport: async () => {
 			try {
-				// Set exporting to true at the start
+				const { payload, exportType } = get();
+
+				if (!payload) throw new Error("Payload is not defined");
+
+				if (exportType === "json") {
+					const blob = new Blob([JSON.stringify(payload, null, 2)], {
+						type: "application/json",
+					});
+					const url = URL.createObjectURL(blob);
+					download(url, getExportFilename("json"));
+					setTimeout(() => URL.revokeObjectURL(url), 0);
+					return;
+				}
+
 				set({
 					exporting: true,
 					displayProgressModal: true,
@@ -60,12 +76,11 @@ export const useDownloadState = create<DownloadState>((set, get) => ({
 					output: undefined,
 				});
 
-				// Assume payload to be stored in the state for POST request
-				const { payload } = get();
+				const { playerRef, fps } = useStore.getState();
+				const currentFrame = getSafeCurrentFrame(playerRef);
+				const safeFps = fps > 0 ? fps : 30;
+				const frameTimeMs = Math.round((currentFrame / safeFps) * 1000);
 
-				if (!payload) throw new Error("Payload is not defined");
-
-				// Step 1: POST request to start rendering
 				const response = await fetch("/api/render", {
 					method: "POST",
 					headers: {
@@ -76,7 +91,8 @@ export const useDownloadState = create<DownloadState>((set, get) => ({
 						options: {
 							fps: 30,
 							size: payload.size,
-							format: "mp4",
+							format: exportType,
+							frameTimeMs,
 						},
 					}),
 				});
@@ -91,7 +107,6 @@ export const useDownloadState = create<DownloadState>((set, get) => ({
 					throw new Error("Export request succeeded without a render job id.");
 				}
 
-				// Step 2 & 3: Polling for status updates
 				const pollUntilComplete = async (): Promise<void> => {
 					const statusResponse = await fetch(
 						`/api/render?id=${encodeURIComponent(jobId)}&type=${get().exportType}`,
@@ -150,7 +165,7 @@ export const useDownloadState = create<DownloadState>((set, get) => ({
 				await pollUntilComplete();
 			} catch (error) {
 				console.error(error);
-				set({ exporting: false });
+				set({ exporting: false, displayProgressModal: false });
 			}
 		},
 	},
