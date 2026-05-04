@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { download } from "@/utils/download";
 import { DialogDescription, DialogTitle } from "@radix-ui/react-dialog";
-import { CircleCheckIcon, XIcon } from "lucide-react";
+import { CircleCheckIcon } from "lucide-react";
 import { useDownloadState } from "./store/use-download-state";
 
 const DownloadProgressModal = () => {
@@ -23,10 +23,6 @@ const DownloadProgressModal = () => {
 			<DialogContent className="flex h-[627px] flex-col gap-0 bg-background p-0 sm:max-w-[844px]">
 				<DialogTitle className="hidden" />
 				<DialogDescription className="hidden" />
-				<XIcon
-					onClick={() => actions.setDisplayProgressModal(false)}
-					className="absolute right-4 top-5 h-5 w-5 text-zinc-400 hover:cursor-pointer hover:text-zinc-500"
-				/>
 				<div className="flex h-16 items-center border-b px-4 font-medium">
 					Download
 				</div>
