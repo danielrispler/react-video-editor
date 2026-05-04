@@ -145,6 +145,7 @@ export const RenderHandler = (fastify: FastifyInstance): RenderHandlerType => {
 				async (p: number) => {
 					await saveJobState(jobId, { status: "PROCESSING", progress: p });
 				},
+				request.cropRegion,
 			);
 
 			await saveJobState(jobId, {

@@ -292,6 +292,7 @@ export const finalRenderToS3 = async (
 	config: EnvConfig,
 	expiresInSeconds = 86400,
 	onProgress?: (percent: number) => void,
+	cropRegion?: { x: number; y: number; width: number; height: number },
 ): Promise<{ s3Key: string; url: string }> => {
 	const concatFile = await createConcatFile(segmentPaths, tempDir);
 
@@ -305,7 +306,7 @@ export const finalRenderToS3 = async (
 		keepSegments,
 		config.MIN_TRANSCODE_SEGMENT_SECONDS,
 	);
-	const needsProcessing = needsTranscode || hasAudio;
+	const needsProcessing = needsTranscode || hasAudio || cropRegion !== undefined;
 
 	ffmpeg.setFfmpegPath(getFfmpegPath());
 
@@ -334,6 +335,7 @@ export const finalRenderToS3 = async (
 		sources,
 		format === "webp" ? "mp4" : format,
 		videoHasAudio,
+		cropRegion,
 	);
 
 	if (format === "webp") {

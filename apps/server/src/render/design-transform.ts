@@ -150,6 +150,28 @@ function parseDegrees(val: unknown): number | undefined {
 	return match ? Number.parseFloat(match[1] ?? "0") : undefined;
 }
 
+function parseScale(transform?: unknown): { scaleX: number; scaleY: number } {
+	if (typeof transform !== "string" || transform === "none") return { scaleX: 1, scaleY: 1 };
+
+	const scaleMatch = /scale\(([^)]+)\)/.exec(transform);
+	if (!scaleMatch) return { scaleX: 1, scaleY: 1 };
+
+	const values =
+		scaleMatch[1]
+			?.split(",")
+			.map((value) => Number.parseFloat(value.trim()))
+			.filter((value) => Number.isFinite(value)) ?? [];
+
+	if (values.length === 0) return { scaleX: 1, scaleY: 1 };
+	if (values.length === 1)
+		return { scaleX: values[0] ?? 1, scaleY: values[0] ?? 1 };
+
+	return {
+		scaleX: values[0] ?? 1,
+		scaleY: values[1] ?? 1,
+	};
+}
+
 function parseRotation(details: Record<string, unknown>): number | undefined {
 	const explicitRotate = parseDegrees(details.rotate);
 	if (explicitRotate !== undefined) return explicitRotate;
@@ -314,6 +336,35 @@ export function transformDesignToRenderRequest(
 	}
 
 	const overlays: RenderRequest["overlays"] = [];
+	// Bounding box calculation to crop redundant black areas.
+	let minX = Number.POSITIVE_INFINITY;
+	let minY = Number.POSITIVE_INFINITY;
+	let maxX = Number.NEGATIVE_INFINITY;
+	let maxY = Number.NEGATIVE_INFINITY;
+
+	const updateBoundingBoxScaled = (
+		left: number,
+		top: number,
+		width: number,
+		height: number,
+		transform?: unknown,
+	) => {
+		if (width <= 0 || height <= 0) return;
+		const { scaleX, scaleY } = parseScale(transform);
+		const actualWidth = width * Math.abs(scaleX);
+		const actualHeight = height * Math.abs(scaleY);
+		
+		// The center remains the same: center_x = left + width/2
+		// new_left = center_x - actualWidth/2
+		const actualLeft = left + width / 2 - actualWidth / 2;
+		const actualTop = top + height / 2 - actualHeight / 2;
+
+		if (actualLeft < minX) minX = actualLeft;
+		if (actualTop < minY) minY = actualTop;
+		if (actualLeft + actualWidth > maxX) maxX = actualLeft + actualWidth;
+		if (actualTop + actualHeight > maxY) maxY = actualTop + actualHeight;
+	};
+
 	for (const [trackIndex, track] of tracks.entries()) {
 		if (track.type === "audio" || track.type === "helper") continue;
 
@@ -324,13 +375,26 @@ export function transformDesignToRenderRequest(
 			const start = item.display.from / 1000;
 			const end = item.display.to / 1000;
 			const isPrimaryTrack = trackIndex === mainTrackIndex;
+			
+			const left = parsePx(details.left);
+			const top = parsePx(details.top);
+			const width = parsePx(details.width);
+			const height = parsePx(details.height);
 
 			if (item.type === "text") {
-				const x = toPercent(details.left, size.width);
-				const y = toPercent(details.top, size.height);
-				const fontSize = details.fontSize as number | undefined;
+				updateBoundingBoxScaled(left, top, width, height, details.transform);
+				
+				const x = toPercent(left, size.width);
+				const y = toPercent(top, size.height);
+				const rawFontSize = parsePx(details.fontSize);
+				const fontSize = rawFontSize > 0 ? rawFontSize : undefined;
+				const rawElementWidth = width;
+				const elementWidth =
+					rawElementWidth > 0 ? rawElementWidth : undefined;
 				const fontColor = details.color as string | undefined;
-				const backgroundColor = details.backgroundColor as string | undefined;
+				const backgroundColor = details.backgroundColor as
+					| string
+					| undefined;
 				const opacity = toOpacity(details.opacity);
 				const { strokeWidth, strokeColor } = getReadableStroke(details);
 				overlays.push({
@@ -342,6 +406,9 @@ export function transformDesignToRenderRequest(
 					trackOrder: trackIndex,
 					x,
 					y,
+					canvasHeight: size.height,
+					canvasWidth: size.width,
+					...(elementWidth !== undefined && { elementWidth }),
 					...(fontSize !== undefined && { fontSize }),
 					...(fontColor !== undefined && { fontColor }),
 					...(backgroundColor !== undefined && { backgroundColor }),
@@ -352,92 +419,96 @@ export function transformDesignToRenderRequest(
 				continue;
 			}
 
-			if (
-				item.type === "image" &&
-				(!isPrimaryTrack || shouldCompositeVideoRows)
-			) {
-				const imageUrl = (details.src as string | undefined) ?? "";
-				if (!imageUrl) continue;
-				const x = toPercent(details.left, size.width);
-				const y = toPercent(details.top, size.height);
-				const width = parsePx(details.width) || undefined;
-				const height = parsePx(details.height) || undefined;
-				const opacity = toOpacity(details.opacity);
-				overlays.push({
-					id: item.id,
-					type: "image" as const,
-					imageUrl,
-					start,
-					end,
-					trackOrder: trackIndex,
-					x,
-					y,
-					...(width !== undefined && { width }),
-					...(height !== undefined && { height }),
-					...(opacity !== undefined && { opacity }),
-				});
+			if (item.type === "image") {
+				updateBoundingBoxScaled(left, top, width, height, details.transform);
+
+				if (!isPrimaryTrack || shouldCompositeVideoRows) {
+					const imageUrl = (details.src as string | undefined) ?? "";
+					if (!imageUrl) continue;
+					
+					const x = toPercent(left, size.width);
+					const y = toPercent(top, size.height);
+					const widthOpt = width || undefined;
+					const heightOpt = height || undefined;
+					const opacity = toOpacity(details.opacity);
+					overlays.push({
+						id: item.id,
+						type: "image" as const,
+						imageUrl,
+						start,
+						end,
+						trackOrder: trackIndex,
+						x,
+						y,
+						...(widthOpt !== undefined && { width: widthOpt }),
+						...(heightOpt !== undefined && { height: heightOpt }),
+						...(opacity !== undefined && { opacity }),
+					});
+				}
 				continue;
 			}
 
-			if (
-				item.type === "video" &&
-				(!isPrimaryTrack || shouldCompositeVideoRows)
-			) {
-				const sourceUrl = (details.src as string | undefined) ?? "";
-				if (!sourceUrl) continue;
-				const width = parsePx(details.width) || undefined;
-				const height = parsePx(details.height) || undefined;
-				const crop = details.crop;
-				const opacity = toOpacity(details.opacity);
-				const rotation = parseRotation(details);
-				overlays.push({
-					id: item.id,
-					type: "video" as const,
-					sourceUrl,
-					start,
-					end,
-					trackOrder: trackIndex,
-					left: parsePx(details.left),
-					top: parsePx(details.top),
-					...(width !== undefined && { width }),
-					...(height !== undefined && { height }),
-					...(item.trim !== undefined && {
-						trimFrom: item.trim.from / 1000,
-						trimTo: item.trim.to / 1000,
-					}),
-					...(opacity !== undefined && { opacity }),
-					...(typeof details.transform === "string" && {
-						transform: details.transform,
-					}),
-					...(crop !== undefined &&
-						typeof crop === "object" &&
-						crop !== null && {
-							crop: {
-								x: parsePx((crop as Record<string, unknown>).x),
-								y: parsePx((crop as Record<string, unknown>).y),
-								width: Math.max(
-									1,
-									parsePx((crop as Record<string, unknown>).width) ||
-										width ||
-										size.width,
-								),
-								height: Math.max(
-									1,
-									parsePx((crop as Record<string, unknown>).height) ||
-										height ||
-										size.height,
-								),
-							},
+			if (item.type === "video") {
+				updateBoundingBoxScaled(left, top, width, height, details.transform);
+				
+				if (!isPrimaryTrack || shouldCompositeVideoRows) {
+					const sourceUrl = (details.src as string | undefined) ?? "";
+					if (!sourceUrl) continue;
+
+					const widthOpt = width || undefined;
+					const heightOpt = height || undefined;
+					const crop = details.crop;
+					const opacity = toOpacity(details.opacity);
+					const rotation = parseRotation(details);
+					overlays.push({
+						id: item.id,
+						type: "video" as const,
+						sourceUrl,
+						start,
+						end,
+						trackOrder: trackIndex,
+						left: left,
+						top: top,
+						...(widthOpt !== undefined && { width: widthOpt }),
+						...(heightOpt !== undefined && { height: heightOpt }),
+						...(item.trim !== undefined && {
+							trimFrom: item.trim.from / 1000,
+							trimTo: item.trim.to / 1000,
 						}),
-					...(details.blur !== undefined && { blur: parsePx(details.blur) }),
-					...(details.brightness !== undefined && {
-						brightness: parsePx(details.brightness),
-					}),
-					...(details.borderRadius !== undefined && {
-						borderRadius: parsePx(details.borderRadius),
-					}),
-					...(rotation !== undefined && { rotation }),
-				});
+						...(opacity !== undefined && { opacity }),
+						...(typeof details.transform === "string" && {
+							transform: details.transform,
+						}),
+						...(crop !== undefined &&
+							typeof crop === "object" &&
+							crop !== null && {
+								crop: {
+									x: parsePx((crop as Record<string, unknown>).x),
+									y: parsePx((crop as Record<string, unknown>).y),
+									width: Math.max(
+										1,
+										parsePx((crop as Record<string, unknown>).width) ||
+											width ||
+											size.width,
+									),
+									height: Math.max(
+										1,
+										parsePx((crop as Record<string, unknown>).height) ||
+											height ||
+											size.height,
+									),
+								},
+							}),
+						...(details.blur !== undefined && { blur: parsePx(details.blur) }),
+						...(details.brightness !== undefined && {
+							brightness: parsePx(details.brightness),
+						}),
+						...(details.borderRadius !== undefined && {
+							borderRadius: parsePx(details.borderRadius),
+						}),
+						...(rotation !== undefined && { rotation }),
+					});
+				}
 			}
 		}
 	}
@@ -507,6 +578,19 @@ export function transformDesignToRenderRequest(
 		}
 	}
 
+	const cropRegion =
+		minX < Number.POSITIVE_INFINITY &&
+		maxX > Number.NEGATIVE_INFINITY &&
+		minY < Number.POSITIVE_INFINITY &&
+		maxY > Number.NEGATIVE_INFINITY
+			? {
+					x: Math.max(0, Math.round(minX)),
+					y: Math.max(0, Math.round(minY)),
+					width: Math.min(size.width, Math.round(maxX - minX)),
+					height: Math.min(size.height, Math.round(maxY - minY)),
+				}
+			: undefined;
+
 	return {
 		sources:
 			sources.length > 0
@@ -524,5 +608,8 @@ export function transformDesignToRenderRequest(
 		audioSources,
 		audioMixMode: "mix",
 		format,
+		...(cropRegion &&
+			cropRegion.width > 0 &&
+			cropRegion.height > 0 && { cropRegion }),
 	};
 }

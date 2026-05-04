@@ -129,6 +129,7 @@ export const EditVideoHandler = (): EditVideoHandlerType => {
 					config,
 					86400,
 					(p) => safeSetProgress(fastify, request.jobId, p),
+					request.cropRegion,
 				);
 
 				await safeDelProgress(fastify, request.jobId);

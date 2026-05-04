@@ -11,6 +11,12 @@ export const textOverlaySchema = Type.Object({
 	x: Type.Number({ minimum: 0, maximum: 100 }),
 	y: Type.Number({ minimum: 0, maximum: 100 }),
 	fontSize: Type.Optional(Type.Number({ exclusiveMinimum: 0 })),
+	// Design canvas dimensions used to normalise fontSize and element width.
+	canvasHeight: Type.Optional(Type.Number({ minimum: 1 })),
+	canvasWidth: Type.Optional(Type.Number({ minimum: 1 })),
+	// Width of the text element in design pixels — used to compute the
+	// proportional textwidth for FFmpeg drawtext line-wrapping.
+	elementWidth: Type.Optional(Type.Number({ minimum: 1 })),
 	fontColor: Type.Optional(Type.String()),
 	backgroundColor: Type.Optional(Type.String()),
 	strokeWidth: Type.Optional(Type.Number({ minimum: 0 })),
@@ -144,4 +150,13 @@ export const editVideoRequestSchema = Type.Object({
 	}),
 	frameTimeMs: Type.Optional(Type.Number()),
 	jobId: Type.String(),
+	// Crop region in canvas pixels — used to trim black margins from the output.
+	cropRegion: Type.Optional(
+		Type.Object({
+			x: Type.Number({ minimum: 0 }),
+			y: Type.Number({ minimum: 0 }),
+			width: Type.Number({ minimum: 2 }),
+			height: Type.Number({ minimum: 2 }),
+		}),
+	),
 });

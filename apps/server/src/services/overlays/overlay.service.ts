@@ -122,7 +122,9 @@ export const sortOverlaysByRenderOrder = (overlays: Overlay[]): Overlay[] => {
 					? b.overlay.trackOrder
 					: 0;
 
-			return trackOrderA - trackOrderB || a.index - b.index;
+			// Reverse sort: process higher track numbers first, lower track numbers last.
+			// This ensures elements on track 0 (like captions) are drawn last and appear on top.
+			return trackOrderB - trackOrderA || a.index - b.index;
 		})
 		.map(({ overlay }) => overlay);
 };

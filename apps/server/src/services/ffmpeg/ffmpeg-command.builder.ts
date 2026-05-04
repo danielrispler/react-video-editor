@@ -133,10 +133,26 @@ export class FfmpegCommandBuilder {
 		sources: VideoSource[],
 		format: string,
 		videoHasAudio: boolean,
+		cropRegion?: { x: number; y: number; width: number; height: number },
 	): FfmpegCommand {
+		let finalVideoStream = videoStream;
+
+		if (cropRegion && cropRegion.width > 0 && cropRegion.height > 0) {
+			const cropFilter = `crop=${cropRegion.width}:${cropRegion.height}:${cropRegion.x}:${cropRegion.y}`;
+			if (this.filterParts.length > 0) {
+				// We already have a complex filter, append the crop filter to the end
+				this.filterParts.push(`${finalVideoStream}${cropFilter}[cropout]`);
+				finalVideoStream = "[cropout]";
+			} else {
+				// No complex filter, create one to handle the crop easily
+				this.filterParts.push(`[0:v]${cropFilter}[cropout]`);
+				finalVideoStream = "[cropout]";
+			}
+		}
+
 		if (this.filterParts.length > 0) {
 			this.command.complexFilter(this.filterParts.join(";"));
-			this.command.outputOptions(["-map", videoStream]);
+			this.command.outputOptions(["-map", finalVideoStream]);
 			if (audioStreams.length > 0 && audioStreams[0]) {
 				this.command.outputOptions(["-map", audioStreams[0]]);
 			}
