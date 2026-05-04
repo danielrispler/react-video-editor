@@ -7,6 +7,7 @@
 		"noImplicitReturns": false,
 		"noFallthroughCasesInSwitch": true,
 		"skipLibCheck": true,
+		"outDir": "./dist",
 		"esModuleInterop": true,
 		"sourceMap": true,
 		"declaration": false,

@@ -24,8 +24,39 @@ export const processSources = async (sources: VideoSource[], tempDir: string, st
     }
 }
 
+const generateBlankVideoSegment = async (source: VideoSource, outputPath: string): Promise<void> => {
+    const url = new URL(source.url);
+    const width = parseInt(url.searchParams.get('w') ?? '1920');
+    const height = parseInt(url.searchParams.get('h') ?? '1080');
+    const fps = parseInt(url.searchParams.get('fps') ?? '30');
+
+    await new Promise<void>((resolve, reject) => {
+        ffmpeg()
+            .addOption(FFMPEG_COMMAND.HIDE_BANNER)
+            .input(`color=c=black:s=${width}x${height}:r=${fps}`)
+            .inputOptions([...FFMPEG_COMMAND.TREAT_AS_LIBAV_FILTER])
+            .input('anullsrc=channel_layout=stereo:sample_rate=44100')
+            .inputOptions([...FFMPEG_COMMAND.TREAT_AS_LIBAV_FILTER])
+            .duration(source.duration)
+            .videoCodec(FFMPEG_COMMAND.H264_VIDEO_CODEC)
+            .addOption('-pix_fmt', 'yuv420p')
+            .audioCodec(FFMPEG_COMMAND.AAC_AUDIO_CODEC)
+            .audioBitrate(FFMPEG_COMMAND.AUDIO_BITRATE)
+            .audioFrequency(FFMPEG_COMMAND.AUDIO_FREQUENCY)
+            .audioChannels(2)
+            .outputOptions([FFMPEG_COMMAND.OVERWRITE_OUTPUT])
+            .save(outputPath)
+            .on('end', () => resolve())
+            .on('error', (err: Error) => reject(err));
+    });
+};
+
 export const processSingleSource = async (source: VideoSource, sourcePath: string, tempDir: string, storage: StorageProvider, config: EnvConfig): Promise<string> => {
-    if (source.type === 'image') {
+    if (source.url.startsWith('internal://blank')) {
+        await generateBlankVideoSegment(source, sourcePath);
+
+        return sourcePath;
+    } else if (source.type === 'image') {
         await processImageSource(source, sourcePath, tempDir, storage);
 
         return sourcePath;

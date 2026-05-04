@@ -56,30 +56,40 @@ export function transformDesignToRenderRequest(design: IDesign, format: 'mp4' = 
         .filter((item): item is ITrackItemBase => item !== undefined)
         .sort((a, b) => a.display.from - b.display.from);
 
-    const sources = mainItems.map(item => {
+    const sources: RenderRequest['sources'] = [];
+    let timelinePosition = 0;
+
+    for (const item of mainItems) {
+        if (item.type === 'text') continue;
         const details = item.details ?? {};
         const url = (details['src'] as string | undefined) ?? '';
-        const type = item.type === 'image' ? 'image' : 'video';
-        const displayDuration = (item.display.to - item.display.from) / 1000;
+        if (!url) continue;
 
+        const itemFrom = item.display.from / 1000;
+        const itemTo = item.display.to / 1000;
+
+        if (itemFrom > timelinePosition + 0.001) {
+            sources.push({
+                url: `internal://blank?w=${size.width}&h=${size.height}&fps=${design.fps}`,
+                type: 'video',
+                duration: itemFrom - timelinePosition,
+            });
+        }
+
+        const type = item.type === 'image' ? 'image' : 'video';
+        const displayDuration = itemTo - itemFrom;
         const result: RenderRequest['sources'][0] = { url, type, duration: displayDuration };
 
         if (item.trim !== undefined) {
             result.trimFrom = item.trim.from / 1000;
             result.trimTo = item.trim.to / 1000;
-        } else if (type === 'image') {
-            // images need explicit duration (already set above)
         }
 
-        return result;
-    }).filter(s => s.url);
+        sources.push(result);
+        timelinePosition = itemTo;
+    }
 
-    const trimEnd = mainItems.reduce((sum, item) => {
-        const d = item.trim
-            ? (item.trim.to - item.trim.from) / 1000
-            : (item.display.to - item.display.from) / 1000;
-        return sum + d;
-    }, 0) || (designDuration ? designDuration / 1000 : 5);
+    const trimEnd = timelinePosition || (designDuration ? designDuration / 1000 : 5);
 
     // Build overlays from overlay tracks + any text/image items NOT on main track
     const overlays: RenderRequest['overlays'] = [];

@@ -77,7 +77,7 @@ const Sidebar = () => {
 };
 
 const Editor = ({ tempId, id }: { tempId?: string; id?: string }) => {
-  const [projectName, setProjectName] = useState<string>("Untitled video");
+  const [projectName, setProjectName] = useState<string>("Editroni");
   const { scene } = useSceneStore();
   const timelinePanelRef = useRef<ImperativePanelHandle>(null);
   const sceneRef = useRef<SceneRef>(null);
@@ -174,7 +174,6 @@ const Editor = ({ tempId, id }: { tempId?: string; id?: string }) => {
     <div className="flex h-screen w-screen flex-col">
       <Navbar
         projectName={projectName}
-        user={null}
         stateManager={stateManager}
         setProjectName={setProjectName}
       />

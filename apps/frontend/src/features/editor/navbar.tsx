@@ -10,8 +10,6 @@ import {
 } from "@/components/ui/popover";
 import {
   ChevronDown,
-  Download,
-  Keyboard,
   ProportionsIcon,
   ShareIcon
 } from "lucide-react";
@@ -30,18 +28,11 @@ import {
   useIsSmallScreen
 } from "@/hooks/use-media-query";
 
-import { LogoIcons } from "@/components/shared/logos";
-
-import { ShortcutsModal } from "./shortcuts-modal";
-import { ModeToggle } from "@/components/ui/mode-toggle";
-
 export default function Navbar({
-  user,
   stateManager,
   setProjectName,
   projectName
 }: {
-  user: any | null;
   stateManager: StateManager;
   setProjectName: (name: string) => void;
   projectName: string;
@@ -50,7 +41,6 @@ export default function Navbar({
   const isLargeScreen = useIsLargeScreen();
   const isMediumScreen = useIsMediumScreen();
   const isSmallScreen = useIsSmallScreen();
-  const [isShortcutsModalOpen, setIsShortcutsModalOpen] = useState(false);
 
   const handleUndo = () => {
     dispatch(HISTORY_UNDO);
@@ -91,10 +81,6 @@ export default function Navbar({
       <DownloadProgressModal />
 
       <div className="flex items-center gap-2">
-        <div className="pointer-events-auto flex h-11 w-11 items-center justify-center rounded-md invert dark:invert-0">
-          <LogoIcons.scenify />
-        </div>
-
         <div className=" pointer-events-auto flex h-10 items-center px-1.5">
           <Button
             onClick={handleUndo}
@@ -131,16 +117,6 @@ export default function Navbar({
 
       <div className="flex h-13 items-center justify-end gap-2">
         <div className=" pointer-events-auto flex h-10 items-center gap-2 rounded-md px-2.5">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 text-muted-foreground hover:text-foreground"
-            onClick={() => setIsShortcutsModalOpen(true)}
-          >
-            <Keyboard className="size-5" />
-          </Button>
-          <ModeToggle />
-
           {/* <Button
             className="flex h-8 gap-1 border border-border"
             variant="outline"
@@ -153,10 +129,6 @@ export default function Navbar({
           <DownloadPopover stateManager={stateManager} />
         </div>
       </div>
-      <ShortcutsModal
-        open={isShortcutsModalOpen}
-        onOpenChange={setIsShortcutsModalOpen}
-      />
     </div>
   );
 }
