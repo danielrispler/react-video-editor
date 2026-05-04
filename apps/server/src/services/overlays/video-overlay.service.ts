@@ -1,19 +1,12 @@
 import { promises as fsp } from "node:fs";
 import path from "node:path";
 import type { EnvConfig } from "../../config/env.ts";
-import type {
-	Overlay,
-	VideoOverlay,
-} from "../../edit-video/edit-video.types.ts";
+import type { VideoOverlay } from "../../edit-video/edit-video.types.ts";
 import { FFMPEG_COMMAND } from "../../ffmpeg/ffmpeg.consts.ts";
 import { runFfmpeg } from "../../ffmpeg/ffmpeg.utils.ts";
-import { OverlayType } from "../../types/types.ts";
 import { isMpdUrl, processMpdSource } from "../sources/dash-process.service.ts";
 import type { StorageProvider } from "../storage/storage.types.ts";
 import { buildEnableExpression } from "./overlay-utils.ts";
-
-const isVideoOverlay = (overlay: Overlay): overlay is VideoOverlay =>
-	overlay.type === OverlayType.video;
 
 const formatNumber = (value: number): string => {
 	return Number.isInteger(value)
@@ -83,12 +76,7 @@ const buildRoundedCornerAlpha = (overlay: VideoOverlay): string | null => {
 
 const buildVideoProcessingChain = (overlay: VideoOverlay): string[] => {
 	const displayDuration = Math.max(0.01, overlay.end - overlay.start);
-	const stages: string[] = [
-		`trim=duration=${formatNumber(displayDuration)}`,
-		`setpts=PTS-STARTPTS`,
-		` tpad=stop_mode=clone:stop_duration=${formatNumber(displayDuration)}`.trim(),
-		`trim=duration=${formatNumber(displayDuration)}`,
-	];
+	const stages: string[] = [`trim=duration=${formatNumber(displayDuration)}`];
 
 	if (overlay.width !== undefined || overlay.height !== undefined) {
 		stages.push(
@@ -140,6 +128,9 @@ const buildVideoProcessingChain = (overlay: VideoOverlay): string[] => {
 		);
 	}
 
+	stages.push(
+		`setpts=PTS-STARTPTS+${formatNumber(Math.max(0, overlay.start))}/TB`,
+	);
 	stages.push("format=rgba");
 	return stages;
 };
@@ -207,22 +198,6 @@ export const prepareVideoOverlay = async (
 
 	await fsp.unlink(downloadedPath).catch(() => undefined);
 	return preparedPath;
-};
-
-export const prepareVideoOverlays = async (
-	overlays: Overlay[],
-	tempDir: string,
-	storage: StorageProvider,
-	config: EnvConfig,
-): Promise<string[]> => {
-	const videoOverlays = overlays.filter(isVideoOverlay);
-	const paths: string[] = [];
-
-	for (const overlay of videoOverlays) {
-		paths.push(await prepareVideoOverlay(overlay, tempDir, storage, config));
-	}
-
-	return paths;
 };
 
 export const buildVideoOverlayFilter = (
