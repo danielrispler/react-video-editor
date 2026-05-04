@@ -9,13 +9,14 @@ pnpm + Turborepo monorepo. Workspace root is `apps/*`.
 ```
 apps/
   frontend/   — Vite + React 19 + React Router v7 (port 3000)
-  backend/    — Fastify + Node.js (port 3001)
+  server/     — Fastify + Node.js (port 4000)
 ```
 
 ## Repo Rules
 
-- Backend runtime is Node.js `22.18+`.
-- Backend TypeScript is executed directly with Node.js. Do not introduce `tsx`/`ts-node` for normal app execution.
+- Server runtime is Node.js `22.18+`.
+- Use `pnpm` for all package management. Add dependencies with `pnpm add` or `pnpm add -D`, and do not use `npm`.
+- Server TypeScript is executed directly with Node.js. Do not introduce `tsx`/`ts-node` for normal app execution.
 - After each completed prompt, run `lint` and `build` before finishing.
 
 ## Commands
@@ -28,11 +29,11 @@ pnpm build
 
 # Per-app
 cd apps/frontend && pnpm dev
-cd apps/backend  && pnpm dev    # node runs TypeScript directly in watch mode
+cd apps/server   && pnpm dev    # node runs TypeScript directly in watch mode
 
 # Type check
-cd apps/frontend && npx tsc --noEmit
-cd apps/backend  && npx tsc --noEmit
+cd apps/frontend && pnpm exec tsc --noEmit
+cd apps/server   && pnpm exec tsc --noEmit
 
 # Format (biome)
 pnpm format
@@ -40,13 +41,13 @@ pnpm format
 
 ## Local Dev Setup
 
-MinIO (S3-compatible storage) must be running before the app works:
+MinIO (S3-compatible storage) and Redis must be running before the app works:
 
 ```bash
 docker compose up -d
 ```
 
-Copy `apps/backend/.env.example` → `apps/backend/.env` and fill in values. Frontend needs no `.env` in dev — Vite proxies `/api` to `http://localhost:3001`.
+Configure `apps/server/.env`. Frontend needs no `.env` in dev. The server defaults to `http://localhost:4000`, and Vite proxies `/api` there during local development.
 
 ## Architecture
 
@@ -78,25 +79,25 @@ Copy `apps/backend/.env.example` → `apps/backend/.env` and fill in values. Fro
 
 **Styling:** Tailwind v4 + shadcn/ui (new-york style). CSS variables for theming in `src/globals.css`. Dark mode via `next-themes`.
 
-### Backend (`apps/backend`)
+### Server (`apps/server`)
 
 **Runtime:** Node.js `22.18+` with direct TypeScript execution.
 
-**Entry:** `src/index.ts` — Fastify server with CORS + multipart plugins.
+**Entry:** `src/index.ts` — boots `Server`, which configures Fastify, env loading, storage, Redis, and route registration.
 
 **Routes (all prefixed `/api`):**
 | Path | File | Notes |
 |------|------|-------|
-| `/api/uploads/file` | `routes/uploads.ts` | Multipart file → S3 |
-| `/api/uploads/url` | `routes/uploads.ts` | Remote URL → S3 |
-| `/api/uploads/presign` | `routes/uploads.ts` | Generate presigned PUT URL |
-| `/api/render` | `routes/render.ts` | Proxy to api.designcombo.dev |
-| `/api/pexels` | `routes/pexels.ts` | Proxy to Pexels photos API |
-| `/api/pexels-videos` | `routes/pexels.ts` | Proxy to Pexels videos API |
-| `/api/voices` | `routes/voices.ts` | Proxy to dubbing service |
-| `/api/transcribe` | `routes/transcribe.ts` | Proxy to designcombo STT |
+| `/api/edit-video` | `src/edit-video/edit-video.routes.ts` | Start edit-video processing job |
+| `/api/edit-video/progress/:jobId` | `src/edit-video/edit-video.routes.ts` | Read job progress from Redis |
+| `/api/render` | `src/render/render.routes.ts` | Start render job |
+| `/api/render` (GET) | `src/render/render.routes.ts` | Read render status |
+| `/api/upload/signed-url` | `src/upload/upload.routes.ts` | Generate signed upload URL |
+| `/api/uploads/file` | `src/upload/upload.routes.ts` | Multipart file upload to S3 |
+| `/api/cleanup` | `src/upload/upload.routes.ts` | Remove uploaded assets |
 
-**Storage:** `src/lib/storage.ts` — AWS SDK v3 S3 client. Works with MinIO locally (path-style URLs). All env vars are `S3_*`.
+**Storage:** `src/plugins/storage.plugin.ts` — AWS SDK v3 S3 client, configured for MinIO locally via `S3_*` env vars.
+**State:** Redis is required for render/edit job status.
 
 ## Key External Dependencies
 

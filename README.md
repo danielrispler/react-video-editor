@@ -35,20 +35,24 @@ Check out the deployed version here: [React Video Editor Live Demo](https://vide
 
 ### Environment Variables
 
-Create a `.env` file in the project root and add the following:
+The new server lives in `apps/server`. Create `apps/server/.env` and add the following:
 
 ```env
 PEXELS_API_KEY=""
-S3_BUCKET="react-video-editor"
+PORT="4000"
+HOST="127.0.0.1"
+S3_BUCKET="video-editor"
 S3_REGION="us-east-1"
 S3_ENDPOINT="http://127.0.0.1:9000"
-S3_PUBLIC_URL="http://localhost:9000"
-S3_ACCESS_KEY="minioadmin"
-S3_SECRET_KEY="minioadmin"
+S3_ACCESS_KEY_ID="minioadmin"
+S3_SECRET_ACCESS_KEY="minioadmin123"
 S3_FORCE_PATH_STYLE="true"
+REDIS_HOST="127.0.0.1"
+REDIS_PORT="6379"
+REDIS_PASSWORD=""
 ```
 
-Start MinIO locally before running the app:
+Start the local infrastructure before running the app. The new server requires both MinIO and Redis:
 
 ```bash
 docker compose up -d
@@ -63,7 +67,14 @@ pnpm install
 pnpm dev
 ```
 
-Open your browser and visit http://localhost:3000 , see more at [Development](https://github.com/designcombo/react-video-editor).
+Or run the apps separately:
+
+```bash
+pnpm -F frontend dev
+pnpm -F server dev
+```
+
+Open your browser at `http://localhost:3000`.
 
 ## 📝 License
 
