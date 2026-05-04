@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
+import { ExportService } from "../../../core/services/export.service";
 import { PlaybackService } from "../../../core/services/playback.service";
 import { TimelineService } from "../../../core/services/timeline.service";
-import { ExportService } from "../../../core/services/export.service";
 
 @Component({
 	selector: "app-navbar",

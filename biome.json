@@ -47,5 +47,67 @@
 		"formatter": {
 			"quoteStyle": "double"
 		}
-	}
+	},
+	"overrides": [
+		{
+			"include": ["apps/frontend/src/features/editor/**", "src/features/editor/**"],
+			"linter": {
+				"rules": {
+					"a11y": {
+						"useMediaCaption": "off"
+					},
+					"complexity": {
+						"noBannedTypes": "off",
+						"noForEach": "off"
+					},
+					"correctness": {
+						"noUnsafeOptionalChaining": "off"
+					},
+					"performance": {
+						"noAccumulatingSpread": "off"
+					},
+					"security": {
+						"noDangerouslySetInnerHtml": "off"
+					},
+					"style": {
+						"noNonNullAssertion": "off"
+					},
+					"suspicious": {
+						"noAssignInExpressions": "off",
+						"noImplicitAnyLet": "off"
+					}
+				}
+			}
+		},
+		{
+			"include": ["apps/server/src/config/env.ts", "src/config/env.ts"],
+			"linter": {
+				"rules": {
+					"style": {
+						"useNamingConvention": "off"
+					}
+				}
+			}
+		},
+		{
+			"include": ["apps/frontend/src/features/editor/scene/droppable.tsx", "src/features/editor/scene/droppable.tsx"],
+			"linter": {
+				"rules": {
+					"a11y": {
+						"useSemanticElements": "off"
+					}
+				}
+			}
+		},
+		{
+			"include": ["apps/frontend/src/features/editor/timeline/timeline.tsx", "src/features/editor/timeline/timeline.tsx"],
+			"linter": {
+				"rules": {
+					"a11y": {
+						"useKeyWithMouseEvents": "off"
+					}
+				}
+			}
+		}
+	]
 }

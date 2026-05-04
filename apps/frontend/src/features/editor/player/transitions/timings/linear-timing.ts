@@ -11,19 +11,19 @@ import type { TransitionTiming } from "../types";
  * @returns {TransitionTiming} An object representing the timing of the transition, including methods to get duration and progress
  */
 export const linearTiming = (options: {
-  durationInFrames: number;
-  easing?: ((input: number) => number) | undefined;
+	durationInFrames: number;
+	easing?: ((input: number) => number) | undefined;
 }): TransitionTiming => {
-  return {
-    getDurationInFrames: () => {
-      return options.durationInFrames;
-    },
-    getProgress: ({ frame }) => {
-      return interpolate(frame, [0, options.durationInFrames], [0, 1], {
-        easing: options.easing,
-        extrapolateLeft: "clamp",
-        extrapolateRight: "clamp"
-      });
-    }
-  };
+	return {
+		getDurationInFrames: () => {
+			return options.durationInFrames;
+		},
+		getProgress: ({ frame }) => {
+			return interpolate(frame, [0, options.durationInFrames], [0, 1], {
+				easing: options.easing,
+				extrapolateLeft: "clamp",
+				extrapolateRight: "clamp",
+			});
+		},
+	};
 };

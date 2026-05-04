@@ -1,0 +1,227 @@
+import { promises as fsp } from "node:fs";
+import path from "node:path";
+import type { EnvConfig } from "../../config/env.ts";
+import type {
+	Overlay,
+	VideoOverlay,
+} from "../../edit-video/edit-video.types.ts";
+import { FFMPEG_COMMAND } from "../../ffmpeg/ffmpeg.consts.ts";
+import { runFfmpeg } from "../../ffmpeg/ffmpeg.utils.ts";
+import { OverlayType } from "../../types/types.ts";
+import { isMpdUrl, processMpdSource } from "../sources/dash-process.service.ts";
+import type { StorageProvider } from "../storage/storage.types.ts";
+import { buildEnableExpression } from "./overlay-utils.ts";
+
+const isVideoOverlay = (overlay: Overlay): overlay is VideoOverlay =>
+	overlay.type === OverlayType.video;
+
+const formatNumber = (value: number): string => {
+	return Number.isInteger(value)
+		? String(value)
+		: value.toFixed(3).replace(/\.?0+$/, "");
+};
+
+const getBaseDimensions = (
+	overlay: VideoOverlay,
+): { width: number; height: number } => {
+	const cropWidth = overlay.crop?.width;
+	const cropHeight = overlay.crop?.height;
+
+	return {
+		width: Math.max(1, cropWidth ?? overlay.width ?? 1),
+		height: Math.max(1, cropHeight ?? overlay.height ?? 1),
+	};
+};
+
+const parseScale = (transform?: string): { scaleX: number; scaleY: number } => {
+	if (!transform || transform === "none") return { scaleX: 1, scaleY: 1 };
+
+	const scaleMatch = /scale\(([^)]+)\)/.exec(transform);
+	if (!scaleMatch) return { scaleX: 1, scaleY: 1 };
+
+	const values =
+		scaleMatch[1]
+			?.split(",")
+			.map((value) => Number.parseFloat(value.trim()))
+			.filter((value) => Number.isFinite(value)) ?? [];
+
+	if (values.length === 0) return { scaleX: 1, scaleY: 1 };
+	if (values.length === 1)
+		return { scaleX: values[0] ?? 1, scaleY: values[0] ?? 1 };
+
+	return {
+		scaleX: values[0] ?? 1,
+		scaleY: values[1] ?? 1,
+	};
+};
+
+const buildRoundedCornerAlpha = (overlay: VideoOverlay): string | null => {
+	const borderRadiusPercent = overlay.borderRadius ?? 0;
+	if (borderRadiusPercent <= 0) return null;
+
+	const { width, height } = getBaseDimensions(overlay);
+	const radius = Math.max(
+		0,
+		Math.min(
+			Math.min(width, height) / 2,
+			(Math.min(width, height) * borderRadiusPercent) / 100,
+		),
+	);
+	if (radius <= 0) return null;
+
+	const r = formatNumber(radius);
+	const alphaExpr = [
+		`if(gte(X\\,${r})*gte(Y\\,${r})*lte(X\\,W-${r})*lte(Y\\,H-${r})`,
+		"255",
+		`if(lte(hypot(${r}-X\\,${r}-Y)\\,${r})+lte(hypot(X-(W-${r})\\,${r}-Y)\\,${r})+lte(hypot(${r}-X\\,Y-(H-${r}))\\,${r})+lte(hypot(X-(W-${r})\\,Y-(H-${r}))\\,${r})`,
+		"255",
+		"0))",
+	].join("\\,");
+
+	return `format=rgba,geq=r='r(X,Y)':g='g(X,Y)':b='b(X,Y)':a='${alphaExpr}'`;
+};
+
+const buildVideoProcessingChain = (overlay: VideoOverlay): string[] => {
+	const stages: string[] = ["setpts=PTS-STARTPTS"];
+
+	if (overlay.width !== undefined || overlay.height !== undefined) {
+		stages.push(
+			`scale=w=${overlay.width !== undefined ? Math.max(1, overlay.width) : -1}:h=${overlay.height !== undefined ? Math.max(1, overlay.height) : -1}`,
+		);
+	}
+
+	if (overlay.crop) {
+		stages.push(
+			`crop=w=${Math.max(1, overlay.crop.width)}:h=${Math.max(1, overlay.crop.height)}:x=${Math.max(0, overlay.crop.x)}:y=${Math.max(0, overlay.crop.y)}`,
+		);
+	}
+
+	const roundedMask = buildRoundedCornerAlpha(overlay);
+	if (roundedMask) {
+		stages.push(roundedMask);
+	}
+
+	if (overlay.brightness !== undefined && overlay.brightness !== 100) {
+		stages.push(
+			`eq=brightness=${formatNumber((overlay.brightness - 100) / 100)}`,
+		);
+	}
+
+	if (overlay.blur !== undefined && overlay.blur > 0) {
+		stages.push(
+			`boxblur=luma_radius=${formatNumber(Math.min(overlay.blur, 20))}:luma_power=1`,
+		);
+	}
+
+	if (overlay.opacity !== undefined && overlay.opacity < 1) {
+		stages.push(
+			`colorchannelmixer=aa=${formatNumber(Math.max(0, overlay.opacity))}`,
+		);
+	}
+
+	const { scaleX, scaleY } = parseScale(overlay.transform);
+	if (scaleX !== 1 || scaleY !== 1) {
+		const { width, height } = getBaseDimensions(overlay);
+		stages.push(
+			`scale=w=${formatNumber(Math.max(1, width * Math.abs(scaleX)))}:h=${formatNumber(Math.max(1, height * Math.abs(scaleY)))}`,
+		);
+	}
+
+	if (overlay.rotation !== undefined && overlay.rotation !== 0) {
+		const radians = (overlay.rotation * Math.PI) / 180;
+		stages.push(
+			`rotate=${formatNumber(radians)}:ow=rotw(iw):oh=roth(ih):c=none`,
+		);
+	}
+
+	stages.push("format=rgba");
+	return stages;
+};
+
+export const prepareVideoOverlay = async (
+	overlay: VideoOverlay,
+	tempDir: string,
+	storage: StorageProvider,
+	config: EnvConfig,
+): Promise<string> => {
+	const downloadedPath = path.join(
+		tempDir,
+		`video-overlay-src-${overlay.id}.mp4`,
+	);
+	const preparedPath = path.join(tempDir, `video-overlay-${overlay.id}.mp4`);
+
+	if (isMpdUrl(overlay.sourceUrl)) {
+		await processMpdSource(
+			{
+				url: overlay.sourceUrl,
+				type: "video",
+				duration: Math.max(0.1, overlay.end - overlay.start),
+				...(overlay.trimFrom !== undefined && { trimFrom: overlay.trimFrom }),
+				...(overlay.trimTo !== undefined && { trimTo: overlay.trimTo }),
+			},
+			downloadedPath,
+			false,
+			config,
+		);
+	} else {
+		await storage.downloadToFile(overlay.sourceUrl, downloadedPath);
+	}
+
+	if (overlay.trimFrom === undefined && overlay.trimTo === undefined) {
+		await fsp.rename(downloadedPath, preparedPath);
+		return preparedPath;
+	}
+
+	const trimFrom = overlay.trimFrom ?? 0;
+	const trimTo = overlay.trimTo;
+
+	await runFfmpeg((command) => {
+		const ffmpegCommand = command
+			.addOption(FFMPEG_COMMAND.HIDE_BANNER)
+			.input(downloadedPath)
+			.seekInput(trimFrom);
+
+		if (trimTo !== undefined) {
+			ffmpegCommand.duration(Math.max(0.01, trimTo - trimFrom));
+		}
+
+		return ffmpegCommand
+			.outputOptions([FFMPEG_COMMAND.OVERWRITE_OUTPUT, ...FFMPEG_COMMAND.COPY])
+			.output(preparedPath);
+	});
+
+	await fsp.unlink(downloadedPath).catch(() => undefined);
+	return preparedPath;
+};
+
+export const prepareVideoOverlays = async (
+	overlays: Overlay[],
+	tempDir: string,
+	storage: StorageProvider,
+	config: EnvConfig,
+): Promise<string[]> => {
+	const videoOverlays = overlays.filter(isVideoOverlay);
+	const paths: string[] = [];
+
+	for (const overlay of videoOverlays) {
+		paths.push(await prepareVideoOverlay(overlay, tempDir, storage, config));
+	}
+
+	return paths;
+};
+
+export const buildVideoOverlayFilter = (
+	overlay: VideoOverlay,
+	inputIndex: number,
+	currentStream: string,
+	outputLabel: string,
+): string => {
+	const processedLabel = `videoOverlay${inputIndex}`;
+	const enable = buildEnableExpression(overlay.start, overlay.end);
+	const { width, height } = getBaseDimensions(overlay);
+	const x = `${formatNumber(overlay.left + width / 2)}-overlay_w/2`;
+	const y = `${formatNumber(overlay.top + height / 2)}-overlay_h/2`;
+	const processingChain = buildVideoProcessingChain(overlay).join(",");
+
+	return `[${inputIndex}:v]${processingChain}[${processedLabel}];${currentStream}[${processedLabel}]overlay=x='${x}':y='${y}':enable='${enable}':eof_action=pass[${outputLabel}]`;
+};

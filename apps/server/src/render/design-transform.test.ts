@@ -1,0 +1,223 @@
+import assert from "node:assert/strict";
+import { describe, it } from "node:test";
+import type { IDesign } from "./design-transform.ts";
+import { transformDesignToRenderRequest } from "./design-transform.ts";
+
+const baseDetails = {
+	width: 1920,
+	height: 1080,
+	left: "0px",
+	top: "0px",
+	opacity: 100,
+	transform: "none",
+	blur: 0,
+	brightness: 100,
+	borderRadius: 0,
+	rotate: "0deg",
+};
+
+const createVideoItem = (
+	id: string,
+	src: string,
+	from: number,
+	to: number,
+	details: Record<string, unknown> = {},
+) => ({
+	id,
+	type: "video",
+	display: { from, to },
+	trim: { from: 0, to: to - from },
+	details: {
+		...baseDetails,
+		src,
+		...details,
+	},
+});
+
+const createAudioItem = (
+	id: string,
+	src: string,
+	from: number,
+	to: number,
+) => ({
+	id,
+	type: "audio",
+	display: { from, to },
+	trim: { from: 0, to: to - from },
+	details: {
+		src,
+		volume: 1,
+	},
+});
+
+describe("transformDesignToRenderRequest", () => {
+	it("keeps single-row exports in sources and emits no video overlays", () => {
+		const design: IDesign = {
+			id: "design-single-row",
+			fps: 30,
+			duration: 5000,
+			size: { width: 1920, height: 1080 },
+			tracks: [{ id: "track-base", type: "video", items: ["clip-base"] }],
+			trackItemIds: ["clip-base"],
+			trackItemsMap: {
+				"clip-base": createVideoItem(
+					"clip-base",
+					"https://example.com/base.mp4",
+					0,
+					5000,
+				),
+			},
+		};
+
+		const request = transformDesignToRenderRequest(design);
+
+		assert.equal(request.sources.length, 1);
+		assert.equal(request.sources[0]?.url, "https://example.com/base.mp4");
+		assert.equal(request.sources[0]?.trimTo, 5);
+		assert.deepEqual(
+			request.overlays.filter((overlay) => overlay.type === "video"),
+			[],
+		);
+	});
+
+	it("turns secondary video rows into stacked video overlays and pads the base timeline", () => {
+		const design: IDesign = {
+			id: "design-stacked-rows",
+			fps: 30,
+			duration: 15000,
+			size: { width: 1920, height: 1080 },
+			tracks: [
+				{ id: "track-base", type: "video", items: ["base-middle"] },
+				{
+					id: "track-overlay",
+					type: "video",
+					items: ["overlay-early", "overlay-late"],
+				},
+			],
+			trackItemIds: ["base-middle", "overlay-early", "overlay-late"],
+			trackItemsMap: {
+				"base-middle": createVideoItem(
+					"base-middle",
+					"https://example.com/base-middle.mp4",
+					5000,
+					10000,
+				),
+				"overlay-early": createVideoItem(
+					"overlay-early",
+					"https://example.com/overlay-early.mp4",
+					0,
+					5000,
+					{
+						left: "120px",
+						top: "80px",
+						width: 640,
+						height: 360,
+						transform: "scale(1.25)",
+						borderRadius: 12,
+						brightness: 110,
+						blur: 4,
+					},
+				),
+				"overlay-late": createVideoItem(
+					"overlay-late",
+					"https://example.com/overlay-late.mp4",
+					10000,
+					15000,
+					{
+						left: "200px",
+						top: "160px",
+						width: 480,
+						height: 270,
+					},
+				),
+			},
+		};
+
+		const request = transformDesignToRenderRequest(design);
+		const videoOverlays = request.overlays.filter(
+			(overlay) => overlay.type === "video",
+		);
+
+		assert.equal(request.trimEnd, 15);
+		assert.deepEqual(
+			request.sources.map((source) => ({
+				isBlank: source.url.startsWith("internal://blank"),
+				duration: source.duration,
+			})),
+			[
+				{ isBlank: true, duration: 5 },
+				{ isBlank: false, duration: 5 },
+				{ isBlank: true, duration: 5 },
+			],
+		);
+		assert.equal(videoOverlays.length, 2);
+		assert.deepEqual(
+			videoOverlays.map((overlay) => overlay.id),
+			["overlay-early", "overlay-late"],
+		);
+		assert.equal(
+			videoOverlays[0]?.sourceUrl,
+			"https://example.com/overlay-early.mp4",
+		);
+		assert.equal(videoOverlays[0]?.trackOrder, 1);
+		assert.equal(videoOverlays[0]?.left, 120);
+		assert.equal(videoOverlays[0]?.opacity, 1);
+	});
+
+	it("orders overlapping stacked clips by track order and keeps explicit audio tracks separate", () => {
+		const design: IDesign = {
+			id: "design-overlap-order",
+			fps: 30,
+			duration: 8000,
+			size: { width: 1920, height: 1080 },
+			tracks: [
+				{ id: "track-base", type: "video", items: ["base"] },
+				{ id: "track-row-2", type: "video", items: ["overlay-row-2"] },
+				{ id: "track-row-3", type: "video", items: ["overlay-row-3"] },
+				{ id: "track-audio", type: "audio", items: ["audio-bed"] },
+			],
+			trackItemIds: ["base", "overlay-row-2", "overlay-row-3", "audio-bed"],
+			trackItemsMap: {
+				base: createVideoItem("base", "https://example.com/base.mp4", 0, 8000),
+				"overlay-row-2": createVideoItem(
+					"overlay-row-2",
+					"https://example.com/overlay-row-2.mp4",
+					2000,
+					6000,
+				),
+				"overlay-row-3": createVideoItem(
+					"overlay-row-3",
+					"https://example.com/overlay-row-3.mp4",
+					2500,
+					5500,
+				),
+				"audio-bed": createAudioItem(
+					"audio-bed",
+					"https://example.com/audio-bed.mp3",
+					0,
+					8000,
+				),
+			},
+		};
+
+		const request = transformDesignToRenderRequest(design);
+		const videoOverlays = request.overlays.filter(
+			(overlay) => overlay.type === "video",
+		);
+
+		assert.deepEqual(
+			videoOverlays.map((overlay) => ({
+				id: overlay.id,
+				trackOrder: overlay.trackOrder,
+			})),
+			[
+				{ id: "overlay-row-2", trackOrder: 1 },
+				{ id: "overlay-row-3", trackOrder: 2 },
+			],
+		);
+		assert.deepEqual(
+			request.audioSources.map((source) => source.url),
+			["https://example.com/audio-bed.mp3"],
+		);
+	});
+});

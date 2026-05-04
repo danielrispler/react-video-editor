@@ -6,7 +6,8 @@
 		"dev": "turbo run dev",
 		"build": "turbo run build",
 		"lint": "turbo run lint",
-		"format": "biome format . --write"
+		"format": "biome format . --write",
+		"type-check": "turbo run type-check"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "1.9.4",

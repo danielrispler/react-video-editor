@@ -1,13 +1,7 @@
-import {
-  PreviewTrackItem as PreviewTrackItemBase,
-  PreviewTrackItemProps
-} from "@designcombo/timeline";
+import { PreviewTrackItem as PreviewTrackItemBase } from "@designcombo/timeline";
 
 class PreviewTrackItem extends PreviewTrackItemBase {
-  static type = "PreviewTrackItem";
-  constructor(props: PreviewTrackItemProps) {
-    super(props);
-  }
+	static type = "PreviewTrackItem";
 }
 
 export default PreviewTrackItem;

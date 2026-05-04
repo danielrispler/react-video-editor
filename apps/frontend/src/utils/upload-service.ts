@@ -1,83 +1,83 @@
 import axios from "axios";
 
 export type UploadProgressCallback = (
-  uploadId: string,
-  progress: number
+	uploadId: string,
+	progress: number,
 ) => void;
 
 export type UploadStatusCallback = (
-  uploadId: string,
-  status: "uploaded" | "failed",
-  error?: string
+	uploadId: string,
+	status: "uploaded" | "failed",
+	error?: string,
 ) => void;
 
 export interface UploadCallbacks {
-  onProgress: UploadProgressCallback;
-  onStatus: UploadStatusCallback;
+	onProgress: UploadProgressCallback;
+	onStatus: UploadStatusCallback;
 }
 
 export async function processFileUpload(
-  uploadId: string,
-  file: File,
-  callbacks: UploadCallbacks
+	uploadId: string,
+	file: File,
+	callbacks: UploadCallbacks,
 ): Promise<any> {
-  try {
-    const formData = new FormData();
-    formData.append("userId", "PJ1nkaufw0hZPyhN7bWCP");
-    formData.append("file", file);
+	try {
+		const formData = new FormData();
+		formData.append("userId", "PJ1nkaufw0hZPyhN7bWCP");
+		formData.append("file", file);
 
-    const uploadResponse = await axios.post("/api/uploads/file", formData, {
-      onUploadProgress: (progressEvent) => {
-        const percent = Math.round(
-          (progressEvent.loaded * 100) / (progressEvent.total || 1)
-        );
-        callbacks.onProgress(uploadId, percent);
-      },
-      validateStatus: () => true
-    });
+		const uploadResponse = await axios.post("/api/uploads/file", formData, {
+			onUploadProgress: (progressEvent) => {
+				const percent = Math.round(
+					(progressEvent.loaded * 100) / (progressEvent.total || 1),
+				);
+				callbacks.onProgress(uploadId, percent);
+			},
+			validateStatus: () => true,
+		});
 
-    if (uploadResponse.status < 200 || uploadResponse.status >= 300) {
-      throw new Error(`Upload failed with status ${uploadResponse.status}`);
-    }
+		if (uploadResponse.status < 200 || uploadResponse.status >= 300) {
+			throw new Error(`Upload failed with status ${uploadResponse.status}`);
+		}
 
-    const { upload: uploadInfo } = uploadResponse.data;
+		const { upload: uploadInfo } = uploadResponse.data;
 
-    if (!uploadInfo) {
-      throw new Error("Upload route returned no upload payload");
-    }
+		if (!uploadInfo) {
+			throw new Error("Upload route returned no upload payload");
+		}
 
-    // Construct upload data from uploadInfo
-    const uploadData = {
-      fileName: uploadInfo.fileName,
-      filePath: uploadInfo.filePath,
-      fileSize: file.size,
-      contentType: uploadInfo.contentType,
-      url: uploadInfo.url,
-      metadata: { uploadedUrl: uploadInfo.url },
-      folder: uploadInfo.folder || null,
-      type: uploadInfo.contentType.split("/")[0],
-      method: "direct",
-      origin: "user",
-      status: "uploaded",
-      isPreview: false
-    };
+		// Construct upload data from uploadInfo
+		const uploadData = {
+			fileName: uploadInfo.fileName,
+			filePath: uploadInfo.filePath,
+			fileSize: file.size,
+			contentType: uploadInfo.contentType,
+			url: uploadInfo.url,
+			metadata: { uploadedUrl: uploadInfo.url },
+			folder: uploadInfo.folder || null,
+			type: uploadInfo.contentType.split("/")[0],
+			method: "direct",
+			origin: "user",
+			status: "uploaded",
+			isPreview: false,
+		};
 
-    callbacks.onStatus(uploadId, "uploaded");
-    return uploadData;
-  } catch (error) {
-    callbacks.onStatus(uploadId, "failed", (error as Error).message);
-    throw error;
-  }
+		callbacks.onStatus(uploadId, "uploaded");
+		return uploadData;
+	} catch (error) {
+		callbacks.onStatus(uploadId, "failed", (error as Error).message);
+		throw error;
+	}
 }
 
 export async function processUpload(
-  uploadId: string,
-  upload: { file?: File },
-  callbacks: UploadCallbacks
+	uploadId: string,
+	upload: { file?: File },
+	callbacks: UploadCallbacks,
 ): Promise<any> {
-  if (upload.file) {
-    return await processFileUpload(uploadId, upload.file, callbacks);
-  }
-  callbacks.onStatus(uploadId, "failed", "No file provided");
-  throw new Error("No file provided");
+	if (upload.file) {
+		return await processFileUpload(uploadId, upload.file, callbacks);
+	}
+	callbacks.onStatus(uploadId, "failed", "No file provided");
+	throw new Error("No file provided");
 }

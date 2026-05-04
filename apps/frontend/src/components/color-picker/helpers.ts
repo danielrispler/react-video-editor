@@ -1,19 +1,21 @@
 export const getAlphaValue = (value: string) => {
-  value = value.replace(/%/i, ""); // Ensure to assign the result back
-  if (value[0] === "0" && value.length > 1) {
-    return value.substring(1); // Replaced substr with substring
-  } else if (Number(value) >= 100) {
-    return 100;
-  } else if (!isNaN(Number(value))) {
-    return value || 0;
-  }
-  return parseInt(value);
+	const sanitizedValue = value.replace(/%/i, "");
+	if (sanitizedValue[0] === "0" && sanitizedValue.length > 1) {
+		return sanitizedValue.substring(1);
+	}
+	if (Number(sanitizedValue) >= 100) {
+		return 100;
+	}
+	if (!Number.isNaN(Number(sanitizedValue))) {
+		return sanitizedValue || 0;
+	}
+	return Number.parseInt(sanitizedValue, 10);
 };
 
 export const onlyDigits = (string: string) => {
-  return string ? string.substring(0, 3).replace(/[^\d]/g, "") : ""; // Replaced substr with substring
+	return string ? string.substring(0, 3).replace(/[^\d]/g, "") : "";
 };
 
 export const onlyLatins = (string: string) => {
-  return string ? string.substring(0, 7) : string;
+	return string ? string.substring(0, 7) : string;
 };

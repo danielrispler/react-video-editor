@@ -3,16 +3,16 @@ import { BaseSequence, SequenceItemOptions } from "../base-sequence";
 import { HillBars } from "./audio-bars/hill-audio-bars";
 
 export default function HillAudioBars({
-  item,
-  options
+	item,
+	options,
 }: {
-  item: IHillAudioBars;
-  options: SequenceItemOptions;
+	item: IHillAudioBars;
+	options: SequenceItemOptions;
 }) {
-  const children = (
-    <>
-      <HillBars item={item} options={options} />
-    </>
-  );
-  return BaseSequence({ item, options, children });
+	const children = (
+		<>
+			<HillBars item={item} options={options} />
+		</>
+	);
+	return BaseSequence({ item, options, children });
 }

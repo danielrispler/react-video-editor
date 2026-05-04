@@ -32,11 +32,14 @@ export class ExportService {
 			});
 
 			if (!res.ok) {
-				const body = await res.json().catch(() => ({})) as Record<string, unknown>;
-				throw new Error((body["error"] as string) ?? `Server error ${res.status}`);
+				const body = (await res.json().catch(() => ({}))) as Record<
+					string,
+					unknown
+				>;
+				throw new Error((body.error as string) ?? `Server error ${res.status}`);
 			}
 
-			const { jobId } = await res.json() as { jobId: string };
+			const { jobId } = (await res.json()) as { jobId: string };
 			this.status.set("processing");
 			this.poll(jobId);
 		} catch (err) {
@@ -65,7 +68,7 @@ export class ExportService {
 				throw new Error(`Status check failed: ${res.status}`);
 			}
 
-			const data = await res.json() as {
+			const data = (await res.json()) as {
 				status: string;
 				progress: number;
 				error: string | null;
@@ -94,8 +97,11 @@ export class ExportService {
 			const res = await fetch(`/api/export/${jobId}/file`);
 
 			if (!res.ok) {
-				const body = await res.json().catch(() => ({})) as Record<string, unknown>;
-				throw new Error((body["error"] as string) ?? "Download failed");
+				const body = (await res.json().catch(() => ({}))) as Record<
+					string,
+					unknown
+				>;
+				throw new Error((body.error as string) ?? "Download failed");
 			}
 
 			const blob = await res.blob();

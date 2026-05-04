@@ -1,106 +1,215 @@
-import type { Overlay } from '../../edit-video/edit-video.types.ts';
-import { OverlayType } from '../../types/types.ts';
-import { buildTextOverlayFilter } from './text-overlay.service.ts';
-import { buildImageOverlayFilter, prepareImageOverlays } from './image-overlay.service.ts';
-import { buildCircleOverlayFilter } from './circle-overlay.service.ts';
-import { buildRectangleOverlayFilter } from './rectangle-overlay.service.ts';
+import type { EnvConfig } from "../../config/env.ts";
+import type { Overlay } from "../../edit-video/edit-video.types.ts";
+import { OverlayType } from "../../types/types.ts";
+import type { StorageProvider } from "../storage/storage.types.ts";
+import {
+	buildCircleOverlayFilter,
+	prepareCircleOverlay,
+} from "./circle-overlay.service.ts";
+import {
+	buildImageOverlayFilter,
+	prepareImageOverlay,
+} from "./image-overlay.service.ts";
+import { buildRectangleOverlayFilter } from "./rectangle-overlay.service.ts";
+import { buildTextOverlayFilter } from "./text-overlay.service.ts";
+import {
+	buildVideoOverlayFilter,
+	prepareVideoOverlay,
+} from "./video-overlay.service.ts";
 
-interface OverlayFilterResult {
-    filterPart: string;
-    outputStream: string;
-    imageInputIndex?: number;
+export interface PreparedOverlayInput {
+	overlayId: string;
+	overlayType: Overlay["type"];
+	path: string;
 }
 
-const buildOverlayFilter = (overlay: Overlay, currentStream: string, filterIndex: number, imageInputIndex: number, imagePaths: string[], videoDuration: number): OverlayFilterResult | null => {
-    const outputLabel = `v${filterIndex + 1}`;
+interface OverlayFilterResult {
+	filterPart: string;
+	outputStream: string;
+}
 
-    if (overlay.type === OverlayType.text) {
-        return {
-            filterPart: buildTextOverlayFilter(overlay, currentStream, outputLabel),
-            outputStream: `[${outputLabel}]`
-        };
-    }
-
-    if (overlay.type === OverlayType.image && imageInputIndex - 1 < imagePaths.length) {
-        return {
-            filterPart: buildImageOverlayFilter(overlay, imageInputIndex, currentStream, outputLabel, videoDuration),
-            outputStream: `[${outputLabel}]`,
-            imageInputIndex: imageInputIndex + 1
-        };
-    }
-
-    if (overlay.type === OverlayType.circle && imageInputIndex - 1 < imagePaths.length) {
-        return {
-            filterPart: buildCircleOverlayFilter(overlay, imageInputIndex, currentStream, outputLabel),
-            outputStream: `[${outputLabel}]`,
-            imageInputIndex: imageInputIndex + 1
-        };
-    }
-
-    if (overlay.type === OverlayType.rectangle) {
-        return {
-            filterPart: buildRectangleOverlayFilter(overlay, currentStream, outputLabel),
-            outputStream: `[${outputLabel}]`
-        };
-    }
-
-    return null;
+const buildOverlayInputIndexMap = (
+	overlayInputs: PreparedOverlayInput[],
+): Map<string, number> => {
+	return new Map(
+		overlayInputs.map((input, index) => [input.overlayId, index + 1]),
+	);
 };
 
-const sortOverlaysByStart = (overlays: Overlay[]): Overlay[] => {
-    return [...overlays].sort((a, b) => a.start - b.start);
+const buildOverlayFilter = (
+	overlay: Overlay,
+	currentStream: string,
+	filterIndex: number,
+	overlayInputIndexes: Map<string, number>,
+	videoDuration: number,
+): OverlayFilterResult | null => {
+	const outputLabel = `v${filterIndex + 1}`;
+
+	if (overlay.type === OverlayType.text) {
+		return {
+			filterPart: buildTextOverlayFilter(overlay, currentStream, outputLabel),
+			outputStream: `[${outputLabel}]`,
+		};
+	}
+
+	if (overlay.type === OverlayType.image) {
+		const inputIndex = overlayInputIndexes.get(overlay.id);
+		if (inputIndex === undefined) return null;
+		return {
+			filterPart: buildImageOverlayFilter(
+				overlay,
+				inputIndex,
+				currentStream,
+				outputLabel,
+				videoDuration,
+			),
+			outputStream: `[${outputLabel}]`,
+		};
+	}
+
+	if (overlay.type === OverlayType.circle) {
+		const inputIndex = overlayInputIndexes.get(overlay.id);
+		if (inputIndex === undefined) return null;
+		return {
+			filterPart: buildCircleOverlayFilter(
+				overlay,
+				inputIndex,
+				currentStream,
+				outputLabel,
+			),
+			outputStream: `[${outputLabel}]`,
+		};
+	}
+
+	if (overlay.type === OverlayType.video) {
+		const inputIndex = overlayInputIndexes.get(overlay.id);
+		if (inputIndex === undefined) return null;
+		return {
+			filterPart: buildVideoOverlayFilter(
+				overlay,
+				inputIndex,
+				currentStream,
+				outputLabel,
+			),
+			outputStream: `[${outputLabel}]`,
+		};
+	}
+
+	if (overlay.type === OverlayType.rectangle) {
+		return {
+			filterPart: buildRectangleOverlayFilter(
+				overlay,
+				currentStream,
+				outputLabel,
+			),
+			outputStream: `[${outputLabel}]`,
+		};
+	}
+
+	return null;
 };
 
-export const prepareOverlays = prepareImageOverlays;
+export const sortOverlaysByRenderOrder = (overlays: Overlay[]): Overlay[] => {
+	return overlays
+		.map((overlay, index) => ({ overlay, index }))
+		.sort((a, b) => {
+			const trackOrderA =
+				"trackOrder" in a.overlay && typeof a.overlay.trackOrder === "number"
+					? a.overlay.trackOrder
+					: 0;
+			const trackOrderB =
+				"trackOrder" in b.overlay && typeof b.overlay.trackOrder === "number"
+					? b.overlay.trackOrder
+					: 0;
+
+			return trackOrderA - trackOrderB || a.index - b.index;
+		})
+		.map(({ overlay }) => overlay);
+};
+
+export const prepareOverlays = async (
+	overlays: Overlay[],
+	tempDir: string,
+	storage: StorageProvider,
+	config: EnvConfig,
+): Promise<{ overlayInputs: PreparedOverlayInput[]; hasOverlays: boolean }> => {
+	const overlayInputs: PreparedOverlayInput[] = [];
+
+	for (const overlay of sortOverlaysByRenderOrder(overlays)) {
+		if (overlay.type === OverlayType.image) {
+			overlayInputs.push({
+				overlayId: overlay.id,
+				overlayType: overlay.type,
+				path: await prepareImageOverlay(overlay, tempDir),
+			});
+		} else if (overlay.type === OverlayType.circle) {
+			overlayInputs.push({
+				overlayId: overlay.id,
+				overlayType: overlay.type,
+				path: await prepareCircleOverlay(overlay, tempDir),
+			});
+		} else if (overlay.type === OverlayType.video) {
+			overlayInputs.push({
+				overlayId: overlay.id,
+				overlayType: overlay.type,
+				path: await prepareVideoOverlay(overlay, tempDir, storage, config),
+			});
+		}
+	}
+
+	return {
+		overlayInputs,
+		hasOverlays: overlays.length > 0,
+	};
+};
 
 export const buildOverlayFilters = (
-    overlays: Overlay[],
-    imagePaths: string[],
-    videoDuration: number
+	overlays: Overlay[],
+	overlayInputs: PreparedOverlayInput[],
+	videoDuration: number,
 ): { filterComplex: string; outputStream: string } => {
-    if (overlays.length === 0) {
-        return { filterComplex: '', outputStream: '' };
-    }
+	if (overlays.length === 0) {
+		return { filterComplex: "", outputStream: "" };
+	}
 
-    const sortedOverlays = sortOverlaysByStart(overlays);
+	const sortedOverlays = sortOverlaysByRenderOrder(overlays);
+	const overlayInputIndexes = buildOverlayInputIndexMap(overlayInputs);
 
-    const result = sortedOverlays.reduce<{
-        filterParts: string[];
-        currentStream: string;
-        imageInputIndex: number;
-    }>(
-        (acc, overlay) => {
-            const filterResult = buildOverlayFilter(
-                overlay,
-                acc.currentStream,
-                acc.filterParts.length,
-                acc.imageInputIndex,
-                imagePaths,
-                videoDuration
-            );
+	const result = sortedOverlays.reduce<{
+		filterParts: string[];
+		currentStream: string;
+	}>(
+		(acc, overlay) => {
+			const filterResult = buildOverlayFilter(
+				overlay,
+				acc.currentStream,
+				acc.filterParts.length,
+				overlayInputIndexes,
+				videoDuration,
+			);
 
-            if (!filterResult) {
-                return acc;
-            }
+			if (!filterResult) {
+				return acc;
+			}
 
-            return {
-                filterParts: [...acc.filterParts, filterResult.filterPart],
-                currentStream: filterResult.outputStream,
-                imageInputIndex: filterResult.imageInputIndex ?? acc.imageInputIndex
-            };
-        },
-        {
-            filterParts: [],
-            currentStream: '[0:v]',
-            imageInputIndex: 1
-        }
-    );
+			return {
+				filterParts: [...acc.filterParts, filterResult.filterPart],
+				currentStream: filterResult.outputStream,
+			};
+		},
+		{
+			filterParts: [],
+			currentStream: "[0:v]",
+		},
+	);
 
-    const finalOutputStream = result.currentStream.replace(/^\[|\]$/g, '');
-    console.log(`[buildOverlayFilters] Final output stream: ${finalOutputStream}, filter parts: ${result.filterParts.length}`);
+	const finalOutputStream = result.currentStream.replace(/^\[|\]$/g, "");
+	console.log(
+		`[buildOverlayFilters] Final output stream: ${finalOutputStream}, filter parts: ${result.filterParts.length}`,
+	);
 
-    return {
-        filterComplex: result.filterParts.join(';'),
-        outputStream: finalOutputStream
-    };
+	return {
+		filterComplex: result.filterParts.join(";"),
+		outputStream: finalOutputStream,
+	};
 };

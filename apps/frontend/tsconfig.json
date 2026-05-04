@@ -11,6 +11,8 @@
 		"esModuleInterop": true,
 		"sourceMap": true,
 		"declaration": false,
+		"noUnusedLocals": true,
+		"useUnknownInCatchVariables": true,
 		"moduleResolution": "bundler",
 		"importHelpers": false,
 		"target": "ES2022",

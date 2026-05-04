@@ -3,17 +3,17 @@ import { BaseSequence, SequenceItemOptions } from "../base-sequence";
 import { RadialBars } from "./audio-bars/radial-audio-bars";
 
 export default function RadialAudioBars({
-  item,
-  options
+	item,
+	options,
 }: {
-  item: IRadialAudioBars;
-  options: SequenceItemOptions;
+	item: IRadialAudioBars;
+	options: SequenceItemOptions;
 }) {
-  const children = (
-    <>
-      <RadialBars item={item} options={options} />
-    </>
-  );
+	const children = (
+		<>
+			<RadialBars item={item} options={options} />
+		</>
+	);
 
-  return BaseSequence({ item, options, children });
+	return BaseSequence({ item, options, children });
 }

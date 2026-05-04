@@ -17,7 +17,8 @@ apps/
 - Server runtime is Node.js `22.18+`.
 - Use `pnpm` for all package management. Add dependencies with `pnpm add` or `pnpm add -D`, and do not use `npm`.
 - Server TypeScript is executed directly with Node.js. Do not introduce `tsx`/`ts-node` for normal app execution.
-- After each completed prompt, run `lint` and `build` before finishing.
+- After each completed prompt, run `pnpm lint` and `pnpm build` before finishing.
+- Treat Biome as the required linter/formatter for both frontend and backend. Apply Biome fixes before finishing.
 
 ## Commands
 
