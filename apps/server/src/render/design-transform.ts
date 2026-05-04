@@ -101,12 +101,54 @@ function getVisualTimelineEnd(
 	return Math.max(itemEnd, designDuration ?? 0) / 1000;
 }
 
+function getVideoTracks(tracks: ITrack[]): ITrack[] {
+	return tracks.filter((track) => track.type === "main" || track.type === "video");
+}
+
+function isSceneAdjustedVisual(
+	item: ITrackItemBase,
+	size: ISize,
+): boolean {
+	const details = item.details ?? {};
+	const width = parsePx(details.width);
+	const height = parsePx(details.height);
+	const left = parsePx(details.left);
+	const top = parsePx(details.top);
+	const opacity = parsePx(details.opacity || 100);
+	const blur = parsePx(details.blur);
+	const brightness =
+		details.brightness === undefined ? 100 : parsePx(details.brightness);
+	const borderRadius = parsePx(details.borderRadius);
+	const rotation = parseRotation(details) ?? 0;
+	const transform =
+		typeof details.transform === "string" ? details.transform.trim() : "none";
+	const crop =
+		typeof details.crop === "object" && details.crop !== null
+			? (details.crop as Record<string, unknown>)
+			: undefined;
+
+	return (
+		left !== 0 ||
+		top !== 0 ||
+		(width > 0 && Math.abs(width - size.width) > 0.5) ||
+		(height > 0 && Math.abs(height - size.height) > 0.5) ||
+		opacity !== 100 ||
+		blur > 0 ||
+		brightness !== 100 ||
+		borderRadius > 0 ||
+		rotation !== 0 ||
+		(transform !== "" && transform !== "none") ||
+		crop !== undefined
+	);
+}
+
 export function transformDesignToRenderRequest(
 	design: IDesign,
 	format: "mp4" = "mp4",
 ): Omit<RenderRequest, "jobId"> {
 	const { tracks, trackItemsMap, size, duration: designDuration } = design;
 
+	const videoTracks = getVideoTracks(tracks);
 	const mainTrack =
 		tracks.find((t) => t.type === "main") ??
 		tracks.find((t) => t.type === "video");
@@ -122,42 +164,58 @@ export function transformDesignToRenderRequest(
 
 	// Build sources from the primary/base track items.
 	const mainItems = getSortedTrackItems(mainTrack, trackItemsMap);
+	const shouldCompositeVideoRows =
+		videoTracks.length > 1 ||
+		mainItems.some(
+			(item) => item.type === "video" && isSceneAdjustedVisual(item, size),
+		);
 
 	const sources: RenderRequest["sources"] = [];
 	let timelinePosition = 0;
 
-	for (const item of mainItems) {
-		if (item.type === "text") continue;
-		const details = item.details ?? {};
-		const url = (details.src as string | undefined) ?? "";
-		if (!url) continue;
+	if (shouldCompositeVideoRows) {
+		const baseDuration =
+			visualTimelineEnd || (designDuration ? designDuration / 1000 : 5);
+		sources.push({
+			url: `internal://blank?w=${size.width}&h=${size.height}&fps=${design.fps}`,
+			type: "video",
+			duration: baseDuration,
+		});
+		timelinePosition = baseDuration;
+	} else {
+		for (const item of mainItems) {
+			if (item.type === "text") continue;
+			const details = item.details ?? {};
+			const url = (details.src as string | undefined) ?? "";
+			if (!url) continue;
 
-		const itemFrom = item.display.from / 1000;
-		const itemTo = item.display.to / 1000;
+			const itemFrom = item.display.from / 1000;
+			const itemTo = item.display.to / 1000;
 
-		if (itemFrom > timelinePosition + 0.001) {
-			sources.push({
-				url: `internal://blank?w=${size.width}&h=${size.height}&fps=${design.fps}`,
-				type: "video",
-				duration: itemFrom - timelinePosition,
-			});
+			if (itemFrom > timelinePosition + 0.001) {
+				sources.push({
+					url: `internal://blank?w=${size.width}&h=${size.height}&fps=${design.fps}`,
+					type: "video",
+					duration: itemFrom - timelinePosition,
+				});
+			}
+
+			const type = item.type === "image" ? "image" : "video";
+			const displayDuration = itemTo - itemFrom;
+			const result: RenderRequest["sources"][0] = {
+				url,
+				type,
+				duration: displayDuration,
+			};
+
+			if (item.trim !== undefined) {
+				result.trimFrom = item.trim.from / 1000;
+				result.trimTo = item.trim.to / 1000;
+			}
+
+			sources.push(result);
+			timelinePosition = itemTo;
 		}
-
-		const type = item.type === "image" ? "image" : "video";
-		const displayDuration = itemTo - itemFrom;
-		const result: RenderRequest["sources"][0] = {
-			url,
-			type,
-			duration: displayDuration,
-		};
-
-		if (item.trim !== undefined) {
-			result.trimFrom = item.trim.from / 1000;
-			result.trimTo = item.trim.to / 1000;
-		}
-
-		sources.push(result);
-		timelinePosition = itemTo;
 	}
 
 	const trimEnd =
@@ -209,13 +267,16 @@ export function transformDesignToRenderRequest(
 				continue;
 			}
 
-			if (item.type === "image" && !isPrimaryTrack) {
+			if (
+				item.type === "image" &&
+				(!isPrimaryTrack || shouldCompositeVideoRows)
+			) {
 				const imageUrl = (details.src as string | undefined) ?? "";
 				if (!imageUrl) continue;
 				const x = toPercent(details.left, size.width);
 				const y = toPercent(details.top, size.height);
-				const width = details.width as number | undefined;
-				const height = details.height as number | undefined;
+				const width = parsePx(details.width) || undefined;
+				const height = parsePx(details.height) || undefined;
 				const opacity = toOpacity(details.opacity);
 				overlays.push({
 					id: item.id,
@@ -233,11 +294,11 @@ export function transformDesignToRenderRequest(
 				continue;
 			}
 
-			if (!isPrimaryTrack && item.type === "video") {
+			if (item.type === "video" && (!isPrimaryTrack || shouldCompositeVideoRows)) {
 				const sourceUrl = (details.src as string | undefined) ?? "";
 				if (!sourceUrl) continue;
-				const width = details.width as number | undefined;
-				const height = details.height as number | undefined;
+				const width = parsePx(details.width) || undefined;
+				const height = parsePx(details.height) || undefined;
 				const crop = details.crop;
 				const opacity = toOpacity(details.opacity);
 				const rotation = parseRotation(details);
@@ -295,6 +356,38 @@ export function transformDesignToRenderRequest(
 
 	// Build audio sources
 	const audioSources: RenderRequest["audioSources"] = [];
+	if (shouldCompositeVideoRows && mainTrack && mainTrack.muted !== true) {
+		for (const item of mainItems) {
+			if (item.type !== "video") continue;
+			const details = item.details ?? {};
+			const src = (details.src as string | undefined) ?? "";
+			if (!src) continue;
+			const startTime = item.display.from / 1000;
+			const displayDuration = (item.display.to - item.display.from) / 1000;
+			const trimDuration = item.trim
+				? (item.trim.to - item.trim.from) / 1000
+				: displayDuration;
+			const originalDuration =
+				item.duration !== undefined ? item.duration / 1000 : undefined;
+			const audioTrimStart = item.trim ? item.trim.from / 1000 : undefined;
+			const audioTrimEnd = item.trim ? item.trim.to / 1000 : undefined;
+			audioSources.push({
+				url: src,
+				startTime,
+				duration: trimDuration,
+				...(originalDuration !== undefined && { originalDuration }),
+				...(audioTrimStart !== undefined && { audioTrimStart }),
+				...(audioTrimEnd !== undefined && { audioTrimEnd }),
+				volume: Math.min(
+					1,
+					Math.max(0, parsePx(details.volume === undefined ? 100 : details.volume) / 100),
+				),
+				muted: false,
+				solo: false,
+			});
+		}
+	}
+
 	for (const track of audioTracks) {
 		for (const itemId of track.items) {
 			const item = trackItemsMap[itemId];

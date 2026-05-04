@@ -80,7 +80,7 @@ describe("transformDesignToRenderRequest", () => {
 		);
 	});
 
-	it("turns secondary video rows into stacked video overlays and pads the base timeline", () => {
+	it("switches multi-row video exports to composited overlays on a blank base", () => {
 		const design: IDesign = {
 			id: "design-stacked-rows",
 			fps: 30,
@@ -139,29 +139,36 @@ describe("transformDesignToRenderRequest", () => {
 		);
 
 		assert.equal(request.trimEnd, 15);
+		assert.equal(request.sources.length, 1);
+		assert.equal(request.sources[0]?.url.startsWith("internal://blank"), true);
+		assert.equal(request.sources[0]?.duration, 15);
+		assert.equal(videoOverlays.length, 3);
 		assert.deepEqual(
-			request.sources.map((source) => ({
-				isBlank: source.url.startsWith("internal://blank"),
+			videoOverlays.map((overlay) => overlay.id),
+			["base-middle", "overlay-early", "overlay-late"],
+		);
+		assert.equal(videoOverlays[0]?.trackOrder, 0);
+		assert.equal(
+			videoOverlays[1]?.sourceUrl,
+			"https://example.com/overlay-early.mp4",
+		);
+		assert.equal(videoOverlays[1]?.trackOrder, 1);
+		assert.equal(videoOverlays[1]?.left, 120);
+		assert.equal(videoOverlays[1]?.opacity, 1);
+		assert.deepEqual(
+			request.audioSources.map((source) => ({
+				url: source.url,
+				startTime: source.startTime,
 				duration: source.duration,
 			})),
 			[
-				{ isBlank: true, duration: 5 },
-				{ isBlank: false, duration: 5 },
-				{ isBlank: true, duration: 5 },
+				{
+					url: "https://example.com/base-middle.mp4",
+					startTime: 5,
+					duration: 5,
+				},
 			],
 		);
-		assert.equal(videoOverlays.length, 2);
-		assert.deepEqual(
-			videoOverlays.map((overlay) => overlay.id),
-			["overlay-early", "overlay-late"],
-		);
-		assert.equal(
-			videoOverlays[0]?.sourceUrl,
-			"https://example.com/overlay-early.mp4",
-		);
-		assert.equal(videoOverlays[0]?.trackOrder, 1);
-		assert.equal(videoOverlays[0]?.left, 120);
-		assert.equal(videoOverlays[0]?.opacity, 1);
 	});
 
 	it("orders overlapping stacked clips by track order and keeps explicit audio tracks separate", () => {
@@ -211,13 +218,54 @@ describe("transformDesignToRenderRequest", () => {
 				trackOrder: overlay.trackOrder,
 			})),
 			[
+				{ id: "base", trackOrder: 0 },
 				{ id: "overlay-row-2", trackOrder: 1 },
 				{ id: "overlay-row-3", trackOrder: 2 },
 			],
 		);
 		assert.deepEqual(
 			request.audioSources.map((source) => source.url),
-			["https://example.com/audio-bed.mp3"],
+			["https://example.com/base.mp4", "https://example.com/audio-bed.mp3"],
+		);
+	});
+
+	it("composites a scene-adjusted single-row video instead of exporting raw source dimensions", () => {
+		const design: IDesign = {
+			id: "design-single-row-adjusted",
+			fps: 30,
+			duration: 5000,
+			size: { width: 1920, height: 1080 },
+			tracks: [{ id: "track-base", type: "video", items: ["clip-base"] }],
+			trackItemIds: ["clip-base"],
+			trackItemsMap: {
+				"clip-base": createVideoItem(
+					"clip-base",
+					"https://example.com/base.mp4",
+					0,
+					5000,
+					{
+						left: "320px",
+						top: "180px",
+						width: 1280,
+						height: 720,
+					},
+				),
+			},
+		};
+
+		const request = transformDesignToRenderRequest(design);
+		const videoOverlays = request.overlays.filter(
+			(overlay) => overlay.type === "video",
+		);
+
+		assert.equal(request.sources.length, 1);
+		assert.equal(request.sources[0]?.url.startsWith("internal://blank"), true);
+		assert.equal(videoOverlays.length, 1);
+		assert.equal(videoOverlays[0]?.left, 320);
+		assert.equal(videoOverlays[0]?.width, 1280);
+		assert.deepEqual(
+			request.audioSources.map((source) => source.url),
+			["https://example.com/base.mp4"],
 		);
 	});
 });

@@ -5,7 +5,7 @@ import type {
 	RenderRequest,
 } from "../../edit-video/edit-video.types.ts";
 import { FFMPEG_COMMAND } from "../../ffmpeg/ffmpeg.consts.ts";
-import { runFfmpeg } from "../../ffmpeg/ffmpeg.utils.ts";
+import { hasAudioStream, runFfmpeg } from "../../ffmpeg/ffmpeg.utils.ts";
 import type { StorageProvider } from "../storage/storage.types.ts";
 
 export const getActiveAudioSources = (
@@ -142,7 +142,7 @@ export const prepareAudioSources = async (
 		return { audioPaths: [], hasAudio: false };
 	}
 
-	const audioPaths = await Promise.all(
+	const preparedAudioPaths = await Promise.all(
 		activeAudio.map(async (audio, index) => {
 			try {
 				const audioExt = path.extname(new URL(audio.url).pathname) || ".mp3";
@@ -150,6 +150,10 @@ export const prepareAudioSources = async (
 
 				await storage.downloadToFile(audio.url, audioPath);
 				await fsp.access(audioPath);
+				const hasEmbeddedAudio = await hasAudioStream(audioPath);
+				if (!hasEmbeddedAudio) {
+					return null;
+				}
 
 				const finalAudioPath = await processAudioFile(
 					audio,
@@ -169,6 +173,10 @@ export const prepareAudioSources = async (
 				throw new Error(`Failed to process audio: ${audio.url}`);
 			}
 		}),
+	);
+	const audioPaths = preparedAudioPaths.filter(
+		(audioPath): audioPath is { path: string; startTime: number; volume: number } =>
+			audioPath !== null,
 	);
 
 	return { audioPaths, hasAudio: audioPaths.length > 0 };
