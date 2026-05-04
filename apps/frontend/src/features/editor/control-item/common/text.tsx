@@ -8,6 +8,7 @@ import {
 	PopoverTrigger,
 } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Textarea } from "@/components/ui/textarea";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { useIsLargeScreen } from "@/hooks/use-media-query";
 import { dispatch } from "@designcombo/events";
@@ -25,6 +26,8 @@ interface TextControlsProps {
 	trackItem: ITrackItem & any;
 	properties: any;
 	selectedFont: ICompactFont;
+	textValue?: string;
+	onChangeText?: (value: string) => void;
 	onChangeFontFamily: (font: ICompactFont) => void;
 	handleChangeFontStyle: (font: IFont) => void;
 	onChangeFontSize: (v: number) => void;
@@ -39,6 +42,8 @@ export const TextControls = ({
 	trackItem,
 	properties,
 	selectedFont,
+	textValue,
+	onChangeText,
 	onChangeFontFamily,
 	handleChangeFontStyle,
 	onChangeFontSize,
@@ -50,6 +55,9 @@ export const TextControls = ({
 }: TextControlsProps) => {
 	return (
 		<div className="flex flex-col gap-2 py-4">
+			{typeof onChangeText === "function" ? (
+				<TextContent value={textValue || ""} onChange={onChangeText} />
+			) : null}
 			<Label className="font-sans text-xs font-semibold">Styles</Label>
 			<FontFamily
 				handleChangeFont={onChangeFontFamily}
@@ -79,6 +87,25 @@ export const TextControls = ({
 			<Opacity
 				onChange={(v: number) => handleChangeOpacity(v)}
 				value={properties.opacity ?? 100}
+			/>
+		</div>
+	);
+};
+
+const TextContent = ({
+	value,
+	onChange,
+}: {
+	value: string;
+	onChange: (value: string) => void;
+}) => {
+	return (
+		<div className="flex flex-col gap-2">
+			<Label className="font-sans text-xs font-semibold">Content</Label>
+			<Textarea
+				value={value}
+				onChange={(event) => onChange(event.target.value)}
+				className="min-h-[120px] resize-y"
 			/>
 		</div>
 	);

@@ -14,6 +14,7 @@ import Shadow from "./common/shadow";
 import { TextControls } from "./common/text";
 
 interface ITextControlProps {
+	text: string;
 	color: string;
 	colorDisplay: string;
 	backgroundColor: string;
@@ -47,6 +48,7 @@ const BasicText = ({
 }) => {
 	const showAll = !type;
 	const [properties, setProperties] = useState<ITextControlProps>({
+		text: "",
 		color: "#000000",
 		colorDisplay: "#000000",
 		backgroundColor: "transparent",
@@ -97,6 +99,7 @@ const BasicText = ({
 		});
 
 		setProperties({
+			text: trackItem.details.text || "",
 			color: trackItem.details.color || "#ffffff",
 			colorDisplay: trackItem.details.color || "#ffffff",
 			backgroundColor: trackItem.details.backgroundColor || "transparent",
@@ -211,6 +214,24 @@ const BasicText = ({
 			return {
 				...prev,
 				boxShadow,
+			} as ITextControlProps;
+		});
+	};
+
+	const onChangeText = (text: string) => {
+		dispatch(EDIT_OBJECT, {
+			payload: {
+				[trackItem.id]: {
+					details: {
+						text,
+					},
+				},
+			},
+		});
+		setProperties((prev) => {
+			return {
+				...prev,
+				text,
 			} as ITextControlProps;
 		});
 	};
@@ -347,6 +368,8 @@ const BasicText = ({
 					trackItem={trackItem}
 					properties={properties}
 					selectedFont={selectedFont}
+					textValue={properties.text}
+					onChangeText={onChangeText}
 					onChangeFontFamily={onChangeFontFamily}
 					handleChangeFontStyle={handleChangeFontStyle}
 					onChangeFontSize={onChangeFontSize}
