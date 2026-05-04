@@ -227,6 +227,64 @@ describe("transformDesignToRenderRequest", () => {
 			request.audioSources.map((source) => source.url),
 			["https://example.com/base.mp4", "https://example.com/audio-bed.mp3"],
 		);
+		assert.deepEqual(
+			request.audioSources.map((source) => source.volume),
+			[1, 1],
+		);
+	});
+
+	it("normalizes timeline audio volume percentages and adds a fallback text stroke", () => {
+		const design: IDesign = {
+			id: "design-audio-and-text",
+			fps: 30,
+			duration: 5000,
+			size: { width: 1080, height: 1920 },
+			tracks: [
+				{ id: "track-base", type: "video", items: ["base"] },
+				{ id: "track-text", type: "text", items: ["title"] },
+				{ id: "track-audio", type: "audio", items: ["audio-bed"] },
+			],
+			trackItemIds: ["base", "title", "audio-bed"],
+			trackItemsMap: {
+				base: createVideoItem("base", "https://example.com/base.mp4", 0, 5000),
+				title: {
+					id: "title",
+					type: "text",
+					display: { from: 0, to: 5000 },
+					details: {
+						text: "שלום עולם",
+						fontSize: 120,
+						left: "240px",
+						top: "700px",
+						color: "#ffffff",
+						backgroundColor: "transparent",
+						boxShadow: { x: 0, y: 0, blur: 0, color: "#ffffff" },
+					},
+				},
+				"audio-bed": {
+					...createAudioItem(
+						"audio-bed",
+						"https://example.com/audio-bed.mp3",
+						0,
+						5000,
+					),
+					details: {
+						src: "https://example.com/audio-bed.mp3",
+						volume: 100,
+					},
+				},
+			},
+		};
+
+		const request = transformDesignToRenderRequest(design);
+		const textOverlay = request.overlays.find(
+			(overlay) => overlay.type === "text",
+		);
+
+		assert.equal(request.audioSources[1]?.volume, 1);
+		assert.equal(textOverlay?.type, "text");
+		assert.equal(textOverlay?.strokeWidth, 7);
+		assert.equal(textOverlay?.strokeColor, "#000000");
 	});
 
 	it("composites a scene-adjusted single-row video instead of exporting raw source dimensions", () => {

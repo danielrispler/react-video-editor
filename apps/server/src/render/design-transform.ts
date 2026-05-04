@@ -60,6 +60,89 @@ function toOpacity(val: unknown): number | undefined {
 	return Math.min(1, raw / 100);
 }
 
+function normalizeVolume(val: unknown): number {
+	const raw = parsePx(val);
+	if (!Number.isFinite(raw)) return 1;
+	if (raw <= 0) return 0;
+	if (raw <= 1) return raw;
+	return Math.min(1, raw / 100);
+}
+
+function isTransparentBackground(backgroundColor: unknown): boolean {
+	if (typeof backgroundColor !== "string") return true;
+	const normalized = backgroundColor.trim().toLowerCase();
+	return (
+		normalized === "" ||
+		normalized === "transparent" ||
+		normalized === "none" ||
+		normalized === "rgba(0,0,0,0)" ||
+		normalized === "rgba(0, 0, 0, 0)"
+	);
+}
+
+function isLightColor(color: unknown): boolean {
+	if (typeof color !== "string") return true;
+	const normalized = color.trim();
+	if (!normalized.startsWith("#")) {
+		return normalized.toLowerCase() !== "black";
+	}
+
+	const hex = normalized.slice(1);
+	const expanded =
+		hex.length === 3
+			? hex
+					.split("")
+					.map((char) => `${char}${char}`)
+					.join("")
+			: hex;
+
+	if (!/^[0-9a-fA-F]{6}$/.test(expanded)) return true;
+
+	const r = Number.parseInt(expanded.slice(0, 2), 16);
+	const g = Number.parseInt(expanded.slice(2, 4), 16);
+	const b = Number.parseInt(expanded.slice(4, 6), 16);
+	const luminance = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+	return luminance >= 0.5;
+}
+
+function getReadableStroke(details: Record<string, unknown>): {
+	strokeWidth?: number;
+	strokeColor?: string;
+} {
+	const explicitStrokeWidth = parsePx(
+		details.WebkitTextStrokeWidth ?? details.borderWidth,
+	);
+	const explicitStrokeColor =
+		(details.WebkitTextStrokeColor as string | undefined) ??
+		(details.borderColor as string | undefined);
+
+	if (explicitStrokeWidth > 0) {
+		return {
+			strokeWidth: explicitStrokeWidth,
+			strokeColor: explicitStrokeColor ?? "#000000",
+		};
+	}
+
+	const fontSize = parsePx(details.fontSize);
+	const shouldAddFallbackStroke =
+		fontSize >= 48 &&
+		isTransparentBackground(details.backgroundColor) &&
+		parsePx(
+			details.boxShadow && typeof details.boxShadow === "object"
+				? (details.boxShadow as Record<string, unknown>).blur
+				: 0,
+		) === 0;
+
+	if (!shouldAddFallbackStroke) {
+		return {};
+	}
+
+	return {
+		strokeWidth: Math.max(2, Math.round(fontSize / 18)),
+		strokeColor: isLightColor(details.color) ? "#000000" : "#ffffff",
+	};
+}
+
 function parseDegrees(val: unknown): number | undefined {
 	if (typeof val === "number" && Number.isFinite(val)) return val;
 	if (typeof val !== "string") return undefined;
@@ -102,13 +185,12 @@ function getVisualTimelineEnd(
 }
 
 function getVideoTracks(tracks: ITrack[]): ITrack[] {
-	return tracks.filter((track) => track.type === "main" || track.type === "video");
+	return tracks.filter(
+		(track) => track.type === "main" || track.type === "video",
+	);
 }
 
-function isSceneAdjustedVisual(
-	item: ITrackItemBase,
-	size: ISize,
-): boolean {
+function isSceneAdjustedVisual(item: ITrackItemBase, size: ISize): boolean {
 	const details = item.details ?? {};
 	const width = parsePx(details.width);
 	const height = parsePx(details.height);
@@ -250,6 +332,7 @@ export function transformDesignToRenderRequest(
 				const fontColor = details.color as string | undefined;
 				const backgroundColor = details.backgroundColor as string | undefined;
 				const opacity = toOpacity(details.opacity);
+				const { strokeWidth, strokeColor } = getReadableStroke(details);
 				overlays.push({
 					id: item.id,
 					type: "text" as const,
@@ -262,6 +345,8 @@ export function transformDesignToRenderRequest(
 					...(fontSize !== undefined && { fontSize }),
 					...(fontColor !== undefined && { fontColor }),
 					...(backgroundColor !== undefined && { backgroundColor }),
+					...(strokeWidth !== undefined && { strokeWidth }),
+					...(strokeColor !== undefined && { strokeColor }),
 					...(opacity !== undefined && { opacity }),
 				});
 				continue;
@@ -294,7 +379,10 @@ export function transformDesignToRenderRequest(
 				continue;
 			}
 
-			if (item.type === "video" && (!isPrimaryTrack || shouldCompositeVideoRows)) {
+			if (
+				item.type === "video" &&
+				(!isPrimaryTrack || shouldCompositeVideoRows)
+			) {
 				const sourceUrl = (details.src as string | undefined) ?? "";
 				if (!sourceUrl) continue;
 				const width = parsePx(details.width) || undefined;
@@ -378,9 +466,9 @@ export function transformDesignToRenderRequest(
 				...(originalDuration !== undefined && { originalDuration }),
 				...(audioTrimStart !== undefined && { audioTrimStart }),
 				...(audioTrimEnd !== undefined && { audioTrimEnd }),
-				volume: Math.min(
-					1,
-					Math.max(0, parsePx(details.volume === undefined ? 100 : details.volume) / 100),
+				sourceType: "video",
+				volume: normalizeVolume(
+					details.volume === undefined ? 100 : details.volume,
 				),
 				muted: false,
 				solo: false,
@@ -411,7 +499,8 @@ export function transformDesignToRenderRequest(
 				...(originalDuration !== undefined && { originalDuration }),
 				...(audioTrimStart !== undefined && { audioTrimStart }),
 				...(audioTrimEnd !== undefined && { audioTrimEnd }),
-				volume: (details.volume as number | undefined) ?? 1,
+				sourceType: "audio",
+				volume: normalizeVolume(details.volume),
 				muted: track.muted === true,
 				solo: false,
 			});

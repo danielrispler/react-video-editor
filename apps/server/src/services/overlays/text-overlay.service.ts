@@ -15,6 +15,8 @@ export const buildTextOverlayFilter = (
 	const fontColor = overlay.fontColor ?? "white";
 	const bgColor = overlay.backgroundColor ?? "black@0.5";
 	const opacity = overlay.opacity ?? 1;
+	const strokeWidth = overlay.strokeWidth ?? 0;
+	const strokeColor = overlay.strokeColor ?? "black";
 	const x = buildPositionExpression(overlay.x, "x");
 	const y = buildPositionExpression(overlay.y, "y");
 	const enable = buildEnableExpression(overlay.start, overlay.end);
@@ -29,7 +31,7 @@ export const buildTextOverlayFilter = (
 		bgColor === "none" ||
 		bgColor === "";
 
-	const base = `${currentStream}drawtext=${fontFileParam}:text='${escapedText}':fontsize=${fontSizeExpression}:fontcolor=${fontColor}@${opacity}:x=${x}:y=${y}:enable='${enable}'`;
+	const base = `${currentStream}drawtext=${fontFileParam}:text='${escapedText}':fontsize=${fontSizeExpression}:fontcolor=${fontColor}@${opacity}:borderw=${strokeWidth}:bordercolor=${strokeColor}:x=${x}:y=${y}:enable='${enable}'`;
 	return hasTransparentBg
 		? `${base}[${outputLabel}]`
 		: `${base}:box=1:boxcolor=${bgColor}:boxborderw=5[${outputLabel}]`;

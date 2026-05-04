@@ -8,6 +8,19 @@ import { FFMPEG_COMMAND } from "../../ffmpeg/ffmpeg.consts.ts";
 import { hasAudioStream, runFfmpeg } from "../../ffmpeg/ffmpeg.utils.ts";
 import type { StorageProvider } from "../storage/storage.types.ts";
 
+const AUDIO_FILE_EXTENSIONS = new Set([
+	".aac",
+	".flac",
+	".m4a",
+	".mp3",
+	".oga",
+	".ogg",
+	".opus",
+	".wav",
+	".weba",
+	".webm",
+]);
+
 export const getActiveAudioSources = (
 	audioSources: RenderRequest["audioSources"],
 ): AudioSource[] => {
@@ -66,6 +79,27 @@ export const calculateAudioProcessing = (
 	};
 };
 
+export const isLikelyAudioFileUrl = (url: string): boolean => {
+	try {
+		const extension = path.extname(new URL(url).pathname).toLowerCase();
+		return AUDIO_FILE_EXTENSIONS.has(extension);
+	} catch {
+		return false;
+	}
+};
+
+export const shouldProbeForEmbeddedAudio = (audio: AudioSource): boolean => {
+	if (audio.sourceType === "audio") {
+		return false;
+	}
+
+	if (audio.sourceType === "video") {
+		return true;
+	}
+
+	return !isLikelyAudioFileUrl(audio.url);
+};
+
 export const processAudioFile = async (
 	audio: AudioSource,
 	audioPath: string,
@@ -91,9 +125,11 @@ export const processAudioFile = async (
 	const processedPath = path.join(tempDir, `audio-${index}-processed.m4a`);
 
 	await runFfmpeg((command) => {
-		const cmdWithInput = command
-			.input(audioPath)
-			.map(FFMPEG_COMMAND.EXPLICIT_AUDIO_STREAM);
+		// Note: do NOT use .map() here when audioFilters() are also applied.
+		// The explicit "-map 0:a:0" conflicts with the filter graph output label,
+		// causing FFmpeg to error with "Output with label '0:a:0' does not exist".
+		// For a single audio input, FFmpeg auto-selects the audio stream correctly.
+		const cmdWithInput = command.input(audioPath);
 
 		const cmdWithSeek =
 			processing.audioTrimStart > 0
@@ -150,9 +186,11 @@ export const prepareAudioSources = async (
 
 				await storage.downloadToFile(audio.url, audioPath);
 				await fsp.access(audioPath);
-				const hasEmbeddedAudio = await hasAudioStream(audioPath);
-				if (!hasEmbeddedAudio) {
-					return null;
+				if (shouldProbeForEmbeddedAudio(audio)) {
+					const hasEmbeddedAudio = await hasAudioStream(audioPath);
+					if (!hasEmbeddedAudio) {
+						return null;
+					}
 				}
 
 				const finalAudioPath = await processAudioFile(
@@ -175,7 +213,9 @@ export const prepareAudioSources = async (
 		}),
 	);
 	const audioPaths = preparedAudioPaths.filter(
-		(audioPath): audioPath is { path: string; startTime: number; volume: number } =>
+		(
+			audioPath,
+		): audioPath is { path: string; startTime: number; volume: number } =>
 			audioPath !== null,
 	);
 

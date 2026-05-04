@@ -13,6 +13,8 @@ export const textOverlaySchema = Type.Object({
 	fontSize: Type.Optional(Type.Number({ exclusiveMinimum: 0 })),
 	fontColor: Type.Optional(Type.String()),
 	backgroundColor: Type.Optional(Type.String()),
+	strokeWidth: Type.Optional(Type.Number({ minimum: 0 })),
+	strokeColor: Type.Optional(Type.String()),
 	opacity: Type.Optional(Type.Number({ minimum: 0, maximum: 1 })),
 });
 
@@ -114,6 +116,9 @@ export const audioSourceSchema = Type.Object({
 	originalDuration: Type.Optional(Type.Number({ exclusiveMinimum: 0 })),
 	audioTrimStart: Type.Optional(Type.Number({ minimum: 0 })),
 	audioTrimEnd: Type.Optional(Type.Number({ exclusiveMinimum: 0 })),
+	sourceType: Type.Optional(
+		Type.Union([Type.Literal("audio"), Type.Literal("video")]),
+	),
 	volume: Type.Number({ minimum: 0, maximum: 1 }),
 	muted: Type.Optional(Type.Boolean()),
 	solo: Type.Optional(Type.Boolean()),
