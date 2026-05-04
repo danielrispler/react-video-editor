@@ -15,6 +15,7 @@ apps/
 ## Repo Rules
 
 - Backend runtime is Node.js `22.18+`.
+- use only imports with .ts and not .js
 - Backend TypeScript is executed directly with Node.js. Do not introduce `tsx`/`ts-node` for normal app execution.
 - After each completed prompt, run `lint` and `build` before finishing.
 

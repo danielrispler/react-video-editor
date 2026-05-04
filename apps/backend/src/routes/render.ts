@@ -1,6 +1,14 @@
 import type { FastifyPluginAsync } from "fastify";
 
-export const renderRoutes: FastifyPluginAsync = async (app) => {
+async function safeJson(res: Response): Promise<Record<string, unknown>> {
+	try {
+		return (await res.json()) as Record<string, unknown>;
+	} catch {
+		return { message: await res.text().catch(() => `HTTP ${res.status}`) };
+	}
+}
+
+export const 	renderRoutes: FastifyPluginAsync = async (app) => {
 	app.post("/", async (request, reply) => {
 		try {
 			const body = request.body;
@@ -18,14 +26,17 @@ export const renderRoutes: FastifyPluginAsync = async (app) => {
 			);
 
 			if (!projectResponse.ok) {
-				const projectError = await projectResponse.json();
+				const err = await safeJson(projectResponse);
 				return reply
 					.status(projectResponse.status)
-					.send({ message: (projectError as any)?.message || "Failed to create project" });
+					.send({ message: err.message || "Failed to create project" });
 			}
 
-			const projectData = (await projectResponse.json()) as any;
-			const projectId = projectData.project.id;
+			const projectData = (await safeJson(projectResponse)) as any;
+			const projectId = projectData.project?.id;
+			if (!projectId) {
+				return reply.status(502).send({ message: "No project ID in response" });
+			}
 			app.log.info({ projectId }, "Project created");
 
 			const exportResponse = await fetch(
@@ -40,15 +51,14 @@ export const renderRoutes: FastifyPluginAsync = async (app) => {
 			);
 
 			if (!exportResponse.ok) {
-				const exportError = await exportResponse.json();
+				const err = await safeJson(exportResponse);
 				return reply
 					.status(exportResponse.status)
-					.send({ message: (exportError as any)?.message || "Failed to initialize export" });
+					.send({ message: err.message || "Failed to initialize export" });
 			}
 
-			const exportData = await exportResponse.json();
+			const exportData = await safeJson(exportResponse);
 			app.log.info({ exportData }, "Export initialized");
-
 			return reply.send(exportData);
 		} catch (error) {
 			app.log.error({ err: error });
@@ -62,32 +72,18 @@ export const renderRoutes: FastifyPluginAsync = async (app) => {
 			try {
 				const { type, id } = request.query;
 
-				if (!id) {
-					return reply.status(400).send({ message: "id parameter is required" });
-				}
-				if (!type) {
-					return reply
-						.status(400)
-						.send({ message: "type parameter is required" });
-				}
+				if (!id) return reply.status(400).send({ message: "id parameter is required" });
+				if (!type) return reply.status(400).send({ message: "type parameter is required" });
 
-				const response = await fetch(
-					`https://api.combo.sh/v1/render/${id}`,
-					{
-						headers: {
-							Authorization: `Bearer ${process.env.COMBO_SH_JWT}`,
-						},
-					},
-				);
+				const response = await fetch(`https://api.combo.sh/v1/render/${id}`, {
+					headers: { Authorization: `Bearer ${process.env.COMBO_SH_JWT}` },
+				});
 
 				if (!response.ok) {
-					return reply
-						.status(response.status)
-						.send({ message: "Failed to fetch export status" });
+					return reply.status(response.status).send({ message: "Failed to fetch export status" });
 				}
 
-				const statusData = await response.json();
-				return reply.send(statusData);
+				return reply.send(await safeJson(response));
 			} catch (error) {
 				app.log.error({ err: error });
 				return reply.status(500).send({ message: "Internal server error" });
