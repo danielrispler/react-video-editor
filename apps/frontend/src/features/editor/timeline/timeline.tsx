@@ -141,8 +141,8 @@ const Timeline = ({ stateManager }: { stateManager: StateManager }) => {
 				width: containerWidth,
 				height: 0,
 			},
-			selectionColor: "rgba(0, 216, 214,0.1)",
-			selectionBorderColor: "rgba(0, 216, 214,1.0)",
+			selectionColor: "rgba(0, 145, 255, 0.18)",
+			selectionBorderColor: "rgba(0, 145, 255, 1)",
 			onResizeCanvas,
 			scale: scale,
 			state: stateManager,
@@ -194,7 +194,7 @@ const Timeline = ({ stateManager }: { stateManager: StateManager }) => {
 				waveAudioBars: ["audio", "waveAudioBars"],
 				hillAudioBars: ["audio", "hillAudioBars"],
 			},
-			guideLineColor: "#ffffff",
+			guideLineColor: "rgba(239, 83, 80, 0.95)",
 		});
 
 		canvas.initScrollbars({
@@ -203,7 +203,7 @@ const Timeline = ({ stateManager }: { stateManager: StateManager }) => {
 			extraMarginX: 50,
 			extraMarginY: 0,
 			scrollbarWidth: 8,
-			scrollbarColor: "rgba(255, 255, 255, 1)",
+			scrollbarColor: "rgba(89, 91, 94, 1)",
 		});
 
 		canvas.onViewportChange((left: number) => {

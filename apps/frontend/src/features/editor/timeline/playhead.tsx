@@ -34,7 +34,7 @@ const Playhead = ({ scrollLeft }: { scrollLeft: number }) => {
 	}, [mounted, theme, resolvedTheme]);
 
 	const color = useMemo(() => {
-		return currentTheme === "dark" ? "#ffffff" : "#000000";
+		return currentTheme === "dark" ? "#ef5350" : "#0091ff";
 	}, [currentTheme]);
 	const handleMouseUp = () => {
 		setIsDragging(false);
@@ -119,7 +119,7 @@ const Playhead = ({ scrollLeft }: { scrollLeft: number }) => {
 					borderRadius: "0 0 4px 4px",
 					backgroundColor: color,
 				}}
-				className="absolute top-0 h-4 w-2 -translate-x-1/2 transform text-xs font-semibold text-zinc-800"
+				className="absolute top-0 h-4 w-2 -translate-x-1/2 transform text-xs font-semibold text-foreground"
 			/>
 			<div className="relative h-full">
 				<div className="absolute top-0 h-full w-3 -translate-x-1/2 transform" />

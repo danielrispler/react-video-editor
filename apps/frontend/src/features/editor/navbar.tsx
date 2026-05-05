@@ -170,7 +170,7 @@ const DownloadPopover = ({ stateManager }: { stateManager: StateManager }) => {
 					</PopoverTrigger>
 					<PopoverContent className="bg-background z-[251] w-[--radix-popover-trigger-width] px-2 py-2">
 						<div
-							className="flex h-7 items-center rounded-sm px-3 text-sm hover:cursor-pointer hover:bg-zinc-800"
+							className="flex h-7 items-center rounded-sm px-3 text-sm hover:cursor-pointer hover:bg-secondary"
 							onClick={() => {
 								actions.setExportType("mp4");
 								setIsExportTypeOpen(false);
@@ -179,7 +179,7 @@ const DownloadPopover = ({ stateManager }: { stateManager: StateManager }) => {
 							MP4
 						</div>
 						<div
-							className="flex h-7 items-center rounded-sm px-3 text-sm hover:cursor-pointer hover:bg-zinc-800"
+							className="flex h-7 items-center rounded-sm px-3 text-sm hover:cursor-pointer hover:bg-secondary"
 							onClick={() => {
 								actions.setExportType("json");
 								setIsExportTypeOpen(false);
@@ -188,7 +188,7 @@ const DownloadPopover = ({ stateManager }: { stateManager: StateManager }) => {
 							JSON
 						</div>
 						<div
-							className="flex h-7 items-center rounded-sm px-3 text-sm hover:cursor-pointer hover:bg-zinc-800"
+							className="flex h-7 items-center rounded-sm px-3 text-sm hover:cursor-pointer hover:bg-secondary"
 							onClick={() => {
 								actions.setExportType("webp");
 								setIsExportTypeOpen(false);

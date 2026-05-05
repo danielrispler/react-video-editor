@@ -55,8 +55,8 @@ const MenuButton = memo<{
 			className={cn(
 				"flex items-center justify-center flex-none h-7.5 w-7.5 cursor-pointer rounded-sm transition-all duration-200",
 				isActive
-					? "bg-white/10 text-white"
-					: "text-muted-foreground hover:bg-white/5 hover:text-white",
+					? "bg-accent/25 text-foreground shadow-sm"
+					: "text-muted-foreground hover:bg-secondary hover:text-foreground",
 			)}
 			key={item.id}
 		>
@@ -130,7 +130,7 @@ function MenuList() {
 
 	return (
 		<>
-			<div className="relative flex h-full w-16 flex-none flex-col items-center gap-2 border-r border-border/80 bg-primary/7 px-2 py-3">
+			<div className="relative flex h-full w-16 flex-none flex-col items-center gap-2 border-r border-border/80 bg-sidebar px-2 py-3">
 				{showLeftFade && (
 					<div className="pointer-events-none absolute left-0 right-0 top-0 z-10 h-8 bg-linear-to-b from-card to-transparent" />
 				)}
