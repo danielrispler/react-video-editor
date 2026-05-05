@@ -4,6 +4,10 @@ import type { EnvConfig } from "../../config/env.ts";
 import type { VideoOverlay } from "../../edit-video/edit-video.types.ts";
 import { FFMPEG_COMMAND } from "../../ffmpeg/ffmpeg.consts.ts";
 import { runFfmpeg } from "../../ffmpeg/ffmpeg.utils.ts";
+import {
+	normalizeFfmpegDuration,
+	normalizeFfmpegTime,
+} from "../../utils/time.utils.ts";
 import { isMpdUrl, processMpdSource } from "../sources/dash-process.service.ts";
 import type { StorageProvider } from "../storage/storage.types.ts";
 import { buildEnableExpression } from "./overlay-utils.ts";
@@ -169,7 +173,8 @@ export const prepareVideoOverlay = async (
 		return preparedPath;
 	}
 
-	const trimFrom = overlay.trimFrom ?? 0;
+	const rawTrimFrom = overlay.trimFrom ?? 0;
+	const trimFrom = normalizeFfmpegTime(rawTrimFrom);
 	const trimTo = overlay.trimTo;
 
 	await runFfmpeg((command) => {
@@ -179,7 +184,9 @@ export const prepareVideoOverlay = async (
 			.seekInput(trimFrom);
 
 		if (trimTo !== undefined) {
-			ffmpegCommand.duration(Math.max(0.01, trimTo - trimFrom));
+			ffmpegCommand.duration(
+				normalizeFfmpegDuration(trimTo - rawTrimFrom),
+			);
 		}
 
 		return ffmpegCommand

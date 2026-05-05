@@ -6,6 +6,10 @@ import type {
 } from "../../edit-video/edit-video.types.ts";
 import { FFMPEG_COMMAND } from "../../ffmpeg/ffmpeg.consts.ts";
 import { hasAudioStream, runFfmpeg } from "../../ffmpeg/ffmpeg.utils.ts";
+import {
+	normalizeFfmpegDuration,
+	normalizeFfmpegTime,
+} from "../../utils/time.utils.ts";
 import type { StorageProvider } from "../storage/storage.types.ts";
 
 const AUDIO_FILE_EXTENSIONS = new Set([
@@ -133,10 +137,14 @@ export const processAudioFile = async (
 
 		const cmdWithSeek =
 			processing.audioTrimStart > 0
-				? cmdWithInput.seekInput(processing.audioTrimStart)
+				? cmdWithInput.seekInput(
+						normalizeFfmpegTime(processing.audioTrimStart),
+					)
 				: cmdWithInput;
 
-		const cmdWithDuration = cmdWithSeek.duration(processing.extractDuration);
+		const cmdWithDuration = cmdWithSeek.duration(
+			normalizeFfmpegDuration(processing.extractDuration),
+		);
 
 		const filters: string[] = [];
 		if (processing.needsVolume) {

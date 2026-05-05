@@ -16,6 +16,10 @@ import {
 	runFfmpeg,
 } from "../ffmpeg/ffmpeg.utils.ts";
 import type { TimeRange } from "../types/types.ts";
+import {
+	normalizeFfmpegDuration,
+	normalizeFfmpegTime,
+} from "../utils/time.utils.ts";
 import { FfmpegCommandBuilder } from "./ffmpeg/ffmpeg-command.builder.ts";
 import type { PreparedOverlayInput } from "./overlays/overlay.service.ts";
 import type { StorageProvider } from "./storage/storage.types.ts";
@@ -32,12 +36,13 @@ export async function extractSegments(
 
 	for (const [index, segment] of keepSegments.entries()) {
 		const segmentPath = path.join(tempDir, `segment-${index}.mp4`);
-		const duration = segment.end - segment.start;
+		const seekTime = normalizeFfmpegTime(segment.start);
+		const duration = normalizeFfmpegDuration(segment.end - segment.start);
 
 		await runFfmpeg((command) => {
 			return command
 				.input(sourcePath)
-				.seekInput(segment.start)
+				.seekInput(seekTime)
 				.duration(duration)
 				.outputOptions([
 					FFMPEG_COMMAND.HIDE_BANNER,
@@ -255,7 +260,7 @@ const extractFrameToImage = async (
 	outputPath: string,
 	frameTimeMs: number,
 ): Promise<void> => {
-	const seekTimeSeconds = frameTimeMs / 1000;
+	const seekTimeSeconds = normalizeFfmpegTime(frameTimeMs / 1000);
 
 	await runFfmpeg((command) =>
 		command

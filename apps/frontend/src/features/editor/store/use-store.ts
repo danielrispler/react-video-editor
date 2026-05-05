@@ -19,6 +19,7 @@ interface ITimelineStore {
 	scale: ITimelineScaleState;
 	scroll: ITimelineScrollState;
 	size: ISize;
+	setSize: (size: ISize) => void;
 	tracks: ITrack[];
 	trackItemIds: string[];
 	transitionIds: string[];
@@ -55,6 +56,7 @@ const useStore = create<ITimelineStore>((set) => ({
 		width: 1080,
 		height: 1920,
 	},
+	setSize: (size) => set({ size }),
 
 	background: {
 		type: "color",

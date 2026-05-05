@@ -6,6 +6,10 @@ import type { EnvConfig } from "../../config/env.ts";
 import type { VideoSource } from "../../edit-video/edit-video.types.ts";
 import { FFMPEG_COMMAND } from "../../ffmpeg/ffmpeg.consts.ts";
 import type { StorageProvider } from "../storage/storage.types.ts";
+import {
+	normalizeFfmpegDuration,
+	normalizeFfmpegTime,
+} from "../../utils/time.utils.ts";
 import { isMpdUrl, processMpdSource } from "./dash-process.service.ts";
 import { processImageSource } from "./image-process.service.ts";
 
@@ -102,7 +106,8 @@ export const processSingleSource = async (
 
 	if (source.trimFrom !== undefined || source.trimTo !== undefined) {
 		const trimmedPath = path.join(tempDir, `trimmed-${Date.now()}.mp4`);
-		const seekInput = source.trimFrom ?? 0;
+		const rawTrimFrom = source.trimFrom ?? 0;
+		const seekInput = normalizeFfmpegTime(rawTrimFrom);
 		await new Promise<void>((resolve, reject) => {
 			const cmd = ffmpeg()
 				.addOption(FFMPEG_COMMAND.HIDE_BANNER)
@@ -110,7 +115,7 @@ export const processSingleSource = async (
 				.seekInput(seekInput);
 
 			if (source.trimTo !== undefined) {
-				cmd.duration(source.trimTo - seekInput);
+				cmd.duration(normalizeFfmpegDuration(source.trimTo - rawTrimFrom));
 			}
 
 			cmd
