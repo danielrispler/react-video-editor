@@ -20,7 +20,7 @@ ReactDOM.createRoot(rootElement).render(
 	<BrowserRouter>
 		<ThemeProvider
 			attribute="class"
-			defaultTheme="light"
+			defaultTheme="dark"
 			enableSystem
 			disableTransitionOnChange
 		>

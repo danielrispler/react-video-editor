@@ -60,7 +60,7 @@ export const buildTextOverlayFilter = (
 	const opacity = overlay.opacity ?? 1;
 	const strokeWidth = overlay.strokeWidth ?? 0;
 	const strokeColor = overlay.strokeColor ?? "black";
-	const x = buildPositionExpression(overlay.x, "x");
+	const xBase = buildPositionExpression(overlay.x, "x");
 	const y = buildPositionExpression(overlay.y, "y");
 	const enable = buildEnableExpression(overlay.start, overlay.end);
 	const fontFileParam = getFontFileParameter();
@@ -74,6 +74,27 @@ export const buildTextOverlayFilter = (
 	// Pre-wrap text so it doesn't overflow the element's designed width.
 	const wrappedText = preWrapText(overlay.text, fontSize, overlay.elementWidth);
 	const escapedText = escapeTextForFFmpeg(wrappedText);
+	const x = (() => {
+		if (
+			!overlay.elementWidth ||
+			!overlay.canvasWidth ||
+			overlay.elementWidth <= 0 ||
+			overlay.canvasWidth <= 0
+		) {
+			return xBase;
+		}
+
+		const widthExpression = `w*${overlay.elementWidth}/${overlay.canvasWidth}`;
+		if (overlay.textAlign === "center") {
+			return `${xBase}+(${widthExpression}-text_w)/2`;
+		}
+
+		if (overlay.textAlign === "right") {
+			return `${xBase}+${widthExpression}-text_w`;
+		}
+
+		return xBase;
+	})();
 
 	const hasTransparentBg =
 		!bgColor ||

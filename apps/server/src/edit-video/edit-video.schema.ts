@@ -17,6 +17,14 @@ export const textOverlaySchema = Type.Object({
 	// Width of the text element in design pixels — used to compute the
 	// proportional textwidth for FFmpeg drawtext line-wrapping.
 	elementWidth: Type.Optional(Type.Number({ minimum: 1 })),
+	elementHeight: Type.Optional(Type.Number({ minimum: 1 })),
+	textAlign: Type.Optional(
+		Type.Union([
+			Type.Literal("left"),
+			Type.Literal("center"),
+			Type.Literal("right"),
+		]),
+	),
 	fontColor: Type.Optional(Type.String()),
 	backgroundColor: Type.Optional(Type.String()),
 	strokeWidth: Type.Optional(Type.Number({ minimum: 0 })),

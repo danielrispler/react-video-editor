@@ -391,6 +391,13 @@ export function transformDesignToRenderRequest(
 				const rawElementWidth = width;
 				const elementWidth =
 					rawElementWidth > 0 ? rawElementWidth : undefined;
+				const rawElementHeight = height;
+				const elementHeight =
+					rawElementHeight > 0 ? rawElementHeight : undefined;
+				const textAlign =
+					details.textAlign === "center" || details.textAlign === "right"
+						? details.textAlign
+						: "left";
 				const fontColor = details.color as string | undefined;
 				const backgroundColor = details.backgroundColor as
 					| string
@@ -409,6 +416,8 @@ export function transformDesignToRenderRequest(
 					canvasHeight: size.height,
 					canvasWidth: size.width,
 					...(elementWidth !== undefined && { elementWidth }),
+					...(elementHeight !== undefined && { elementHeight }),
+					textAlign,
 					...(fontSize !== undefined && { fontSize }),
 					...(fontColor !== undefined && { fontColor }),
 					...(backgroundColor !== undefined && { backgroundColor }),

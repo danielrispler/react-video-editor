@@ -285,6 +285,50 @@ describe("transformDesignToRenderRequest", () => {
 		assert.equal(textOverlay?.type, "text");
 		assert.equal(textOverlay?.strokeWidth, 7);
 		assert.equal(textOverlay?.strokeColor, "#000000");
+		assert.equal(textOverlay?.textAlign, "left");
+	});
+
+	it("preserves text box dimensions and center alignment for export layout", () => {
+		const design: IDesign = {
+			id: "design-centered-text",
+			fps: 30,
+			duration: 5000,
+			size: { width: 1080, height: 1920 },
+			tracks: [
+				{ id: "track-base", type: "video", items: ["base"] },
+				{ id: "track-text", type: "text", items: ["title"] },
+			],
+			trackItemIds: ["base", "title"],
+			trackItemsMap: {
+				base: createVideoItem("base", "https://example.com/base.mp4", 0, 5000),
+				title: {
+					id: "title",
+					type: "text",
+					display: { from: 0, to: 5000 },
+					details: {
+						text: "בדיקה לרוני",
+						fontSize: 120,
+						left: "240px",
+						top: "700px",
+						width: 600,
+						height: 300,
+						textAlign: "center",
+						color: "#ffffff",
+						backgroundColor: "transparent",
+					},
+				},
+			},
+		};
+
+		const request = transformDesignToRenderRequest(design);
+		const textOverlay = request.overlays.find(
+			(overlay) => overlay.type === "text",
+		);
+
+		assert.equal(textOverlay?.type, "text");
+		assert.equal(textOverlay?.elementWidth, 600);
+		assert.equal(textOverlay?.elementHeight, 300);
+		assert.equal(textOverlay?.textAlign, "center");
 	});
 
 	it("composites a scene-adjusted single-row video instead of exporting raw source dimensions", () => {
