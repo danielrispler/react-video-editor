@@ -111,31 +111,31 @@ importers:
         specifier: ^1.2.6
         version: 1.2.8(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@remotion/cli':
-        specifier: ^4.0.0
+        specifier: 4.0.456
         version: 4.0.456(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@remotion/media':
-        specifier: ^4.0.459
-        version: 4.0.459(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: 4.0.456
+        version: 4.0.456(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@remotion/media-utils':
-        specifier: ^4.0.315
+        specifier: 4.0.456
         version: 4.0.456(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@remotion/paths':
-        specifier: ^4.0.315
+        specifier: 4.0.456
         version: 4.0.456
       '@remotion/player':
-        specifier: ^4.0.315
+        specifier: 4.0.456
         version: 4.0.456(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@remotion/renderer':
-        specifier: ^4.0.0
+        specifier: 4.0.456
         version: 4.0.456(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@remotion/shapes':
-        specifier: ^4.0.315
+        specifier: 4.0.456
         version: 4.0.456(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@remotion/three':
-        specifier: ^4.0.0
+        specifier: 4.0.456
         version: 4.0.456(@react-three/fiber@9.6.1(@types/react@19.2.14)(immer@10.2.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(three@0.184.0))(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(remotion@4.0.456(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(three@0.184.0)
       '@remotion/transitions':
-        specifier: ^4.0.315
+        specifier: 4.0.456
         version: 4.0.456(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@stripe/stripe-js':
         specifier: ^4.10.0
@@ -213,7 +213,7 @@ importers:
         specifier: '2'
         version: 2.34.0
       remotion:
-        specifier: ^4.0.315
+        specifier: 4.0.456
         version: 4.0.456(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       shiki:
         specifier: '1'
@@ -2367,8 +2367,8 @@ packages:
       react: '>=16.8.0'
       react-dom: '>=16.8.0'
 
-  '@remotion/media@4.0.459':
-    resolution: {integrity: sha512-lz1borl/dI/2IA7ULYrpdd/C8BfPmdjBmALPRn5wD2eON1dRtEmftKbMUU9Wubi30c8IdwotnuXP3ocZig5aaw==}
+  '@remotion/media@4.0.456':
+    resolution: {integrity: sha512-aAOeYcbxmjRQlFvkW5BC0GI+yFoZmNwyc5s5oHsQKdrmbsSTipfpf1m8kFCtPdRnFMCIVheOblNXqZKp3/PVJw==}
     peerDependencies:
       react: '>=16.8.0'
       react-dom: '>=16.8.0'
@@ -4954,12 +4954,6 @@ packages:
       react: '>=16.8.0'
       react-dom: '>=16.8.0'
 
-  remotion@4.0.459:
-    resolution: {integrity: sha512-IRhfFepGJ/TPmN07rF2yS2YpFfHK61yKUKa2T35HwGvaYn4MVyOvl28YTByR4wqRfqB4R6Zn2aCYNJBfA8B4zA==}
-    peerDependencies:
-      react: '>=16.8.0'
-      react-dom: '>=16.8.0'
-
   require-from-string@2.0.2:
     resolution: {integrity: sha512-Xf0nWe6RseziFMu+Ap9biiUbmplq6S9/p+7w7YXP/JBHhrUDDUhwa+vANyubuqfZWTveU//DYVGsDG7RKL/vEw==}
     engines: {node: '>=0.10.0'}
@@ -6155,7 +6149,7 @@ snapshots:
 
   '@babel/parser@7.24.1':
     dependencies:
-      '@babel/types': 7.24.0
+      '@babel/types': 7.29.0
 
   '@babel/parser@7.29.3':
     dependencies:
@@ -7801,12 +7795,12 @@ snapshots:
       react-dom: 19.2.5(react@19.2.5)
       remotion: 4.0.456(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
 
-  '@remotion/media@4.0.459(react-dom@19.2.5(react@19.2.5))(react@19.2.5)':
+  '@remotion/media@4.0.456(react-dom@19.2.5(react@19.2.5))(react@19.2.5)':
     dependencies:
       mediabunny: 1.42.0
       react: 19.2.5
       react-dom: 19.2.5(react@19.2.5)
-      remotion: 4.0.459(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      remotion: 4.0.456(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       zod: 4.3.6
 
   '@remotion/paths@4.0.340': {}
@@ -10900,11 +10894,6 @@ snapshots:
       react-dom: 19.2.5(react@19.2.5)
 
   remotion@4.0.456(react-dom@19.2.5(react@19.2.5))(react@19.2.5):
-    dependencies:
-      react: 19.2.5
-      react-dom: 19.2.5(react@19.2.5)
-
-  remotion@4.0.459(react-dom@19.2.5(react@19.2.5))(react@19.2.5):
     dependencies:
       react: 19.2.5
       react-dom: 19.2.5(react@19.2.5)

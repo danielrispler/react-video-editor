@@ -42,8 +42,6 @@ type ExternalMetadata = {
 	posterSrc?: string;
 };
 
-const DEFAULT_WAIT_FOR_ITEM_MS = 4000;
-
 const getProjectDuration = (stateManager: StateManager) => {
 	const state = stateManager.getState();
 	const trackItems = Object.values(state.trackItemsMap || {}) as ITrackItem[];
@@ -148,43 +146,77 @@ const validatePayloadBusinessRules = (
 	return null;
 };
 
-const waitForTrackItem = (
-	stateManager: StateManager,
+const buildFallbackTrackItem = (
 	itemId: string,
-	timeoutMs = DEFAULT_WAIT_FOR_ITEM_MS,
-) =>
-	new Promise<ITrackItem>((resolve, reject) => {
-		const existingItem = stateManager.getState().trackItemsMap[itemId];
-		if (existingItem) {
-			resolve(existingItem as ITrackItem);
-			return;
-		}
+	insertAtMs: number,
+	payload: PreviewItemPayload,
+	metadata: ExternalMetadata,
+	src: string,
+	sourceOffsetMs: number,
+): ITrackItem => {
+	if (payload.kind === "audio-range") {
+		return {
+			id: itemId,
+			type: "audio",
+			name: "audio",
+			display: {
+				from: insertAtMs,
+				to: insertAtMs + payload.durationMs,
+			},
+			trim: {
+				from: sourceOffsetMs,
+				to: sourceOffsetMs + payload.durationMs,
+			},
+			duration: payload.durationMs,
+			details: {
+				src,
+			},
+			metadata: {
+				previewUrl: "",
+				...metadata,
+			},
+		} as ITrackItem;
+	}
 
-		const timeout = window.setTimeout(() => {
-			subscription.unsubscribe();
-			reject(new Error(`Timed out while waiting for track item ${itemId}`));
-		}, timeoutMs);
+	return {
+		id: itemId,
+		type: "video",
+		name: "video",
+		display: {
+			from: insertAtMs,
+			to: insertAtMs + (payload.durationMs ?? 0),
+		},
+		trim: {
+			from: payload.kind === "recording-range" ? sourceOffsetMs : 0,
+			to:
+				payload.kind === "recording-range"
+					? sourceOffsetMs + payload.durationMs
+					: (payload.durationMs ?? 0),
+		},
+		duration: payload.durationMs,
+		details: {
+			src,
+		},
+		metadata: {
+			previewUrl: payload.posterSrc || "",
+			...metadata,
+		},
+	} as unknown as ITrackItem;
+};
 
-		const subscription = stateManager.subscribeToState((nextState) => {
-			const nextItem = nextState.trackItemsMap[itemId];
-			if (nextItem) {
-				window.clearTimeout(timeout);
-				subscription.unsubscribe();
-				resolve(nextItem as ITrackItem);
-			}
-		});
-	});
-
-const appendItemState = async (
+const appendItemState = (
 	stateManager: StateManager,
 	itemId: string,
 	insertAtMs: number,
 	payload: PreviewItemPayload,
 	metadata: ExternalMetadata,
+	fallbackItem: ITrackItem,
+	sourceOffsetMsOverride?: number,
 ) => {
-	const item = await waitForTrackItem(stateManager, itemId);
 	const state = stateManager.getState();
-	const currentItem = item as ITrackItem;
+	const currentItem = (state.trackItemsMap[itemId] as ITrackItem | undefined)
+		? (state.trackItemsMap[itemId] as ITrackItem)
+		: fallbackItem;
 	const currentDuration =
 		payload.kind === "media" && payload.durationMs === undefined
 			? getDurationFromItem(currentItem)
@@ -193,7 +225,7 @@ const appendItemState = async (
 	const resolvedDuration = Math.max(currentDuration || 0, 0);
 	const trimFrom =
 		payload.kind === "recording-range" || payload.kind === "audio-range"
-			? (payload.sourceOffsetMs ?? 0)
+			? (sourceOffsetMsOverride ?? payload.sourceOffsetMs ?? 0)
 			: (currentItem.trim?.from ?? 0);
 	const trimTo =
 		payload.kind === "recording-range" || payload.kind === "audio-range"
@@ -302,7 +334,22 @@ const addPreviewItemToEditor = async (
 				isSelected: false,
 			},
 		});
-		await appendItemState(stateManager, itemId, insertAtMs, payload, metadata);
+		appendItemState(
+			stateManager,
+			itemId,
+			insertAtMs,
+			payload,
+			metadata,
+			buildFallbackTrackItem(
+				itemId,
+				insertAtMs,
+				payload,
+				metadata,
+				hlsSrc,
+				resolvedSourceOffsetMs,
+			),
+			resolvedSourceOffsetMs,
+		);
 		return itemId;
 	}
 
@@ -341,7 +388,21 @@ const addPreviewItemToEditor = async (
 				isSelected: false,
 			},
 		});
-		await appendItemState(stateManager, itemId, insertAtMs, payload, metadata);
+		appendItemState(
+			stateManager,
+			itemId,
+			insertAtMs,
+			payload,
+			metadata,
+			buildFallbackTrackItem(
+				itemId,
+				insertAtMs,
+				payload,
+				metadata,
+				payload.playback.src,
+				0,
+			),
+		);
 		return itemId;
 	}
 
@@ -371,7 +432,21 @@ const addPreviewItemToEditor = async (
 			isSelected: false,
 		},
 	});
-	await appendItemState(stateManager, itemId, insertAtMs, payload, metadata);
+	appendItemState(
+		stateManager,
+		itemId,
+		insertAtMs,
+		payload,
+		metadata,
+		buildFallbackTrackItem(
+			itemId,
+			insertAtMs,
+			payload,
+			metadata,
+			payload.playback.src,
+			payload.sourceOffsetMs ?? 0,
+		),
+	);
 	return itemId;
 };
 
@@ -447,12 +522,20 @@ export const useEditorPostMessage = (stateManager: StateManager) => {
 				return;
 			}
 
+			const rawRequestId =
+				typeof event.data === "object" &&
+				event.data !== null &&
+				"requestId" in event.data &&
+				typeof event.data.requestId === "string"
+					? event.data.requestId
+					: undefined;
+
 			const parsed = parentToEditorMessageSchema.safeParse(event.data);
 			if (!parsed.success) {
 				reject(
 					event.source,
 					event.origin,
-					undefined,
+					rawRequestId,
 					parsed.error.issues[0]?.message || "Invalid message payload",
 				);
 				return;

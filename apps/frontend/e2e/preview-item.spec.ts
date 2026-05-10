@@ -1,3 +1,6 @@
+import { createServer } from "node:http";
+import type { IncomingMessage, ServerResponse } from "node:http";
+import type { AddressInfo } from "node:net";
 import { expect, test } from "@playwright/test";
 import type { Frame, Page } from "@playwright/test";
 
@@ -38,6 +41,8 @@ const PARENT_HTML = `<!DOCTYPE html>
   ></iframe>
 </body>
 </html>`;
+
+let crossOriginServer: ReturnType<typeof createServer> | undefined;
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -134,7 +139,7 @@ async function getTrackItems(frame: Frame): Promise<
 		const sm = (
 			window as unknown as {
 				__editorStateManager?: {
-					getState(): { trackItemsMap?: Record<string, unknown>; };
+					getState(): { trackItemsMap?: Record<string, unknown> };
 				};
 			}
 		).__editorStateManager;
@@ -150,8 +155,40 @@ test.beforeEach(async ({ page }) => {
 	await page.route(`${EDITOR_ORIGIN}/e2e-parent`, async (route) => {
 		await route.fulfill({ contentType: "text/html", body: PARENT_HTML });
 	});
-	await page.route(`${CROSS_ORIGIN}/e2e-parent`, async (route) => {
-		await route.fulfill({ contentType: "text/html", body: PARENT_HTML });
+});
+
+test.beforeAll(async () => {
+	crossOriginServer = createServer((_req: IncomingMessage, res: ServerResponse) => {
+		res.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+		res.end(PARENT_HTML);
+	});
+
+	await new Promise<void>((resolve, reject) => {
+		crossOriginServer?.once("error", reject);
+		crossOriginServer?.listen(9999, "127.0.0.1", resolve);
+	});
+
+	const address = crossOriginServer.address() as AddressInfo | null;
+	if (!address || address.port !== 9999) {
+		throw new Error(
+			"Cross-origin test server failed to bind to 127.0.0.1:9999",
+		);
+	}
+});
+
+test.afterAll(async () => {
+	await new Promise<void>((resolve, reject) => {
+		if (!crossOriginServer) {
+			resolve();
+			return;
+		}
+		crossOriginServer.close((error: unknown) => {
+			if (error) {
+				reject(error);
+				return;
+			}
+			resolve();
+		});
 	});
 });
 
