@@ -1,5 +1,12 @@
+import { promises as fsp } from "node:fs";
+import path from "node:path";
 import type { FastifyPluginAsync } from "fastify";
 import { generateHlsPlaylist } from "../services/preview/mpd-to-hls.service.ts";
+import {
+	DEMO_PREVIEW_CHANNEL_ID,
+	getDemoPreviewAssetsDir,
+	loadDemoPreviewFixture,
+} from "../services/preview/demo-preview.fixture.ts";
 import { storePreviewPlaylist } from "../services/preview/preview-job.service.ts";
 
 interface ChannelRangeSource {
@@ -96,6 +103,29 @@ function rewritePlaylistToProxy(
 export const previewRouter: FastifyPluginAsync = async (
 	fastify,
 ): Promise<void> => {
+	fastify.get("/editor/demo-assets/:filename", async (request, reply) => {
+		const { filename } = request.params as { filename?: string };
+		if (!filename || path.basename(filename) !== filename) {
+			return reply.status(400).send({ error: "Invalid demo asset filename" });
+		}
+
+		const filePath = path.join(getDemoPreviewAssetsDir(), filename);
+		try {
+			const body = await fsp.readFile(filePath);
+			const extension = path.extname(filename).toLowerCase();
+			const contentType =
+				extension === ".mpd"
+					? "application/dash+xml"
+					: extension === ".m4s"
+						? "video/iso.segment"
+						: "video/mp4";
+			reply.header("Content-Type", contentType);
+			return reply.send(body);
+		} catch {
+			return reply.status(404).send({ error: "Demo asset not found" });
+		}
+	});
+
 	fastify.get("/editor/segment", async (request, reply) => {
 		const { url, token } = request.query as { url?: string; token?: string };
 		if (!url || !token) {
@@ -174,6 +204,19 @@ export const previewRouter: FastifyPluginAsync = async (
 				mpdXml = rawMpdXml;
 				baseUrl = mpdBaseUrl;
 				segStartMs = segmentStartTimeMs;
+			} else if (channelId === DEMO_PREVIEW_CHANNEL_ID) {
+				const demoFixture = loadDemoPreviewFixture(config.SERVER_BASE_URL);
+				if (
+					startTimeMs < demoFixture.segmentStartTimeMs ||
+					endTimeMs > demoFixture.endTimeMs
+				) {
+					return reply.status(400).send({
+						error: `Demo recording supports ${demoFixture.segmentStartTimeMs} <= time < ${demoFixture.endTimeMs}`,
+					});
+				}
+				mpdXml = demoFixture.mpdXml;
+				baseUrl = demoFixture.baseUrl;
+				segStartMs = demoFixture.segmentStartTimeMs;
 			} else if (config.CHANNEL_PLAY_API_BASE_URL) {
 				const playResponse = await fetchChannelPlayResponse(
 					config.CHANNEL_PLAY_API_BASE_URL,
@@ -188,7 +231,7 @@ export const previewRouter: FastifyPluginAsync = async (
 			} else {
 				return reply.status(501).send({
 					error:
-						"CHANNEL_PLAY_API_BASE_URL is not configured. Provide mpdXml/mpdBaseUrl/segmentStartTimeMs in the request body for local testing.",
+						"CHANNEL_PLAY_API_BASE_URL is not configured. Provide mpdXml/mpdBaseUrl/segmentStartTimeMs or use channelId demo-recording for local testing.",
 				});
 			}
 

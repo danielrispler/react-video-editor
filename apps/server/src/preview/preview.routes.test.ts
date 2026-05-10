@@ -5,6 +5,11 @@ import { Readable } from "node:stream";
 import { afterEach, beforeEach, describe, it, mock } from "node:test";
 import type { EnvConfig } from "../config/env.ts";
 import { createFastifyInstance } from "../fastify/fastify.ts";
+import {
+	DEMO_PREVIEW_CHANNEL_ID,
+	DEMO_PREVIEW_DEFAULT_END_MS,
+	DEMO_PREVIEW_DEFAULT_START_MS,
+} from "../services/preview/demo-preview.fixture.ts";
 import type { StorageProvider } from "../services/storage/storage.types.ts";
 import { previewRouter } from "./preview.routes.ts";
 
@@ -250,6 +255,40 @@ describe("POST /api/editor/preview-source — inline MPD (no channel API)", () =
 			},
 		});
 		assert.equal(res.statusCode, 501);
+	});
+
+	it("returns 200 for the built-in demo recording fixture", async () => {
+		const res = await app.inject({
+			method: "POST",
+			url: "/api/editor/preview-source",
+			payload: {
+				source: {
+					type: "channel-range",
+					channelId: DEMO_PREVIEW_CHANNEL_ID,
+					startTimeMs: DEMO_PREVIEW_DEFAULT_START_MS,
+					endTimeMs: DEMO_PREVIEW_DEFAULT_END_MS,
+				},
+			},
+		});
+
+		assert.equal(res.statusCode, 200);
+		const body = res.json<{ playlistUrl: string; sourceOffsetMs: number }>();
+		assert.ok(body.playlistUrl.startsWith("https://s3.example.com/preview/"));
+		assert.equal(body.sourceOffsetMs, 6333);
+	});
+
+	it("serves demo DASH assets locally", async () => {
+		const res = await app.inject({
+			method: "GET",
+			url: "/api/editor/demo-assets/stream.mpd",
+		});
+
+		assert.equal(res.statusCode, 200);
+		assert.match(
+			res.headers["content-type"] ?? "",
+			/application\/dash\+xml/,
+		);
+		assert.ok(res.body.includes("<MPD"), "demo MPD must be returned");
 	});
 });
 

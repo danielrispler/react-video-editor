@@ -76,6 +76,34 @@ pnpm -F server dev
 
 Open your browser at `http://localhost:3000`.
 
+### Iframe Demo Flow
+
+To test the full iframe preview flow without the real channel API:
+
+1. Start the local infra and apps:
+
+```bash
+docker compose up -d
+pnpm install
+pnpm -F server dev
+pnpm -F @video-editor/frontend dev
+```
+
+2. Open `http://localhost:3000/editor/iframe-demo`.
+
+3. Use the built-in demo recording values:
+
+```text
+channelId: demo-recording
+startTimeMs: 1778412276333
+endTimeMs: 1778412295000
+```
+
+The iframe sends `EDITOR_ADD_PREVIEW_ITEM`, the editor calls
+`POST /api/editor/preview-source`, the backend converts a local demo DASH MPD
+into HLS, stores the generated playlist, and inserts the HLS item into the
+editor scene.
+
 ## 📝 License
 
 Copyright © 2025 [DesignCombo](https://designcombo.dev/).

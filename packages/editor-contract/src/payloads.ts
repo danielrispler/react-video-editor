@@ -15,6 +15,13 @@ export type AudioPlayback = {
 
 export type Playback = HlsPlayback | MediaPlayback | AudioPlayback;
 
+export const DEMO_PREVIEW_CHANNEL_ID = "demo-recording";
+export const DEMO_PREVIEW_SEGMENT_START_MS = 1778412270000;
+export const DEMO_PREVIEW_DEFAULT_START_MS =
+	DEMO_PREVIEW_SEGMENT_START_MS + 6333;
+export const DEMO_PREVIEW_DEFAULT_END_MS =
+	DEMO_PREVIEW_SEGMENT_START_MS + 25000;
+
 export type RecordingRangePayload = {
 	kind: "recording-range";
 	channelId: string;
