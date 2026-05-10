@@ -5,7 +5,7 @@
 #EXT-X-PLAYLIST-TYPE:VOD
 #EXT-X-MAP:URI="https://example.com/streams/mock-recording/v2_init.mp4"
 #EXTINF:15.000,
-segment_v2_426.m4s
+https://example.com/streams/mock-recording/segment_v2_426.m4s
 #EXTINF:15.000,
-segment_v2_427.m4s
+https://example.com/streams/mock-recording/segment_v2_427.m4s
 #EXT-X-ENDLIST

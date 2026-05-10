@@ -1,4 +1,4 @@
-export const MAX_PREVIEW_DURATION_MS = 1000 * 60 * 60 * 6;
+export const MAX_PREVIEW_DURATION_MS = 1000 * 60 * 60 * 1;
 
 export const isLikelyHlsSrc = (src: string) => {
 	try {
@@ -6,10 +6,10 @@ export const isLikelyHlsSrc = (src: string) => {
 			src,
 			window.location.href,
 		).pathname.toLowerCase();
-		return normalizedPath.endsWith(".m3u8") || normalizedPath.endsWith(".mpd");
+		return normalizedPath.endsWith(".m3u8");
 	} catch {
 		const lower = src.toLowerCase();
-		return lower.includes(".m3u8") || lower.includes(".mpd");
+		return lower.includes(".m3u8");
 	}
 };
 

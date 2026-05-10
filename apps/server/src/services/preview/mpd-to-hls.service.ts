@@ -162,7 +162,7 @@ export function generateHlsPlaylist(input: MpdToHlsInput): MpdToHlsOutput {
 	for (let n = firstSegNumber; n <= lastSegNumber; n++) {
 		const segUri = substituteTemplate(st.media, id, n);
 		lines.push(`#EXTINF:${segDurationS.toFixed(3)},`);
-		lines.push(segUri);
+		lines.push(`${base}${segUri}`);
 	}
 
 	lines.push("#EXT-X-ENDLIST");

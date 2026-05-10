@@ -41,6 +41,11 @@ const testConfig: EnvConfig = {
 	REDIS_PORT: 6379,
 	REDIS_PASSWORD: "",
 	JOB_PROGRESS_TTL_SECONDS: 600,
+	CHANNEL_PLAY_API_BASE_URL: "",
+	SERVER_BASE_URL: "http://localhost:4000",
+	MAX_PREVIEW_DURATION_MS: 3600000,
+	PREVIEW_JOB_TTL_SECONDS: 86400,
+	S3_PREVIEW_PREFIX: "preview",
 };
 
 const probeDuration = async (filePath: string): Promise<number> => {

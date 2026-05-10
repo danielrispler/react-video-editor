@@ -12,8 +12,9 @@ export const envSchema = Type.Object({
 	FFMPEG_AUDIO_BITRATE: Type.String({ default: "192k" }),
 	// Preview source (MPD → HLS)
 	CHANNEL_PLAY_API_BASE_URL: Type.String({ default: "" }),
+	SERVER_BASE_URL: Type.String({ default: "http://localhost:4000" }),
 	MAX_PREVIEW_DURATION_MS: Type.Number({ default: 3600000 }), // 1 hour
-	PREVIEW_JOB_TTL_SECONDS: Type.Number({ default: 3600 }),
+	PREVIEW_JOB_TTL_SECONDS: Type.Number({ default: 86400 }),
 	S3_PREVIEW_PREFIX: Type.String({ default: "preview" }),
 	// MPD
 	ENABLE_MPD_RESTRICTIONS: Type.Boolean({ default: false }),

@@ -29,10 +29,10 @@ interface PreviewSourceResponse {
 	sourceOffsetMs: number;
 }
 
-interface ChannelPlayResponse {
-	mpdXml: string;
-	baseUrl: string;
-	segmentStartTimeMs: number;
+interface ChannelPlayApiResponse {
+	url: string;
+	timeRange: number[][];
+	token: string;
 }
 
 async function fetchChannelPlayResponse(
@@ -40,21 +40,97 @@ async function fetchChannelPlayResponse(
 	channelId: string,
 	startTimeMs: number,
 	endTimeMs: number,
-): Promise<ChannelPlayResponse> {
-	const url = `${channelPlayApiBaseUrl}/channels/${channelId}/play?start=${startTimeMs}&end=${endTimeMs}`;
-	const response = await fetch(url);
-	if (!response.ok) {
+): Promise<{
+	mpdXml: string;
+	baseUrl: string;
+	segmentStartTimeMs: number;
+	token: string;
+}> {
+	const playUrl = `${channelPlayApiBaseUrl}/channels/${channelId}/play?start=${startTimeMs}&end=${endTimeMs}`;
+	const playRes = await fetch(playUrl);
+	if (!playRes.ok) {
 		throw new Error(
-			`Channel play API returned ${response.status} for channel ${channelId}`,
+			`Channel play API returned ${playRes.status} for channel ${channelId}`,
 		);
 	}
-	const data = (await response.json()) as ChannelPlayResponse;
-	return data;
+	const play = (await playRes.json()) as ChannelPlayApiResponse;
+
+	const origin = new URL(channelPlayApiBaseUrl).origin;
+	const relativePath = play.url.startsWith("/") ? play.url : `/${play.url}`;
+	const generateUrl = `${origin}${relativePath}`;
+	const genRes = await fetch(generateUrl, {
+		headers: { "vod-token": play.token },
+	});
+	if (!genRes.ok) {
+		throw new Error(`Generate API returned ${genRes.status}`);
+	}
+	const mpdXml = await genRes.text();
+
+	const segmentStartTimeMs = play.timeRange[0][0];
+	return { mpdXml, baseUrl: origin, segmentStartTimeMs, token: play.token };
+}
+
+function rewritePlaylistToProxy(
+	playlist: string,
+	token: string,
+	proxyBase: string,
+): string {
+	return playlist
+		.split("\n")
+		.map((line) => {
+			if (line.startsWith("http://") || line.startsWith("https://")) {
+				const encoded = Buffer.from(line, "utf8").toString("base64url");
+				return `${proxyBase}?url=${encoded}&token=${encodeURIComponent(token)}`;
+			}
+			// Rewrite EXT-X-MAP URI if it contains an absolute URL
+			const mapMatch = line.match(/^#EXT-X-MAP:URI="(https?:\/\/[^"]+)"$/);
+			if (mapMatch) {
+				const encoded = Buffer.from(mapMatch[1], "utf8").toString("base64url");
+				return `#EXT-X-MAP:URI="${proxyBase}?url=${encoded}&token=${encodeURIComponent(token)}"`;
+			}
+			return line;
+		})
+		.join("\n");
 }
 
 export const previewRouter: FastifyPluginAsync = async (
 	fastify,
 ): Promise<void> => {
+	fastify.get("/editor/segment", async (request, reply) => {
+		const { url, token } = request.query as { url?: string; token?: string };
+		if (!url || !token) {
+			return reply.status(400).send({ error: "Missing url or token" });
+		}
+
+		let decoded: string;
+		try {
+			decoded = Buffer.from(url, "base64url").toString("utf8");
+		} catch {
+			return reply.status(400).send({ error: "Invalid url encoding" });
+		}
+
+		let parsed: URL;
+		try {
+			parsed = new URL(decoded);
+		} catch {
+			return reply.status(400).send({ error: "Invalid URL" });
+		}
+		if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+			return reply.status(400).send({ error: "Invalid URL" });
+		}
+
+		const upstream = await fetch(decoded, { headers: { "vod-token": token } });
+		if (!upstream.ok) {
+			return reply.status(upstream.status).send();
+		}
+
+		reply.header(
+			"Content-Type",
+			upstream.headers.get("content-type") ?? "video/mp4",
+		);
+		return reply.send(upstream.body);
+	});
+
 	fastify.post<{ Body: PreviewSourceBody }>(
 		"/editor/preview-source",
 		async (request, reply) => {
@@ -91,6 +167,7 @@ export const previewRouter: FastifyPluginAsync = async (
 			let mpdXml: string;
 			let baseUrl: string;
 			let segStartMs: number;
+			let vodToken: string | undefined;
 
 			if (rawMpdXml && mpdBaseUrl && segmentStartTimeMs !== undefined) {
 				// Testing fallback: caller provided MPD directly
@@ -107,6 +184,7 @@ export const previewRouter: FastifyPluginAsync = async (
 				mpdXml = playResponse.mpdXml;
 				baseUrl = playResponse.baseUrl;
 				segStartMs = playResponse.segmentStartTimeMs;
+				vodToken = playResponse.token;
 			} else {
 				return reply.status(501).send({
 					error:
@@ -114,7 +192,7 @@ export const previewRouter: FastifyPluginAsync = async (
 				});
 			}
 
-			const { playlist, sourceOffsetMs } = generateHlsPlaylist({
+			const { playlist: rawPlaylist, sourceOffsetMs } = generateHlsPlaylist({
 				mpdXml,
 				baseUrl,
 				segmentStartTimeMs: segStartMs,
@@ -122,6 +200,15 @@ export const previewRouter: FastifyPluginAsync = async (
 				requestedEndMs: endTimeMs,
 				maxDurationMs: config.MAX_PREVIEW_DURATION_MS,
 			});
+
+			const playlist =
+				vodToken !== undefined
+					? rewritePlaylistToProxy(
+							rawPlaylist,
+							vodToken,
+							`${config.SERVER_BASE_URL}/api/editor/segment`,
+						)
+					: rawPlaylist;
 
 			const { playlistUrl } = await storePreviewPlaylist(
 				playlist,
