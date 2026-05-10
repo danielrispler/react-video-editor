@@ -50,7 +50,10 @@
 	},
 	"overrides": [
 		{
-			"include": ["apps/frontend/src/features/editor/**", "src/features/editor/**"],
+			"include": [
+				"apps/frontend/src/features/editor/**",
+				"src/features/editor/**"
+			],
 			"linter": {
 				"rules": {
 					"a11y": {
@@ -90,7 +93,10 @@
 			}
 		},
 		{
-			"include": ["apps/frontend/src/features/editor/scene/droppable.tsx", "src/features/editor/scene/droppable.tsx"],
+			"include": [
+				"apps/frontend/src/features/editor/scene/droppable.tsx",
+				"src/features/editor/scene/droppable.tsx"
+			],
 			"linter": {
 				"rules": {
 					"a11y": {
@@ -100,7 +106,10 @@
 			}
 		},
 		{
-			"include": ["apps/frontend/src/features/editor/timeline/timeline.tsx", "src/features/editor/timeline/timeline.tsx"],
+			"include": [
+				"apps/frontend/src/features/editor/timeline/timeline.tsx",
+				"src/features/editor/timeline/timeline.tsx"
+			],
 			"linter": {
 				"rules": {
 					"a11y": {
