@@ -34,6 +34,12 @@ const stateManager = new StateManager({
 	},
 });
 
+if (import.meta.env.DEV) {
+	(
+		window as Window & { __editorStateManager?: typeof stateManager }
+	).__editorStateManager = stateManager;
+}
+
 const SceneContainer = ({
 	sceneRef,
 	playerRef,
