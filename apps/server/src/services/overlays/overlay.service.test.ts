@@ -71,10 +71,7 @@ describe("overlay.service", () => {
 			["image-overlay", "video-overlay"],
 		);
 		assert.match(result.filterComplex, /\[1:v\]loop=loop=-1:size=240:start=0/);
-		assert.match(
-			result.filterComplex,
-			/\[2:v\]trim=duration=4,/,
-		);
+		assert.match(result.filterComplex, /\[2:v\]trim=duration=4,/);
 		assert.match(
 			result.filterComplex,
 			/setpts=PTS-STARTPTS\+2\/TB,format=rgba\[videoOverlay2\]/,

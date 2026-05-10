@@ -5,12 +5,13 @@ import ffmpeg from "fluent-ffmpeg";
 import type { EnvConfig } from "../../config/env.ts";
 import type { VideoSource } from "../../edit-video/edit-video.types.ts";
 import { FFMPEG_COMMAND } from "../../ffmpeg/ffmpeg.consts.ts";
-import type { StorageProvider } from "../storage/storage.types.ts";
 import {
 	normalizeFfmpegDuration,
 	normalizeFfmpegTime,
 } from "../../utils/time.utils.ts";
+import type { StorageProvider } from "../storage/storage.types.ts";
 import { isMpdUrl, processMpdSource } from "./dash-process.service.ts";
+import { isHlsUrl, processHlsSource } from "./hls-process.service.ts";
 import { processImageSource } from "./image-process.service.ts";
 
 export const processSources = async (
@@ -30,7 +31,9 @@ export const processSources = async (
 			config,
 		);
 	}
-	const hasMpdSource = sources.some((source) => isMpdUrl(source.url));
+	const hasMpdSource = sources.some(
+		(source) => isMpdUrl(source.url) || isHlsUrl(source.url),
+	);
 	const sourcePaths = await processMultipleSources(
 		sources,
 		tempDir,
@@ -99,6 +102,11 @@ export const processSingleSource = async (
 	}
 	if (isMpdUrl(source.url)) {
 		await processMpdSource(source, sourcePath, false, config);
+
+		return sourcePath;
+	}
+	if (isHlsUrl(source.url)) {
+		await processHlsSource(source, sourcePath, config);
 
 		return sourcePath;
 	}

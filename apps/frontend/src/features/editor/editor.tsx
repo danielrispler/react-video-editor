@@ -14,6 +14,7 @@ import ControlItemHorizontal from "./control-item-horizontal";
 import FloatingControl from "./control-item/floating-controls/floating-control";
 import CropModal from "./crop-modal/crop-modal";
 import { FONTS } from "./data/fonts";
+import { useEditorPostMessage } from "./external-preview/use-editor-post-message";
 import useTimelineEvents from "./hooks/use-timeline-events";
 import MenuList from "./menu-list";
 import MenuListHorizontal from "./menu-list-horizontal";
@@ -90,6 +91,7 @@ const Editor = ({ tempId, id }: { tempId?: string; id?: string }) => {
 	const isLargeScreen = useIsLargeScreen();
 
 	useTimelineEvents();
+	useEditorPostMessage(stateManager);
 
 	const { setCompactFonts, setFonts } = useDataState();
 	// useEffect(() => {

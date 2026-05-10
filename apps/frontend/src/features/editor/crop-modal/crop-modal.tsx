@@ -3,14 +3,14 @@ import {
 	Dialog,
 	DialogContent,
 	DialogOverlay,
-	DialogTitle
+	DialogTitle,
 } from "@/components/ui/dialog";
 import {
 	Select,
 	SelectContent,
 	SelectItem,
 	SelectTrigger,
-	SelectValue
+	SelectValue,
 } from "@/components/ui/select";
 import { dispatch } from "@designcombo/events";
 import { EDIT_OBJECT } from "@designcombo/state";

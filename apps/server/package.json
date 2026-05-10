@@ -6,6 +6,7 @@
 	"scripts": {
 		"dev": "node --env-file=.env --watch-path=./src src/index.ts",
 		"start": "node src/index.ts",
+		"test": "node --test src/**/*.test.ts",
 		"type-check": "tsc",
 		"lint": "biome check . && node -e \"console.log('\\n✓ All server files pass Biome checks.')\"",
 		"lint:fix": "biome check . --write --unsafe && node -e \"console.log('\\n✓ All server files pass Biome checks.')\""
@@ -26,6 +27,7 @@
 		"@fastify/type-provider-typebox": "^6.1.0",
 		"@ffmpeg-installer/ffmpeg": "^1.1.0",
 		"@sinclair/typebox": "^0.34.49",
+		"fast-xml-parser": "^5.7.3",
 		"fastify": "^5.1.0",
 		"fastify-plugin": "^5.1.0",
 		"fluent-ffmpeg": "^2.1.3",

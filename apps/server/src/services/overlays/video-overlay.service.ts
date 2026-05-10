@@ -184,9 +184,7 @@ export const prepareVideoOverlay = async (
 			.seekInput(trimFrom);
 
 		if (trimTo !== undefined) {
-			ffmpegCommand.duration(
-				normalizeFfmpegDuration(trimTo - rawTrimFrom),
-			);
+			ffmpegCommand.duration(normalizeFfmpegDuration(trimTo - rawTrimFrom));
 		}
 
 		return ffmpegCommand

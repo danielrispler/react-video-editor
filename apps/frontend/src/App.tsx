@@ -8,6 +8,7 @@ export default function App() {
 			<Route path="/" element={<Home />} />
 			<Route path="/edit" element={<EditPage />} />
 			<Route path="/edit/:id" element={<EditPage />} />
+			<Route path="/editor/embed" element={<EditPage />} />
 		</Routes>
 	);
 }

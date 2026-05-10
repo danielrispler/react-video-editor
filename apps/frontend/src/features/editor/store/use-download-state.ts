@@ -1,6 +1,6 @@
+import { download, getExportFilename } from "@/utils/download";
 import { IDesign } from "@designcombo/types";
 import { create } from "zustand";
-import { download, getExportFilename } from "@/utils/download";
 import { getSafeCurrentFrame } from "../utils/time";
 import useStore from "./use-store";
 interface Output {

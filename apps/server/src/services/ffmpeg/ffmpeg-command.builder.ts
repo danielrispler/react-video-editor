@@ -12,6 +12,7 @@ import {
 } from "../overlays/overlay.service.ts";
 import { buildAudioFilters } from "../sources/audio-process.service.ts";
 import { isMpdUrl } from "../sources/dash-process.service.ts";
+import { isHlsUrl } from "../sources/hls-process.service.ts";
 
 export class FfmpegCommandBuilder {
 	private command: FfmpegCommand;
@@ -192,7 +193,9 @@ export class FfmpegCommandBuilder {
 		preset: string;
 		crf: string;
 	} {
-		const hasMpdSource = sources.some((s) => isMpdUrl(s.url));
+		const hasMpdSource = sources.some(
+			(s) => isMpdUrl(s.url) || isHlsUrl(s.url),
+		);
 		return {
 			preset: hasMpdSource ? "medium" : this.config.FFMPEG_PRESET,
 			crf: hasMpdSource ? "18" : this.config.FFMPEG_CRF,

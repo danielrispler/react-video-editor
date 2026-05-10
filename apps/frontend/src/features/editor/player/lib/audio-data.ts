@@ -1,9 +1,14 @@
 import { IAudio, ITrackItem, IVideo } from "@designcombo/types";
-import { AudioData, getAudioData, visualizeAudio } from "@remotion/media-utils";
+import {
+	MediaUtilsAudioData,
+	getAudioData,
+	visualizeAudio,
+} from "@remotion/media-utils";
 import { isEqual } from "lodash";
+import { isLikelyHlsSrc } from "../../external-preview/utils";
 
 interface AudioDataCache {
-	data: AudioData;
+	data: MediaUtilsAudioData;
 	lastAccessed: number;
 }
 
@@ -36,6 +41,13 @@ export class AudioDataManager {
 			// If it's an EncodingError (no audio track), just ignore it
 			if (error instanceof Error && error.name === "EncodingError") {
 				console.log(`No audio track found for ${src}, ignoring`);
+				return;
+			}
+
+			if (isLikelyHlsSrc(src)) {
+				console.debug(
+					`Skipping waveform extraction for HLS/DASH source ${src}`,
+				);
 				return;
 			}
 

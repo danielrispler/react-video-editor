@@ -8,6 +8,7 @@ import {
 } from "@designcombo/timeline";
 import { IDisplay, IMetadata, ITrim } from "@designcombo/types";
 import { SECONDARY_FONT } from "../../constants/constants";
+import { isLikelyHlsSrc } from "../../external-preview/utils";
 import { getFileFromUrl } from "../../utils/file";
 import {
 	calculateOffscreenSegments,
@@ -151,6 +152,11 @@ class Video extends Trimmable {
 	}
 
 	public async prepareAssets() {
+		if (isLikelyHlsSrc(this.src)) {
+			this.clip = null;
+			return;
+		}
+
 		const file = await getFileFromUrl(this.src);
 		const stream = file.stream();
 

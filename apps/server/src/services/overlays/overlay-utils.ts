@@ -1,4 +1,3 @@
-
 export const hexToRgb = (hex: string, opacity: number): string => {
 	const cleanedHex = hex.replace(/^#/, "");
 	const validHex = /^[0-9A-Fa-f]{6}$/.test(cleanedHex)
@@ -19,12 +18,12 @@ export const hexToRgb = (hex: string, opacity: number): string => {
 };
 
 const reverseSentenceAndWords = (sentence: string): string => {
-  return sentence
-    .split(" ")
-    .reverse()
-    .map(word => word.split("").reverse().join(""))
-    .join(" ");
-}
+	return sentence
+		.split(" ")
+		.reverse()
+		.map((word) => word.split("").reverse().join(""))
+		.join(" ");
+};
 export const escapeTextForFFmpeg = (text: string): string => {
 	return reverseSentenceAndWords(text)
 		.replace(/\\/g, "\\\\")
@@ -45,17 +44,3 @@ export const buildPositionExpression = (
 ): string => {
 	return axis === "x" ? `W*${percent}/100` : `H*${percent}/100`;
 };
-
-const fn = (text: string) => {
-	return text.split(" ").reverse().join(" ");
-}
-
-const logger = (fn: (text: string) => string, text: string) => {
-	const x = new Date()
-	console.log("start", x)
-	const result = fn(text)
-	console.log("end", new Date())
-	return result
-}
-
-logger(fn, "hello world")

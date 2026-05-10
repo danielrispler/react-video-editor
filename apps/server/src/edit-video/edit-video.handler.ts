@@ -8,7 +8,7 @@ import {
 	finalRenderToS3,
 } from "../services/video-processor.service.ts";
 import { type RenderResponse } from "../types/types.ts";
-import { createTempDir } from "../utils/file.utils.ts";
+import { createTempDir, getOutputFilename } from "../utils/file.utils.ts";
 import { calculateTotalDurationSegments } from "../utils/segment.utils.ts";
 import { calculateKeepSegments } from "../utils/video.utils.ts";
 import type { RenderRequest } from "./edit-video.types.ts";
@@ -105,7 +105,7 @@ export const EditVideoHandler = (): EditVideoHandlerType => {
 					storage,
 				);
 
-				const filename = `${Date.now()}.${request.format}`;
+				const filename = getOutputFilename(request.format);
 				const s3Key = `${config.S3_OUTPUT_PREFIX}/${filename}`;
 
 				await safeSetProgress(fastify, request.jobId, 0);

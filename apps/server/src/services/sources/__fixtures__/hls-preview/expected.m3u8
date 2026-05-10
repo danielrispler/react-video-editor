@@ -1,0 +1,11 @@
+#EXTM3U
+#EXT-X-VERSION:7
+#EXT-X-TARGETDURATION:15
+#EXT-X-MEDIA-SEQUENCE:426
+#EXT-X-PLAYLIST-TYPE:VOD
+#EXT-X-MAP:URI="https://example.com/streams/mock-recording/v2_init.mp4"
+#EXTINF:15.000,
+segment_v2_426.m4s
+#EXTINF:15.000,
+segment_v2_427.m4s
+#EXT-X-ENDLIST

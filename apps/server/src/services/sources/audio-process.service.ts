@@ -137,9 +137,7 @@ export const processAudioFile = async (
 
 		const cmdWithSeek =
 			processing.audioTrimStart > 0
-				? cmdWithInput.seekInput(
-						normalizeFfmpegTime(processing.audioTrimStart),
-					)
+				? cmdWithInput.seekInput(normalizeFfmpegTime(processing.audioTrimStart))
 				: cmdWithInput;
 
 		const cmdWithDuration = cmdWithSeek.duration(

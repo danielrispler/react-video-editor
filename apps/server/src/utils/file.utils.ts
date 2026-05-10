@@ -5,6 +5,9 @@ import https from "node:https";
 import os from "node:os";
 import path from "node:path";
 
+export const getOutputFilename = (format: string): string =>
+	format === "dash" ? String(Date.now()) : `${Date.now()}.${format}`;
+
 export async function createTempDir(prefix = "render-"): Promise<string> {
 	const tempDir = path.join(os.tmpdir(), `${prefix}${Date.now()}`);
 	await fsp.mkdir(tempDir, { recursive: true });

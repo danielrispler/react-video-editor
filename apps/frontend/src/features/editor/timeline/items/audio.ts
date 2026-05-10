@@ -6,11 +6,12 @@ import {
 } from "@designcombo/timeline";
 import { IMetadata, ITrim } from "@designcombo/types";
 import {
-	AudioData,
+	MediaUtilsAudioData,
 	getAudioData,
 	getWaveformPortion,
 } from "@remotion/media-utils";
 import { SECONDARY_FONT } from "../../constants/constants";
+import { isLikelyHlsSrc } from "../../external-preview/utils";
 import { createAudioControls } from "../controls";
 
 const MAX_CANVAS_WIDTH = 12000; // Keep canvas size reasonable
@@ -28,7 +29,7 @@ interface AudioProps extends TrimmableProps {
 
 class Audio extends Trimmable {
 	static type = "Audio";
-	public barData?: AudioData;
+	public barData?: MediaUtilsAudioData;
 	public hasSrc = true;
 	private offscreenCanvas: OffscreenCanvas | null = null;
 	private offscreenCtx: OffscreenCanvasRenderingContext2D | null = null;
@@ -95,9 +96,17 @@ class Audio extends Trimmable {
 	}
 
 	private async initialize() {
-		const audioData = await getAudioData(this.src);
-		this.barData = audioData;
-		this.bars = this.getBars(0, 0) as any;
+		try {
+			const audioData = await getAudioData(this.src);
+			this.barData = audioData;
+			this.bars = this.getBars(0, 0) as any;
+		} catch (error) {
+			this.barData = undefined;
+			this.bars = [];
+			if (!isLikelyHlsSrc(this.src)) {
+				console.error(`Failed to load audio waveform for ${this.src}:`, error);
+			}
+		}
 		this.canvas?.requestRenderAll();
 		this.onScrollChange({ scrollLeft: 0 });
 	}

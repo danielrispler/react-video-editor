@@ -8,7 +8,7 @@ import {
 	extractSegments,
 	finalRenderToS3,
 } from "../services/video-processor.service.ts";
-import { createTempDir } from "../utils/file.utils.ts";
+import { createTempDir, getOutputFilename } from "../utils/file.utils.ts";
 import { calculateTotalDurationSegments } from "../utils/segment.utils.ts";
 import { calculateKeepSegments } from "../utils/video.utils.ts";
 import {
@@ -54,7 +54,11 @@ const JOB_TTL = 3600;
 
 export const getRequestedFormat = (
 	format?: string,
-): RenderRequest["format"] => (format === "webp" ? "webp" : "mp4");
+): RenderRequest["format"] => {
+	if (format === "webp") return "webp";
+	if (format === "dash") return "dash";
+	return "mp4";
+};
 
 export const getRequestedFrameTimeMs = (
 	frameTimeMs?: number,
@@ -121,7 +125,7 @@ export const RenderHandler = (fastify: FastifyInstance): RenderHandlerType => {
 				storage,
 			);
 
-			const filename = `${Date.now()}.${request.format}`;
+			const filename = getOutputFilename(request.format);
 			const s3Key = `${config.S3_OUTPUT_PREFIX}/${filename}`;
 
 			const result = await finalRenderToS3(

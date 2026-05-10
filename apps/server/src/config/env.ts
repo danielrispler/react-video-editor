@@ -10,6 +10,11 @@ export const envSchema = Type.Object({
 	FFMPEG_PRESET: Type.String({ default: "veryfast" }),
 	FFMPEG_CRF: Type.String({ default: "20" }),
 	FFMPEG_AUDIO_BITRATE: Type.String({ default: "192k" }),
+	// Preview source (MPD → HLS)
+	CHANNEL_PLAY_API_BASE_URL: Type.String({ default: "" }),
+	MAX_PREVIEW_DURATION_MS: Type.Number({ default: 3600000 }), // 1 hour
+	PREVIEW_JOB_TTL_SECONDS: Type.Number({ default: 3600 }),
+	S3_PREVIEW_PREFIX: Type.String({ default: "preview" }),
 	// MPD
 	ENABLE_MPD_RESTRICTIONS: Type.Boolean({ default: false }),
 	TRANSCODE_TIMEOUT_MS: Type.Number({ default: 7200000 }),

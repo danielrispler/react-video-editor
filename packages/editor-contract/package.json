@@ -1,0 +1,33 @@
+{
+	"name": "@video-editor/iframe-contract",
+	"version": "0.1.0",
+	"private": true,
+	"type": "module",
+	"main": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js",
+			"default": "./dist/index.js"
+		},
+		"./mocks": {
+			"types": "./dist/mocks.d.ts",
+			"import": "./dist/mocks.js",
+			"default": "./dist/mocks.js"
+		}
+	},
+	"files": ["dist"],
+	"scripts": {
+		"build": "tsc -p tsconfig.json",
+		"type-check": "tsc -p tsconfig.json --noEmit",
+		"test": "pnpm build && node --test dist/**/*.test.js"
+	},
+	"dependencies": {
+		"zod": "^4.1.5"
+	},
+	"devDependencies": {
+		"@types/node": "^24.10.1",
+		"typescript": "^5.9.3"
+	}
+}

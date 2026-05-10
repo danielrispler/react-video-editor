@@ -13,12 +13,12 @@ import { ChevronDown } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 
 import AutosizeInput from "@/components/ui/autosize-input";
+import useStore from "@/features/editor/store/use-store";
 import {
 	useIsLargeScreen,
 	useIsMediumScreen,
 	useIsSmallScreen,
 } from "@/hooks/use-media-query";
-import useStore from "@/features/editor/store/use-store";
 import type StateManager from "@designcombo/state";
 import { generateId } from "@designcombo/timeline";
 import type { IDesign } from "@designcombo/types";
@@ -205,7 +205,10 @@ const CanvasSizePopover = ({
 	return (
 		<Popover>
 			<PopoverTrigger asChild>
-				<Button className="h-8 rounded-full border border-border" variant="outline">
+				<Button
+					className="h-8 rounded-full border border-border"
+					variant="outline"
+				>
 					Canvas
 				</Button>
 			</PopoverTrigger>

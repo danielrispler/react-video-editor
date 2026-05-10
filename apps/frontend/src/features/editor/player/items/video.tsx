@@ -1,6 +1,8 @@
 import { BoxAnim, ContentAnim, MaskAnim } from "@designcombo/animations";
 import { IVideo } from "@designcombo/types";
+import { Video as RemotionMediaVideo } from "@remotion/media";
 import { OffthreadVideo } from "remotion";
+import { isLikelyHlsSrc } from "../../external-preview/utils";
 import { calculateFrames } from "../../utils/frames";
 import { getAnimations } from "../../utils/get-animations";
 import { BaseSequence, SequenceItemOptions } from "../base-sequence";
@@ -31,6 +33,7 @@ export const Video = ({
 	};
 	const { durationInFrames } = calculateFrames(item.display, fps);
 	const currentFrame = (frame || 0) - (item.display.from * fps) / 1000;
+	const isHls = isLikelyHlsSrc(details.src);
 
 	const children = (
 		<BoxAnim
@@ -53,13 +56,23 @@ export const Video = ({
 					frame={frame || 0}
 				>
 					<div style={calculateMediaStyles(details, crop)}>
-						<OffthreadVideo
-							startFrom={(item.trim?.from! / 1000) * fps}
-							endAt={(item.trim?.to! / 1000) * fps || 1 / fps}
-							playbackRate={playbackRate}
-							src={details.src}
-							volume={volume}
-						/>
+						{isHls ? (
+							<RemotionMediaVideo
+								trimBefore={(item.trim?.from! / 1000) * fps}
+								trimAfter={(item.trim?.to! / 1000) * fps || 1 / fps}
+								playbackRate={playbackRate}
+								src={details.src}
+								volume={volume}
+							/>
+						) : (
+							<OffthreadVideo
+								startFrom={(item.trim?.from! / 1000) * fps}
+								endAt={(item.trim?.to! / 1000) * fps || 1 / fps}
+								playbackRate={playbackRate}
+								src={details.src}
+								volume={volume}
+							/>
+						)}
 					</div>
 				</MaskAnim>
 			</ContentAnim>

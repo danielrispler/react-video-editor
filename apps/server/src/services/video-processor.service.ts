@@ -124,7 +124,11 @@ const shouldTranscode = (
 
 export const getOutputContentType = (
 	format: RenderRequest["format"],
-): string => (format === "webp" ? "image/webp" : "video/mp4");
+): string => {
+	if (format === "webp") return "image/webp";
+	if (format === "dash") return "application/dash+xml";
+	return "video/mp4";
+};
 
 export const clampFrameTimeMs = (
 	frameTimeMs: number | undefined,
@@ -278,6 +282,55 @@ const extractFrameToImage = async (
 	);
 };
 
+export const packToDash = async (
+	inputMp4: string,
+	outputDir: string,
+	videoHasAudio: boolean,
+	segmentDurationS = 4,
+): Promise<void> => {
+	const manifestPath = path.join(outputDir, "manifest.mpd");
+	const adaptationSets = videoHasAudio
+		? "id=0,streams=v id=1,streams=a"
+		: "id=0,streams=v";
+
+	await runFfmpeg((command) =>
+		command
+			.addOption(FFMPEG_COMMAND.HIDE_BANNER)
+			.addOption(FFMPEG_COMMAND.OVERWRITE_OUTPUT)
+			.input(inputMp4)
+			.addOption("-c:v", "copy")
+			.addOption("-c:a", "copy")
+			.addOption("-f", "dash")
+			.addOption("-seg_duration", String(segmentDurationS))
+			.addOption("-use_template", "1")
+			.addOption("-use_timeline", "1")
+			.addOption("-adaptation_sets", adaptationSets)
+			.output(manifestPath),
+	);
+};
+
+export const uploadDashToS3 = async (
+	dashDir: string,
+	s3Prefix: string,
+	storage: StorageProvider,
+): Promise<void> => {
+	const files = await fsp.readdir(dashDir);
+	await Promise.all(
+		files.map(async (file) => {
+			const filePath = path.join(dashDir, file);
+			const s3Key = `${s3Prefix}/${file}`;
+			const contentType = file.endsWith(".mpd")
+				? "application/dash+xml"
+				: "video/mp4";
+			await storage.uploadStream(
+				fs.createReadStream(filePath),
+				s3Key,
+				contentType,
+			);
+		}),
+	);
+};
+
 export const finalRenderToS3 = async (
 	segmentPaths: string[],
 	overlayInputs: PreparedOverlayInput[],
@@ -311,7 +364,8 @@ export const finalRenderToS3 = async (
 		keepSegments,
 		config.MIN_TRANSCODE_SEGMENT_SECONDS,
 	);
-	const needsProcessing = needsTranscode || hasAudio || cropRegion !== undefined;
+	const needsProcessing =
+		needsTranscode || hasAudio || cropRegion !== undefined;
 
 	ffmpeg.setFfmpegPath(getFfmpegPath());
 
@@ -338,7 +392,7 @@ export const finalRenderToS3 = async (
 		audioStreams,
 		needsProcessing,
 		sources,
-		format === "webp" ? "mp4" : format,
+		format === "webp" || format === "dash" ? "mp4" : format,
 		videoHasAudio,
 		cropRegion,
 	);
@@ -366,6 +420,27 @@ export const finalRenderToS3 = async (
 			s3Key,
 			getOutputContentType("webp"),
 		);
+	} else if (format === "dash") {
+		const renderedVideoPath = path.join(tempDir, `rendered-${Date.now()}.mp4`);
+		const dashOutputDir = path.join(tempDir, `dash-${Date.now()}`);
+		await fsp.mkdir(dashOutputDir, { recursive: true });
+
+		await runCommandToFile(
+			command,
+			renderedVideoPath,
+			totalDuration,
+			onProgress,
+		);
+
+		const renderedHasAudio = await hasAudioStream(renderedVideoPath).catch(
+			() => false,
+		);
+		await packToDash(renderedVideoPath, dashOutputDir, renderedHasAudio);
+		await uploadDashToS3(dashOutputDir, s3Key, storage);
+
+		const manifestKey = `${s3Key}/manifest.mpd`;
+		const url = await storage.getPresignedUrl(manifestKey, expiresInSeconds);
+		return { s3Key: manifestKey, url };
 	} else {
 		await runCommandToStream(
 			command,

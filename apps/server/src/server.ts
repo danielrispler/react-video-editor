@@ -4,9 +4,11 @@ import redis from "@fastify/redis";
 import ffmpeg from "fluent-ffmpeg";
 import { envPlugin } from "./config/env.ts";
 import { editVideoRouter } from "./edit-video/edit-video.routes.ts";
+import { editorExportRouter } from "./editor-export/editor-export.routes.ts";
 import { type TypedFastify, createFastifyInstance } from "./fastify/fastify.ts";
 import { getFfmpegPath } from "./ffmpeg/ffmpeg.utils.ts";
 import { storagePlugin } from "./plugins/storage.plugin.ts";
+import { previewRouter } from "./preview/preview.routes.ts";
 import { renderRouter } from "./render/render.routes.ts";
 import { uploadRouter } from "./upload/upload.routes.ts";
 
@@ -33,6 +35,8 @@ export class Server {
 		await this.app.register(editVideoRouter, { prefix: "/api" });
 		await this.app.register(uploadRouter, { prefix: "/api" });
 		await this.app.register(renderRouter, { prefix: "/api" });
+		await this.app.register(previewRouter, { prefix: "/api" });
+		await this.app.register(editorExportRouter, { prefix: "/api" });
 
 		try {
 			await this.app.listen({

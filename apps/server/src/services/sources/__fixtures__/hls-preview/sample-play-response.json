@@ -1,0 +1,21 @@
+{
+	"channelId": "20574",
+	"requestedStartTimeMs": 1778412276333,
+	"requestedEndTimeMs": 1778412813617,
+	"durationMs": 537284,
+	"segmentStartTimeMs": 1778412270000,
+	"sourceOffsetMs": 6333,
+	"playback": {
+		"kind": "hls",
+		"src": "/api/editor/hls-preview/jobs/mock-recording/index.m3u8"
+	},
+	"posterSrc": "https://example.com/mock-recording-poster.jpg",
+	"dashTemplate": {
+		"representationId": "v2",
+		"timescale": 90000,
+		"duration": 1350000,
+		"startNumber": 426,
+		"initialization": "$RepresentationID$_init.mp4",
+		"media": "segment_$RepresentationID$_$Number$.m4s"
+	}
+}

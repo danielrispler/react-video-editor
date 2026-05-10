@@ -151,7 +151,8 @@ function parseDegrees(val: unknown): number | undefined {
 }
 
 function parseScale(transform?: unknown): { scaleX: number; scaleY: number } {
-	if (typeof transform !== "string" || transform === "none") return { scaleX: 1, scaleY: 1 };
+	if (typeof transform !== "string" || transform === "none")
+		return { scaleX: 1, scaleY: 1 };
 
 	const scaleMatch = /scale\(([^)]+)\)/.exec(transform);
 	if (!scaleMatch) return { scaleX: 1, scaleY: 1 };
@@ -260,11 +261,7 @@ export function transformDesignToRenderRequest(
 	const mainTrackIndex = mainTrack
 		? tracks.findIndex((track) => track.id === mainTrack.id)
 		: -1;
-	const timelineEnd = getTimelineEnd(
-		tracks,
-		trackItemsMap,
-		designDuration,
-	);
+	const timelineEnd = getTimelineEnd(tracks, trackItemsMap, designDuration);
 
 	// Build sources from the primary/base track items.
 	const mainItems = getSortedTrackItems(mainTrack, trackItemsMap);
@@ -353,7 +350,7 @@ export function transformDesignToRenderRequest(
 		const { scaleX, scaleY } = parseScale(transform);
 		const actualWidth = width * Math.abs(scaleX);
 		const actualHeight = height * Math.abs(scaleY);
-		
+
 		// The center remains the same: center_x = left + width/2
 		// new_left = center_x - actualWidth/2
 		const actualLeft = left + width / 2 - actualWidth / 2;
@@ -375,7 +372,7 @@ export function transformDesignToRenderRequest(
 			const start = item.display.from / 1000;
 			const end = item.display.to / 1000;
 			const isPrimaryTrack = trackIndex === mainTrackIndex;
-			
+
 			const left = parsePx(details.left);
 			const top = parsePx(details.top);
 			const width = parsePx(details.width);
@@ -383,14 +380,13 @@ export function transformDesignToRenderRequest(
 
 			if (item.type === "text") {
 				updateBoundingBoxScaled(left, top, width, height, details.transform);
-				
+
 				const x = toPercent(left, size.width);
 				const y = toPercent(top, size.height);
 				const rawFontSize = parsePx(details.fontSize);
 				const fontSize = rawFontSize > 0 ? rawFontSize : undefined;
 				const rawElementWidth = width;
-				const elementWidth =
-					rawElementWidth > 0 ? rawElementWidth : undefined;
+				const elementWidth = rawElementWidth > 0 ? rawElementWidth : undefined;
 				const rawElementHeight = height;
 				const elementHeight =
 					rawElementHeight > 0 ? rawElementHeight : undefined;
@@ -399,9 +395,7 @@ export function transformDesignToRenderRequest(
 						? details.textAlign
 						: "left";
 				const fontColor = details.color as string | undefined;
-				const backgroundColor = details.backgroundColor as
-					| string
-					| undefined;
+				const backgroundColor = details.backgroundColor as string | undefined;
 				const opacity = toOpacity(details.opacity);
 				const { strokeWidth, strokeColor } = getReadableStroke(details);
 				overlays.push({
@@ -434,7 +428,7 @@ export function transformDesignToRenderRequest(
 				if (!isPrimaryTrack || shouldCompositeVideoRows) {
 					const imageUrl = (details.src as string | undefined) ?? "";
 					if (!imageUrl) continue;
-					
+
 					const x = toPercent(left, size.width);
 					const y = toPercent(top, size.height);
 					const widthOpt = width || undefined;
@@ -459,7 +453,7 @@ export function transformDesignToRenderRequest(
 
 			if (item.type === "video") {
 				updateBoundingBoxScaled(left, top, width, height, details.transform);
-				
+
 				if (!isPrimaryTrack || shouldCompositeVideoRows) {
 					const sourceUrl = (details.src as string | undefined) ?? "";
 					if (!sourceUrl) continue;
