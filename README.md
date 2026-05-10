@@ -95,8 +95,8 @@ pnpm -F @video-editor/frontend dev
 
 ```text
 channelId: demo-recording
-startTimeMs: 1778412276333
-endTimeMs: 1778412295000
+startTimeMs: 1778412270000
+endTimeMs: 1778412300000
 ```
 
 The iframe sends `EDITOR_ADD_PREVIEW_ITEM`, the editor calls

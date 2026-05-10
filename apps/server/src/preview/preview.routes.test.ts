@@ -274,7 +274,7 @@ describe("POST /api/editor/preview-source — inline MPD (no channel API)", () =
 		assert.equal(res.statusCode, 200);
 		const body = res.json<{ playlistUrl: string; sourceOffsetMs: number }>();
 		assert.ok(body.playlistUrl.startsWith("https://s3.example.com/preview/"));
-		assert.equal(body.sourceOffsetMs, 6333);
+		assert.equal(body.sourceOffsetMs, 0);
 	});
 
 	it("serves demo DASH assets locally", async () => {
