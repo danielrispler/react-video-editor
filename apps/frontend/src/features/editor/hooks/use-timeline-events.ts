@@ -1,7 +1,7 @@
 import { filter, subject } from "@designcombo/events";
 import { LAYER_PREFIX, LAYER_SELECTION } from "@designcombo/state";
 import { TIMELINE_PREFIX, TIMELINE_SEEK } from "@designcombo/timeline";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import {
 	PLAYER_PAUSE,
 	PLAYER_PLAY,
@@ -14,7 +14,12 @@ import useStore from "../store/use-store";
 import { getSafeCurrentFrame } from "../utils/time";
 
 const useTimelineEvents = () => {
-	const { playerRef, fps, timeline, setState } = useStore();
+	const { playerRef, fps } = useStore();
+	const setStateRef = useRef(useStore.getState().setState);
+
+	useEffect(() => {
+		setStateRef.current = useStore.getState().setState;
+	});
 
 	//handle player events
 	useEffect(() => {
@@ -64,7 +69,7 @@ const useTimelineEvents = () => {
 		};
 	}, [playerRef, fps]);
 
-	// handle selection events
+	// handle selection events — subscribed once, reads setState via ref
 	useEffect(() => {
 		const selectionEvents = subject.pipe(
 			filter(({ key }) => key.startsWith(LAYER_PREFIX)),
@@ -72,13 +77,13 @@ const useTimelineEvents = () => {
 
 		const selectionSubscription = selectionEvents.subscribe((obj) => {
 			if (obj.key === LAYER_SELECTION) {
-				setState({
+				setStateRef.current({
 					activeIds: obj.value?.payload.activeIds,
 				});
 			}
 		});
 		return () => selectionSubscription.unsubscribe();
-	}, [timeline]);
+	}, []); // stable — setState is accessed via ref
 };
 
 export default useTimelineEvents;

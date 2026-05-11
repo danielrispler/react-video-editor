@@ -6,9 +6,10 @@ import { CircleCheckIcon } from "lucide-react";
 import { useDownloadState } from "./store/use-download-state";
 
 const DownloadProgressModal = () => {
-	const { progress, displayProgressModal, output, exporting, actions } =
+	const { progress, displayProgressModal, output, exporting, error, actions } =
 		useDownloadState();
 	const isCompleted = Boolean(output?.url) && !exporting;
+	const isFailed = Boolean(error) && !exporting && !isCompleted;
 	const exportLabel = output?.type === "webp" ? "image" : "video";
 
 	const handleDownload = async () => {
@@ -39,6 +40,11 @@ const DownloadProgressModal = () => {
 							</div>
 						</div>
 						<Button onClick={handleDownload}>Download</Button>
+					</div>
+				) : isFailed ? (
+					<div className="flex flex-1 flex-col items-center justify-center gap-4 px-8 text-center">
+						<div className="font-bold">Export failed</div>
+						<div className="text-sm text-zinc-500">{error}</div>
 					</div>
 				) : (
 					<div className="flex flex-1 flex-col items-center justify-center gap-4">

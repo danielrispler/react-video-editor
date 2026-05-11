@@ -77,6 +77,7 @@ export class VideoRenderUseCase {
 					tempDir,
 					totalDuration,
 					this.storage,
+					this.config,
 				),
 			]);
 

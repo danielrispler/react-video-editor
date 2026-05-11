@@ -1,9 +1,10 @@
 import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
-import { copyFile, mkdtemp, rm } from "node:fs/promises";
+import { copyFile, mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { after, before, describe, it } from "node:test";
+import { pathToFileURL } from "node:url";
 import ffmpeg from "fluent-ffmpeg";
 import type { EnvConfig } from "../../config/env.ts";
 import { FFMPEG_COMMAND } from "../../ffmpeg/ffmpeg.consts.ts";
@@ -142,6 +143,83 @@ describe("video-overlay.service", () => {
 		assert.ok(
 			duration < 0.9,
 			`expected trimmed duration to be < 0.9s, got ${duration}`,
+		);
+	});
+
+	it("processes HLS overlay sources instead of treating playlists as MP4 downloads", async () => {
+		const hlsDir = path.join(tempDir, "hls-overlay");
+		const playlistPath = path.join(hlsDir, "demo.m3u8");
+		await mkdir(hlsDir, { recursive: true });
+
+		const fixtureDir = path.resolve(
+			"apps/server/src/services/sources/__fixtures__/hls-preview/demo-dash",
+		);
+		const initPath = pathToFileURL(path.join(fixtureDir, "0_init.mp4")).href;
+		const segmentOnePath = pathToFileURL(
+			path.join(fixtureDir, "segment_0_1.m4s"),
+		).href;
+		const segmentTwoPath = pathToFileURL(
+			path.join(fixtureDir, "segment_0_2.m4s"),
+		).href;
+
+		await writeFile(
+			playlistPath,
+			[
+				"#EXTM3U",
+				"#EXT-X-VERSION:7",
+				"#EXT-X-TARGETDURATION:15",
+				"#EXT-X-MEDIA-SEQUENCE:1",
+				"#EXT-X-PLAYLIST-TYPE:VOD",
+				`#EXT-X-MAP:URI="${initPath}"`,
+				"#EXTINF:15.000,",
+				segmentOnePath,
+				"#EXTINF:15.000,",
+				segmentTwoPath,
+				"#EXT-X-ENDLIST",
+				"",
+			].join("\n"),
+			"utf8",
+		);
+
+		const storage: StorageProvider = {
+			uploadStream: async () => undefined,
+			downloadToFile: async () => {
+				throw new Error("downloadToFile should not be used for HLS overlays");
+			},
+			getPresignedUrl: async () => "",
+			getPresignedUploadUrl: async () => "",
+			deleteFile: async () => undefined,
+			ensureBucketExists: async () => undefined,
+		};
+
+		const preparedPath = await prepareVideoOverlay(
+			{
+				id: "hls-video-overlay",
+				type: "video",
+				sourceUrl: playlistPath,
+				start: 0,
+				end: 1,
+				trackOrder: 1,
+				left: 0,
+				top: 0,
+				width: 64,
+				height: 64,
+				trimFrom: 0.5,
+				trimTo: 1.5,
+			},
+			tempDir,
+			storage,
+			testConfig,
+		);
+
+		const duration = await probeDuration(preparedPath);
+		assert.ok(
+			duration > 0.8,
+			`expected HLS overlay duration to be > 0.8s, got ${duration}`,
+		);
+		assert.ok(
+			duration < 1.2,
+			`expected HLS overlay duration to be < 1.2s, got ${duration}`,
 		);
 	});
 });

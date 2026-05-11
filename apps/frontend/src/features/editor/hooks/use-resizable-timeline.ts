@@ -78,7 +78,7 @@ export const useResizbleTimeline = () => {
 		if (!timelineContainerRef.current) return;
 
 		setTimelineHeight(timelineContainerRef.current.clientHeight);
-	}, [timelineContainerRef.current]);
+	}, []); // run once on mount — ref.current is never a valid dep
 
 	return {
 		timelineContainerRef,

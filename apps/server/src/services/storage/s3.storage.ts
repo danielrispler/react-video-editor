@@ -12,6 +12,7 @@ import {
 } from "@aws-sdk/client-s3";
 import { Upload } from "@aws-sdk/lib-storage";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { downloadFile as downloadHttpFile } from "../../utils/file.utils.ts";
 import type { StorageProvider } from "./storage.types.ts";
 
 export interface S3StorageConfig {
@@ -26,9 +27,15 @@ export interface S3StorageConfig {
 export class S3Storage implements StorageProvider {
 	protected client: S3Client;
 	private readonly bucket: string;
+	private readonly endpointUrl?: URL;
+	private readonly forcePathStyle: boolean;
 
 	constructor(s3Config: S3StorageConfig) {
 		this.bucket = s3Config.bucket;
+		this.forcePathStyle = s3Config.forcePathStyle;
+		this.endpointUrl = s3Config.endpoint
+			? new URL(s3Config.endpoint)
+			: undefined;
 		this.client = new S3Client({
 			region: s3Config.region,
 			endpoint: s3Config.endpoint,
@@ -76,18 +83,65 @@ export class S3Storage implements StorageProvider {
 		await pipeline(response.Body as Readable, fs.createWriteStream(outputPath));
 	};
 
-	private extractKeyFromUrlOrKey = (urlOrKey: string): string => {
-		const url = new URL(urlOrKey);
-		const parts = url.pathname.replace(/^\/+/, "").split("/");
+	private tryExtractKeyFromUrl = (urlOrKey: string): string | null => {
+		let url: URL;
+		try {
+			url = new URL(urlOrKey);
+		} catch {
+			return urlOrKey;
+		}
 
-		return parts.slice(1).join("/");
+		if (url.protocol !== "http:" && url.protocol !== "https:") {
+			return null;
+		}
+
+		const pathname = url.pathname.replace(/^\/+/, "");
+		if (!pathname) {
+			return null;
+		}
+
+		if (this.forcePathStyle) {
+			const prefix = `${this.bucket}/`;
+			if (pathname.startsWith(prefix)) {
+				return pathname.slice(prefix.length);
+			}
+		}
+
+		const endpointHost = this.endpointUrl?.hostname;
+		if (endpointHost) {
+			const virtualHostedBucketPrefix = `${this.bucket}.`;
+			if (
+				url.hostname === endpointHost &&
+				!this.forcePathStyle &&
+				pathname.length > 0
+			) {
+				return pathname;
+			}
+
+			if (
+				url.hostname.startsWith(virtualHostedBucketPrefix) &&
+				url.hostname.endsWith(endpointHost) &&
+				pathname.length > 0
+			) {
+				return pathname;
+			}
+		}
+
+		return null;
 	};
 
 	public downloadToFile = async (
 		urlOrKey: string,
 		outputPath: string,
-	): Promise<void> =>
-		this.downloadFile(this.extractKeyFromUrlOrKey(urlOrKey), outputPath);
+	): Promise<void> => {
+		const key = this.tryExtractKeyFromUrl(urlOrKey);
+		if (key) {
+			await this.downloadFile(key, outputPath);
+			return;
+		}
+
+		await downloadHttpFile(urlOrKey, outputPath);
+	};
 
 	public getPresignedUrl = async (
 		key: string,

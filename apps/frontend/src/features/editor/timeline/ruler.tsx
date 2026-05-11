@@ -68,11 +68,15 @@ const Ruler = (props: RulerProps) => {
 		resize(canvasRef.current, canvasContext, scrollLeft);
 	}, [canvasContext, scrollLeft, timelineOffsetX]);
 
+	const debouncedResizeRef = useRef<ReturnType<typeof debounce> | null>(null);
+
 	useEffect(() => {
 		const resizeHandler = debounce(handleResize, 200);
+		debouncedResizeRef.current = resizeHandler;
 		window.addEventListener("resize", resizeHandler);
 
 		return () => {
+			resizeHandler.cancel();
 			window.removeEventListener("resize", resizeHandler);
 		};
 	}, [handleResize]);

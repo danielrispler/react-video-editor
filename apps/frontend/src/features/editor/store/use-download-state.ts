@@ -15,6 +15,7 @@ interface DownloadState {
 	progress: number;
 	output?: Output;
 	payload?: IDesign;
+	error?: string;
 	displayProgressModal: boolean;
 	actions: {
 		setProjectId: (projectId: string) => void;
@@ -70,6 +71,7 @@ export const useDownloadState = create<DownloadState>((set, get) => ({
 				}
 
 				set({
+					error: undefined,
 					exporting: true,
 					displayProgressModal: true,
 					progress: 0,
@@ -127,6 +129,8 @@ export const useDownloadState = create<DownloadState>((set, get) => ({
 					const statusInfo = await statusResponse.json();
 					const render = statusInfo?.render ?? statusInfo;
 					const status = String(render?.status ?? "").toUpperCase();
+					const renderError =
+						typeof render?.error === "string" ? render.error : undefined;
 					const progressValue =
 						typeof render?.progress === "number"
 							? render.progress
@@ -146,6 +150,7 @@ export const useDownloadState = create<DownloadState>((set, get) => ({
 						}
 
 						set({
+							error: undefined,
 							exporting: false,
 							progress: 100,
 							output: { url, type: get().exportType },
@@ -159,13 +164,21 @@ export const useDownloadState = create<DownloadState>((set, get) => ({
 						return;
 					}
 
-					throw new Error(`Export failed with status: ${status || "UNKNOWN"}`);
+					throw new Error(
+						renderError
+							? `Export failed with status: ${status || "UNKNOWN"} - ${renderError}`
+							: `Export failed with status: ${status || "UNKNOWN"}`,
+					);
 				};
 
 				await pollUntilComplete();
 			} catch (error) {
 				console.error(error);
-				set({ exporting: false, displayProgressModal: false });
+				set({
+					error: error instanceof Error ? error.message : "Export failed",
+					exporting: false,
+					displayProgressModal: true,
+				});
 			}
 		},
 	},

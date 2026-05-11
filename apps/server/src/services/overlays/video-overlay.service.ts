@@ -9,6 +9,7 @@ import {
 	normalizeFfmpegTime,
 } from "../../utils/time.utils.ts";
 import { isMpdUrl, processMpdSource } from "../sources/dash-process.service.ts";
+import { isHlsUrl, processHlsSource } from "../sources/hls-process.service.ts";
 import type { StorageProvider } from "../storage/storage.types.ts";
 import { buildEnableExpression } from "./overlay-utils.ts";
 
@@ -162,6 +163,18 @@ export const prepareVideoOverlay = async (
 			},
 			downloadedPath,
 			false,
+			config,
+		);
+	} else if (isHlsUrl(overlay.sourceUrl)) {
+		await processHlsSource(
+			{
+				url: overlay.sourceUrl,
+				type: "video",
+				duration: Math.max(0.1, overlay.end - overlay.start),
+				...(overlay.trimFrom !== undefined && { trimFrom: overlay.trimFrom }),
+				...(overlay.trimTo !== undefined && { trimTo: overlay.trimTo }),
+			},
+			downloadedPath,
 			config,
 		);
 	} else {

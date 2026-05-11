@@ -217,6 +217,8 @@ const Timeline = ({ stateManager }: { stateManager: StateManager }) => {
 
 		return () => {
 			canvas.purge();
+			setTimeline(null as any);
+			canvasRef.current = null;
 		};
 	}, []);
 

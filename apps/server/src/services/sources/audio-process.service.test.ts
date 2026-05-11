@@ -4,6 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import { after, describe, it } from "node:test";
 import ffmpeg from "fluent-ffmpeg";
+import type { EnvConfig } from "../../config/env.ts";
 import { getFfmpegPath } from "../../ffmpeg/ffmpeg.utils.ts";
 import type { StorageProvider } from "../storage/storage.types.ts";
 import {
@@ -13,6 +14,39 @@ import {
 } from "./audio-process.service.ts";
 
 ffmpeg.setFfmpegPath(getFfmpegPath());
+
+const testConfig: EnvConfig = {
+	PORT: 4000,
+	HOST: "127.0.0.1",
+	MIN_TRANSCODE_SEGMENT_SECONDS: 0.35,
+	FFMPEG_PRESET: "veryfast",
+	FFMPEG_CRF: "20",
+	FFMPEG_AUDIO_BITRATE: "192k",
+	CHANNEL_PLAY_API_BASE_URL: "",
+	SERVER_BASE_URL: "http://localhost:4000",
+	MAX_PREVIEW_DURATION_MS: 3600000,
+	PREVIEW_JOB_TTL_SECONDS: 86400,
+	S3_PREVIEW_PREFIX: "preview",
+	ENABLE_MPD_RESTRICTIONS: false,
+	TRANSCODE_TIMEOUT_MS: 10000,
+	MAX_TEMP_FILE_SIZE_MB: 100,
+	MPD_TRANSCODE_CRF_MULTI: "10",
+	MPD_TRANSCODE_CRF_SINGLE: "18",
+	MPD_TRANSCODE_PRESET: "medium",
+	S3_BUCKET: "test",
+	S3_REGION: "us-east-1",
+	S3_ENDPOINT: "http://localhost:9000",
+	S3_FORCE_PATH_STYLE: true,
+	S3_ACCESS_KEY_ID: "test",
+	S3_SECRET_ACCESS_KEY: "test",
+	S3_UPLOAD_PREFIX: "uploads",
+	S3_OUTPUT_PREFIX: "output",
+	S3_AUTO_CREATE_BUCKET: false,
+	REDIS_HOST: "localhost",
+	REDIS_PORT: 6379,
+	REDIS_PASSWORD: "",
+	JOB_PROGRESS_TTL_SECONDS: 600,
+};
 
 const tempDirs: string[] = [];
 
@@ -124,6 +158,7 @@ describe("audio-process.service", () => {
 			tempDir,
 			1,
 			storage,
+			testConfig,
 		);
 
 		assert.deepEqual(result, {
@@ -171,6 +206,7 @@ describe("audio-process.service", () => {
 			tempDir,
 			1,
 			storage,
+			testConfig,
 		);
 
 		assert.equal(result.hasAudio, true);

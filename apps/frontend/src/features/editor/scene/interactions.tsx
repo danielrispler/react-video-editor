@@ -84,11 +84,18 @@ export function SceneInteractions({
 		[trackItemIds, activeIds],
 	);
 
+	// Keep a ref to activeIds so the seeked listener always uses the latest
+	// value without needing to re-register on every trackItemsMap change.
+	const activeIdsRef = useRef(activeIds);
+	useEffect(() => {
+		activeIdsRef.current = activeIds;
+	}, [activeIds]);
+
 	useEffect(() => {
 		const updateTargets = (time?: number) => {
 			const currentTime = time || getCurrentTime();
 			const { trackItemsMap } = useStore.getState();
-			const targetIds = activeIds.filter((id) => {
+			const targetIds = activeIdsRef.current.filter((id) => {
 				return (
 					trackItemsMap[id]?.display.from <= currentTime &&
 					trackItemsMap[id]?.display.to >= currentTime
@@ -119,7 +126,9 @@ export function SceneInteractions({
 			playerRef?.current?.removeEventListener("seeked", onSeeked);
 			clearTimeout(timer);
 		};
-	}, [activeIds, playerRef, trackItemsMap]);
+		// trackItemsMap intentionally omitted — updateTargets reads from the store directly
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [activeIds, playerRef]);
 
 	useEffect(() => {
 		const selection = new Selection({

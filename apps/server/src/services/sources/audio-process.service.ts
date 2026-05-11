@@ -1,3 +1,4 @@
+import type { EnvConfig } from "../../config/env.ts";
 import { promises as fsp } from "node:fs";
 import path from "node:path";
 import type {
@@ -10,6 +11,8 @@ import {
 	normalizeFfmpegDuration,
 	normalizeFfmpegTime,
 } from "../../utils/time.utils.ts";
+import { isMpdUrl } from "./dash-process.service.ts";
+import { isHlsUrl } from "./hls-process.service.ts";
 import type { StorageProvider } from "../storage/storage.types.ts";
 
 const AUDIO_FILE_EXTENSIONS = new Set([
@@ -169,11 +172,31 @@ export const processAudioFile = async (
 	return processedPath;
 };
 
+const materializeStreamingAudioSource = async (
+	audio: AudioSource,
+	audioPath: string,
+	config: EnvConfig,
+): Promise<void> => {
+	await runFfmpeg((command) => {
+		return command
+			.addOption(FFMPEG_COMMAND.HIDE_BANNER)
+			.addOption(FFMPEG_COMMAND.OVERWRITE_OUTPUT)
+			.input(audio.url)
+			.noVideo()
+			.audioCodec(FFMPEG_COMMAND.AAC_AUDIO_CODEC)
+			.outputOptions(["-b:a", FFMPEG_COMMAND.AUDIO_BITRATE])
+			.audioFrequency(FFMPEG_COMMAND.AUDIO_FREQUENCY)
+			.audioChannels(2)
+			.output(audioPath);
+	}, config.TRANSCODE_TIMEOUT_MS);
+};
+
 export const prepareAudioSources = async (
 	audioSources: RenderRequest["audioSources"],
 	tempDir: string,
 	totalDurationSegments: number,
 	storage: StorageProvider,
+	config: EnvConfig,
 ): Promise<{
 	audioPaths: { path: string; startTime: number; volume: number }[];
 	hasAudio: boolean;
@@ -187,12 +210,25 @@ export const prepareAudioSources = async (
 	const preparedAudioPaths = await Promise.all(
 		activeAudio.map(async (audio, index) => {
 			try {
-				const audioExt = path.extname(new URL(audio.url).pathname) || ".mp3";
+				const isStreamingSource = isMpdUrl(audio.url) || isHlsUrl(audio.url);
+				const audioExt = isStreamingSource
+					? ".m4a"
+					: path.extname(new URL(audio.url).pathname) || ".mp3";
 				const audioPath = path.join(tempDir, `audio-${index}${audioExt}`);
 
-				await storage.downloadToFile(audio.url, audioPath);
+				if (isStreamingSource) {
+					if (shouldProbeForEmbeddedAudio(audio)) {
+						const hasEmbeddedAudio = await hasAudioStream(audio.url);
+						if (!hasEmbeddedAudio) {
+							return null;
+						}
+					}
+					await materializeStreamingAudioSource(audio, audioPath, config);
+				} else {
+					await storage.downloadToFile(audio.url, audioPath);
+				}
 				await fsp.access(audioPath);
-				if (shouldProbeForEmbeddedAudio(audio)) {
+				if (!isStreamingSource && shouldProbeForEmbeddedAudio(audio)) {
 					const hasEmbeddedAudio = await hasAudioStream(audioPath);
 					if (!hasEmbeddedAudio) {
 						return null;
