@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 type EditorResponse = {
 	type?: string;
@@ -21,6 +21,20 @@ export default function IframeDemoPage() {
 	const [startTimeMs, setStartTimeMs] = useState(DEMO_PREVIEW_DEFAULT_START_MS);
 	const [endTimeMs, setEndTimeMs] = useState(DEMO_PREVIEW_DEFAULT_END_MS);
 	const [lastResponse, setLastResponse] = useState<EditorResponse | null>(null);
+	const demoPayload = useMemo(
+		() => ({
+			type: "EDITOR_ADD_PREVIEW_ITEM",
+			requestId: "demo-preview-item",
+			payload: {
+				kind: "recording-range",
+				channelId,
+				startTimeMs,
+				endTimeMs,
+				durationMs: Math.max(endTimeMs - startTimeMs, 1),
+			},
+		}),
+		[channelId, startTimeMs, endTimeMs],
+	);
 
 	useEffect(() => {
 		const handleMessage = (event: MessageEvent) => {
@@ -50,6 +64,8 @@ export default function IframeDemoPage() {
 						Send a demo recording-range payload to the embedded editor. The
 						editor calls <code>/api/editor/preview-source</code>, the backend
 						converts demo DASH to HLS, and the item is inserted into the scene.
+						The editor keeps trim/display state plus canonical metadata instead
+						of duplicating the raw request fields.
 					</p>
 
 					<div className="mt-6 space-y-4">
@@ -85,18 +101,12 @@ export default function IframeDemoPage() {
 
 					<div className="mt-6 flex flex-wrap gap-3">
 						<button
+							type="button"
 							className="rounded-xl bg-emerald-500 px-4 py-2 font-medium text-zinc-950"
 							onClick={() =>
 								postToEditor({
-									type: "EDITOR_ADD_PREVIEW_ITEM",
+									...demoPayload,
 									requestId: crypto.randomUUID(),
-									payload: {
-										kind: "recording-range",
-										channelId,
-										startTimeMs,
-										endTimeMs,
-										durationMs: Math.max(endTimeMs - startTimeMs, 1),
-									},
 								})
 							}
 						>
@@ -104,6 +114,7 @@ export default function IframeDemoPage() {
 						</button>
 
 						<button
+							type="button"
 							className="rounded-xl border border-zinc-700 px-4 py-2"
 							onClick={() =>
 								postToEditor({
@@ -119,10 +130,7 @@ export default function IframeDemoPage() {
 					<pre className="mt-6 overflow-auto rounded-2xl border border-zinc-800 bg-black/40 p-4 text-xs text-zinc-300">
 						{JSON.stringify(
 							{
-								channelId,
-								startTimeMs,
-								endTimeMs,
-								durationMs: Math.max(endTimeMs - startTimeMs, 1),
+								outgoingMessage: demoPayload,
 								lastResponse,
 							},
 							null,

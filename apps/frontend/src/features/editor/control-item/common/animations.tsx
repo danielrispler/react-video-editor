@@ -3,7 +3,7 @@ import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useIsLargeScreen } from "@/hooks/use-media-query";
-import { IText, ITrackItem } from "@designcombo/types";
+import type { IText, ITrackItem } from "@designcombo/types";
 import { ChevronDown } from "lucide-react";
 import useLayoutStore from "../../store/use-layout-store";
 import useStore from "../../store/use-store";

@@ -1,4 +1,4 @@
-import { IVideo } from "@designcombo/types";
+import type { IVideo } from "@designcombo/types";
 
 export const VIDEOS = [
 	// {

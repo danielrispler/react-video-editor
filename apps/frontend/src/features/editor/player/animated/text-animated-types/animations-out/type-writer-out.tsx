@@ -1,4 +1,4 @@
-import { ITextDetails } from "@designcombo/types";
+import type { ITextDetails } from "@designcombo/types";
 import { useMemo } from "react";
 import { interpolate } from "remotion";
 

@@ -37,13 +37,7 @@ export class DashFallbackAdapter implements ExportHandoffAdapter {
 		mp4Path: string,
 		context: ExportContext,
 	): Promise<ExportHandoffResult> {
-		const {
-			s3KeyPrefix,
-			tempDir,
-			storage,
-			config,
-			expiresInSeconds = 86400,
-		} = context;
+		const { s3KeyPrefix, tempDir, storage, expiresInSeconds = 86400 } = context;
 
 		const dashOutputDir = path.join(tempDir, `dash-export-${Date.now()}`);
 		const { promises: fsp } = await import("node:fs");

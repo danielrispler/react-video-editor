@@ -44,7 +44,10 @@ export const processImageSource = async (
 			.inputOptions(FFMPEG_COMMAND.TREAT_AS_LIBAV_FILTER)
 			.videoCodec(FFMPEG_COMMAND.H264_VIDEO_CODEC)
 			.duration(source.duration)
-			.videoFilters(FFMPEG_COMMAND.FORMAT_YUV420P)
+			.videoFilters([
+				FFMPEG_COMMAND.EVEN_DIMENSIONS,
+				FFMPEG_COMMAND.FORMAT_YUV420P,
+			])
 			.fps(25)
 			.outputOptions(FFMPEG_COMMAND.CONSTANT_FRAME_RATE)
 			.audioCodec(FFMPEG_COMMAND.AAC_AUDIO_CODEC)

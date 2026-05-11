@@ -1,12 +1,12 @@
 import {
-	Control,
+	type Control,
 	Pattern,
 	Trimmable,
-	TrimmableProps,
+	type TrimmableProps,
 	timeMsToUnits,
 	unitsToTimeMs,
 } from "@designcombo/timeline";
-import { IDisplay, IMetadata, ITrim } from "@designcombo/types";
+import type { IDisplay, IMetadata, ITrim } from "@designcombo/types";
 import { SECONDARY_FONT } from "../../constants/constants";
 import { isLikelyHlsSrc } from "../../external-preview/utils";
 import { getFileFromUrl } from "../../utils/file";
@@ -16,7 +16,7 @@ import {
 } from "../../utils/filmstrip";
 import ThumbnailCache from "../../utils/thumbnail-cache";
 import { createMediaControls } from "../controls";
-import { Filmstrip, FilmstripBacklogOptions } from "../types";
+import type { Filmstrip, FilmstripBacklogOptions } from "../types";
 
 // Type declaration for MP4Clip to avoid SSR issues
 type MP4ClipType = any;

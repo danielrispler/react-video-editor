@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { dispatch } from "@designcombo/events";
 import { EDIT_OBJECT } from "@designcombo/state";
-import { IImage, ITrackItem, IVideo } from "@designcombo/types";
+import type { IImage, ITrackItem, IVideo } from "@designcombo/types";
 import { useState } from "react";
 
 export default function Flip({

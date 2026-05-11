@@ -1,4 +1,4 @@
-import { ITrackItem } from "@designcombo/types";
+import type { ITrackItem } from "@designcombo/types";
 
 export type IMenuItem =
 	| "uploads"

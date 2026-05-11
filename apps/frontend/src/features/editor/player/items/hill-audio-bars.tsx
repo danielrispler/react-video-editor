@@ -1,5 +1,5 @@
-import { IHillAudioBars } from "@designcombo/types";
-import { BaseSequence, SequenceItemOptions } from "../base-sequence";
+import type { IHillAudioBars } from "@designcombo/types";
+import { BaseSequence, type SequenceItemOptions } from "../base-sequence";
 import { HillBars } from "./audio-bars/hill-audio-bars";
 
 export default function HillAudioBars({

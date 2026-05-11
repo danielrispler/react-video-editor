@@ -1,4 +1,4 @@
-import { ITimelineScaleState } from "@designcombo/types";
+import type { ITimelineScaleState } from "@designcombo/types";
 import { FRAME_INTERVAL, PREVIEW_FRAME_WIDTH } from "../constants/constants";
 import { TIMELINE_ZOOM_LEVELS } from "../constants/scale";
 import { findIndex } from "./search";

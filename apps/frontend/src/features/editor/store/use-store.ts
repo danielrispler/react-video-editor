@@ -1,5 +1,5 @@
-import Timeline from "@designcombo/timeline";
-import {
+import type Timeline from "@designcombo/timeline";
+import type {
 	IComposition,
 	ISize,
 	ITimelineScaleState,
@@ -9,8 +9,8 @@ import {
 	ITransition,
 	ItemStructure,
 } from "@designcombo/types";
-import { Moveable } from "@interactify/toolkit";
-import { PlayerRef } from "@remotion/player";
+import type { Moveable } from "@interactify/toolkit";
+import type { PlayerRef } from "@remotion/player";
 import { create } from "zustand";
 
 interface ITimelineStore {

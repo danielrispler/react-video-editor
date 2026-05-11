@@ -1,5 +1,5 @@
-import { ITextDetails } from "@designcombo/types";
-import { JSX } from "react";
+import type { ITextDetails } from "@designcombo/types";
+import type { JSX } from "react";
 import BackgroundIn from "./text-animated-types/animations-in/background-in";
 import CountDownIn from "./text-animated-types/animations-in/count-down-in";
 import SoundWaveIn from "./text-animated-types/animations-in/sound-wave-in";

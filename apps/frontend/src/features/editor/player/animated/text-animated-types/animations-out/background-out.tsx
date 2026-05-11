@@ -1,4 +1,4 @@
-import { ITextDetails } from "@designcombo/types";
+import type { ITextDetails } from "@designcombo/types";
 import { interpolate } from "remotion";
 
 const BackgroundOut = ({

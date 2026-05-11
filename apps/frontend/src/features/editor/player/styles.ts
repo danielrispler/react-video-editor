@@ -1,4 +1,4 @@
-import { IImage, IText, ITrackItem } from "@designcombo/types";
+import type { IImage, IText, ITrackItem } from "@designcombo/types";
 
 const isTransparentBackground = (backgroundColor: string | undefined) => {
 	if (!backgroundColor) return true;

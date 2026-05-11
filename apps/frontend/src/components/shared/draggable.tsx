@@ -1,4 +1,4 @@
-import React, { useState, cloneElement, ReactElement } from "react";
+import React, { useState, cloneElement, type ReactElement } from "react";
 import { createPortal } from "react-dom";
 
 interface DraggableProps {

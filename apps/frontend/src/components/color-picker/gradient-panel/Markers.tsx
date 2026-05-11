@@ -1,9 +1,16 @@
 import styled from "@emotion/styled";
 /** @jsxImportSource @emotion/react */
-import { FC, MouseEvent, TouchEvent, useEffect, useRef, useState } from "react";
+import {
+	type FC,
+	type MouseEvent,
+	type TouchEvent,
+	useEffect,
+	useRef,
+	useState,
+} from "react";
 import tinycolor from "tinycolor2";
 import { getGradient, rgbaToArray, rgbaToHex } from "../utils";
-import { IPropsPanel, TCoords } from "./types";
+import type { IPropsPanel, TCoords } from "./types";
 
 const GradientStopPreview = styled.div<{ stops: string }>`
   height: 10px;

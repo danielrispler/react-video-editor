@@ -1,9 +1,15 @@
 import styled from "@emotion/styled";
 /** @jsxImportSource @emotion/react */
-import { FC, MouseEvent, TouchEvent, useEffect, useRef } from "react";
+import {
+	type FC,
+	type MouseEvent,
+	type TouchEvent,
+	useEffect,
+	useRef,
+} from "react";
 import { TinyColor } from "../utils";
 
-import { TCoords, TPropsComp } from "./types";
+import type { TCoords, TPropsComp } from "./types";
 
 // Styled components
 const Container = styled.div`
@@ -92,7 +98,6 @@ const Ribbon: FC<TPropsComp> = ({ color, onChange, setChange }) => {
 			removeListeners();
 			removeTouchListeners();
 		};
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	const onMouseDown = (e: MouseEvent) => {
@@ -109,7 +114,7 @@ const Ribbon: FC<TPropsComp> = ({ color, onChange, setChange }) => {
 		window.addEventListener("mouseup", onDragEnd);
 	};
 
-	const onDrag = (e: any) => {
+	const onDrag = (e: globalThis.MouseEvent) => {
 		const x = e.clientX;
 		const y = e.clientY;
 
@@ -119,7 +124,7 @@ const Ribbon: FC<TPropsComp> = ({ color, onChange, setChange }) => {
 		});
 	};
 
-	const onDragEnd = (e: any) => {
+	const onDragEnd = (e: globalThis.MouseEvent) => {
 		const x = e.clientX;
 		const y = e.clientY;
 
@@ -153,7 +158,7 @@ const Ribbon: FC<TPropsComp> = ({ color, onChange, setChange }) => {
 		window.addEventListener("touchend", onTouchEnd, { passive: false });
 	};
 
-	const onTouchMove = (e: any) => {
+	const onTouchMove = (e: globalThis.TouchEvent) => {
 		if (e.cancelable) {
 			e.preventDefault();
 		}

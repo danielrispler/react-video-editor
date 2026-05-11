@@ -1,4 +1,4 @@
-import { Track as TrackBase, TrackItemProps } from "@designcombo/timeline";
+import { Track as TrackBase, type TrackItemProps } from "@designcombo/timeline";
 
 class Track extends TrackBase {
 	static type = "Track";

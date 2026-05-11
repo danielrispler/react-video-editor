@@ -3,7 +3,7 @@ import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { dispatch } from "@designcombo/events";
 import { EDIT_OBJECT } from "@designcombo/state";
-import { IBoxShadow, IImage, ITrackItem } from "@designcombo/types";
+import type { IBoxShadow, IImage, ITrackItem } from "@designcombo/types";
 import { Crop } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import useLayoutStore from "../store/use-layout-store";

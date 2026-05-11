@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { ILayoutState } from "../interfaces/layout";
+import type { ILayoutState } from "../interfaces/layout";
 
 const useLayoutStore = create<ILayoutState>((set) => ({
 	activeMenuItem: "texts",

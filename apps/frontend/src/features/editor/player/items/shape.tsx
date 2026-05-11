@@ -1,8 +1,8 @@
 import { BoxAnim, ContentAnim, MaskAnim } from "@designcombo/animations";
-import { IShape } from "@designcombo/types";
+import type { IShape } from "@designcombo/types";
 import { calculateFrames } from "../../utils/frames";
 import { getAnimations } from "../../utils/get-animations";
-import { BaseSequence, SequenceItemOptions } from "../base-sequence";
+import { BaseSequence, type SequenceItemOptions } from "../base-sequence";
 import { calculateContainerStyles } from "../styles";
 
 export const Shape = ({

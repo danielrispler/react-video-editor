@@ -1,5 +1,5 @@
 import { Easing } from "remotion";
-import { Animation } from "./types";
+import type { Animation } from "./types";
 
 // Define preset names
 export type PresetName =

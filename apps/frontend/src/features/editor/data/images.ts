@@ -1,4 +1,4 @@
-import { IImage } from "@designcombo/types";
+import type { IImage } from "@designcombo/types";
 
 export const IMAGES: Partial<IImage>[] = [
 	{

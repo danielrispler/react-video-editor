@@ -1,10 +1,10 @@
-import {
+import type {
 	IBasicAnimation,
 	ICompositionAnimation,
 	ITrackItem,
 } from "@designcombo/types";
 import { Easing } from "remotion";
-import { Animation } from "../player/animated";
+import type { Animation } from "../player/animated";
 
 export const getAnimations = (
 	animation: {

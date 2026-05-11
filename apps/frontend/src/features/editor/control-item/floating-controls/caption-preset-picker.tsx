@@ -1,7 +1,7 @@
 import { dispatch } from "@designcombo/events";
 import { ADD_ITEMS, LAYER_DELETE } from "@designcombo/state";
 import { generateId } from "@designcombo/timeline";
-import { ITrackItem, ITrackItemsMap } from "@designcombo/types";
+import type { ITrackItem, ITrackItemsMap } from "@designcombo/types";
 import { groupBy } from "lodash";
 import { XIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";

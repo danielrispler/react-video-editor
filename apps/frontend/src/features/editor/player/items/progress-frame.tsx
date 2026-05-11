@@ -1,6 +1,6 @@
-import { IProgressFrame } from "@designcombo/types";
+import type { IProgressFrame } from "@designcombo/types";
 import { calculateFrames } from "../../utils/frames";
-import { BaseSequence, SequenceItemOptions } from "../base-sequence";
+import { BaseSequence, type SequenceItemOptions } from "../base-sequence";
 
 export default function ProgressFrame({
 	item,

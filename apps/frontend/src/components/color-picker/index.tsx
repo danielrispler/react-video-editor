@@ -1,8 +1,8 @@
-import { FC, Fragment } from "react";
+import { type FC, Fragment } from "react";
 import Gradient from "./gradient";
 import Solid from "./solid";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./tabs";
-import { IPropsMain } from "./types";
+import type { IPropsMain } from "./types";
 import "./colorpicker.css";
 
 const ColorPicker: FC<IPropsMain> = ({

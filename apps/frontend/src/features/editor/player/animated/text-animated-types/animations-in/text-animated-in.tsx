@@ -51,7 +51,6 @@ const AnimatedTextIn = ({
 				display: "inline-block",
 				opacity,
 				transform: `translateY(${y}px) rotate(${rotate}deg)`,
-				transition: "all 0.05s ease-out",
 			}}
 		>
 			{char === " " ? " " : char}

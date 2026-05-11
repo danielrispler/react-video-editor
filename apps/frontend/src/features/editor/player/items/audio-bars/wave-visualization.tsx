@@ -1,4 +1,4 @@
-import React from "react";
+import type React from "react";
 import { Easing, useCurrentFrame, useVideoConfig } from "remotion";
 import { getRMS, processAudioFftValue } from "./audio-utils";
 

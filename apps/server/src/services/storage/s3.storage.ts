@@ -1,5 +1,5 @@
 import fs from "node:fs";
-import { Readable } from "node:stream";
+import type { Readable } from "node:stream";
 import { pipeline } from "node:stream/promises";
 import {
 	CreateBucketCommand,

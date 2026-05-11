@@ -1,9 +1,9 @@
 import { BoxAnim, ContentAnim, MaskAnim } from "@designcombo/animations";
-import { IImage } from "@designcombo/types";
+import type { IImage } from "@designcombo/types";
 import { Img } from "remotion";
 import { calculateFrames } from "../../utils/frames";
 import { getAnimations } from "../../utils/get-animations";
-import { BaseSequence, SequenceItemOptions } from "../base-sequence";
+import { BaseSequence, type SequenceItemOptions } from "../base-sequence";
 import { calculateContainerStyles, calculateMediaStyles } from "../styles";
 
 export default function Image({

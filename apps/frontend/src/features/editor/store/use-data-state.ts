@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { IDataState } from "../interfaces/editor";
+import type { IDataState } from "../interfaces/editor";
 
 const useDataState = create<IDataState>((set) => ({
 	fonts: [],

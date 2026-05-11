@@ -1,9 +1,15 @@
 import styled from "@emotion/styled";
 /** @jsxImportSource @emotion/react */
-import { FC, MouseEvent, TouchEvent, useEffect, useRef } from "react";
+import {
+	type FC,
+	type MouseEvent,
+	type TouchEvent,
+	useEffect,
+	useRef,
+} from "react";
 
 import { TinyColor } from "../utils";
-import { TCoords, TPropsComp } from "./types";
+import type { TCoords, TPropsComp } from "./types";
 
 const WIDTH = 200;
 const HEIGHT = 150;
@@ -86,7 +92,6 @@ const Board: FC<TPropsComp> = ({ color, onChange, setChange }) => {
 			removeListeners();
 			removeTouchListeners();
 		};
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	const onBoardMouseDown = (e: MouseEvent) => {

@@ -1,6 +1,6 @@
-import { Dispatch, SetStateAction } from "react";
+import type { Dispatch, SetStateAction } from "react";
 
-import { IActiveColor } from "../types";
+import type { IActiveColor } from "../types";
 
 export interface IColor {
 	gradient: string;

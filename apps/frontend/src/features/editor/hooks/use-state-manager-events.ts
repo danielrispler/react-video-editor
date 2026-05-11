@@ -1,5 +1,5 @@
-import StateManager from "@designcombo/state";
-import { IAudio, ITrackItem, IVideo } from "@designcombo/types";
+import type StateManager from "@designcombo/state";
+import type { IAudio, ITrackItem, IVideo } from "@designcombo/types";
 import { useCallback, useEffect, useRef } from "react";
 import { audioDataManager } from "../player/lib/audio-data";
 import useStore from "../store/use-store";

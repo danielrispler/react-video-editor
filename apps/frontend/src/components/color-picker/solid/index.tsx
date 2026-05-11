@@ -1,4 +1,4 @@
-import { FC, useEffect, useRef, useState } from "react";
+import { type FC, useEffect, useRef, useState } from "react";
 import tinycolor from "tinycolor2";
 
 import InputRgba from "../color-control";
@@ -6,7 +6,7 @@ import ColorPickerPanel from "../color-panel";
 
 import { checkFormat, getHexAlpha, useDebounce } from "../utils";
 
-import { IPropsComp, TPropsChange } from "../types";
+import type { IPropsComp, TPropsChange } from "../types";
 
 const ColorPickerSolid: FC<IPropsComp> = ({
 	value = "#ffffff",

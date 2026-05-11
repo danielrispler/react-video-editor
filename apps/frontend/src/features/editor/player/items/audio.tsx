@@ -1,6 +1,6 @@
-import { IAudio } from "@designcombo/types";
+import type { IAudio } from "@designcombo/types";
 import { Audio as RemotionAudio } from "remotion";
-import { BaseSequence, SequenceItemOptions } from "../base-sequence";
+import { BaseSequence, type SequenceItemOptions } from "../base-sequence";
 
 export default function Audio({
 	item,

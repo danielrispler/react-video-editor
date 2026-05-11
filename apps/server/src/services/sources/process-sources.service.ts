@@ -40,13 +40,10 @@ export const processSources = async (
 		storage,
 		config,
 	);
-	const hasImageSource = sources.some((source) => source.type === "image");
 	const concatenatedPath = await concatenateSources(
-		sources,
 		sourcePaths,
 		tempDir,
 		hasMpdSource,
-		hasImageSource,
 		config,
 	);
 
@@ -127,9 +124,17 @@ export const processSingleSource = async (
 			}
 
 			cmd
+				.videoCodec(FFMPEG_COMMAND.H264_VIDEO_CODEC)
+				.addOption("-preset", config.FFMPEG_PRESET)
+				.addOption("-crf", config.FFMPEG_CRF)
+				.addOption("-pix_fmt", "yuv420p")
+				.audioCodec(FFMPEG_COMMAND.AAC_AUDIO_CODEC)
+				.audioBitrate(FFMPEG_COMMAND.AUDIO_BITRATE)
+				.audioFrequency(FFMPEG_COMMAND.AUDIO_FREQUENCY)
+				.audioChannels(2)
 				.outputOptions([
 					FFMPEG_COMMAND.OVERWRITE_OUTPUT,
-					...FFMPEG_COMMAND.COPY,
+					...FFMPEG_COMMAND.AVOID_NEGATIVE_TIMESTAMPS,
 				])
 				.save(trimmedPath)
 				.on("end", () => resolve())
@@ -164,11 +169,9 @@ export const processMultipleSources = async (
 };
 
 export const concatenateSources = async (
-	sources: VideoSource[],
 	sourcePaths: string[],
 	tempDir: string,
 	hasMpdSource: boolean,
-	hasImageSource: boolean,
 	config: EnvConfig,
 ): Promise<string> => {
 	const missing = sourcePaths.filter((p) => !existsSync(p));

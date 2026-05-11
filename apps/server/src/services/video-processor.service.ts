@@ -30,6 +30,7 @@ export async function extractSegments(
 	sourcePath: string,
 	keepSegments: TimeRange[],
 	tempDir: string,
+	config: EnvConfig,
 ): Promise<string[]> {
 	const segmentPaths: string[] = [];
 	ffmpeg.setFfmpegPath(getFfmpegPath());
@@ -44,12 +45,16 @@ export async function extractSegments(
 				.input(sourcePath)
 				.seekInput(seekTime)
 				.duration(duration)
+				.videoCodec(FFMPEG_COMMAND.H264_VIDEO_CODEC)
+				.addOption("-preset", config.FFMPEG_PRESET)
+				.addOption("-crf", config.FFMPEG_CRF)
+				.addOption("-pix_fmt", "yuv420p")
+				.audioCodec(FFMPEG_COMMAND.AAC_AUDIO_CODEC)
 				.outputOptions([
 					FFMPEG_COMMAND.HIDE_BANNER,
 					FFMPEG_COMMAND.OVERWRITE_OUTPUT,
 					...FFMPEG_COMMAND.AVOID_NEGATIVE_TIMESTAMPS,
 					...FFMPEG_COMMAND.CONSTANT_FRAME_RATE,
-					...FFMPEG_COMMAND.COPY,
 				])
 				.output(segmentPath);
 		});

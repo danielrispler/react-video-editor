@@ -1,4 +1,3 @@
-import type { RenderRequest } from "../edit-video/edit-video.types.ts";
 import { probeMpdMetadata } from "../ffmpeg/ffmpeg.utils.ts";
 import type { TimeRange } from "../types/types.ts";
 import { isValidSegment } from "./segment.utils.ts";
@@ -88,7 +87,10 @@ const createFinalSegment = (
 export const calculateKeepSegments = ({
 	trimEnd,
 	cuts,
-}: RenderRequest): TimeRange[] => {
+}: {
+	trimEnd: number;
+	cuts: { start: number; end: number }[];
+}): TimeRange[] => {
 	const sortedCuts = [...cuts].sort(
 		(a: TimeRange, b: TimeRange) => a.start - b.start,
 	);

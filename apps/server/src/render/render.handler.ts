@@ -1,27 +1,13 @@
 import { randomUUID } from "node:crypto";
-import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
+import type { FastifyReply, FastifyRequest } from "fastify";
 import type { RenderRequest } from "../edit-video/edit-video.types.ts";
-import { prepareOverlays } from "../services/overlays/overlay.service.ts";
-import { prepareAudioSources } from "../services/sources/audio-process.service.ts";
-import { processSources } from "../services/sources/process-sources.service.ts";
-import {
-	extractSegments,
-	finalRenderToS3,
-} from "../services/video-processor.service.ts";
-import { createTempDir, getOutputFilename } from "../utils/file.utils.ts";
-import { calculateTotalDurationSegments } from "../utils/segment.utils.ts";
-import { calculateKeepSegments } from "../utils/video.utils.ts";
+import { getOutputFilename } from "../utils/file.utils.ts";
+import type { RenderJobStatePort } from "../video-render/application/ports/outbound/RenderJobStatePort.ts";
+import type { VideoRenderUseCase } from "../video-render/application/use-cases/VideoRenderUseCase.ts";
 import {
 	type IDesign,
 	transformDesignToRenderRequest,
 } from "./design-transform.ts";
-
-interface RenderJobState {
-	status: "PROCESSING" | "COMPLETED" | "FAILED";
-	progress: number;
-	url?: string;
-	error?: string;
-}
 
 interface StartRenderBody {
 	design: IDesign;
@@ -49,9 +35,6 @@ interface RenderHandlerType {
 	) => Promise<FastifyReply>;
 }
 
-const JOB_KEY = (jobId: string): string => `render:job:${jobId}`;
-const JOB_TTL = 3600;
-
 export const getRequestedFormat = (
 	format?: string,
 ): RenderRequest["format"] => {
@@ -67,104 +50,41 @@ export const getRequestedFrameTimeMs = (
 		? frameTimeMs
 		: undefined;
 
-export const RenderHandler = (fastify: FastifyInstance): RenderHandlerType => {
-	const saveJobState = async (
-		jobId: string,
-		state: RenderJobState,
-	): Promise<void> => {
-		try {
-			await fastify.redis.set(
-				JOB_KEY(jobId),
-				JSON.stringify(state),
-				"EX",
-				JOB_TTL,
-			);
-		} catch (err) {
-			fastify.log.error(err, `Failed to save render job state: ${jobId}`);
-		}
-	};
-
+export const RenderHandler = (
+	videoRenderUseCase: VideoRenderUseCase,
+	renderJobStatePort: RenderJobStatePort,
+	s3OutputPrefix: string,
+): RenderHandlerType => {
 	const runRender = async (
 		jobId: string,
 		request: RenderRequest,
 	): Promise<void> => {
-		const storage = fastify.storage;
-		const config = fastify.config;
+		const { jobId: _jobId, ...renderInput } = request;
+		const s3Key = `${s3OutputPrefix}/${getOutputFilename(request.format)}`;
 
 		try {
-			const tempDir = await createTempDir("render-job-");
-			const keepSegments = calculateKeepSegments(request);
-
-			if (keepSegments.length === 0) {
-				throw new Error("No video content would remain after trimming/cuts");
-			}
-
-			const totalDurationSegments =
-				calculateTotalDurationSegments(keepSegments);
-			const sourcePath = await processSources(
-				request.sources,
-				tempDir,
-				storage,
-				config,
-			);
-			const segmentPaths = await extractSegments(
-				sourcePath,
-				keepSegments,
-				tempDir,
-			);
-			const { overlayInputs, hasOverlays } = await prepareOverlays(
-				request.overlays,
-				tempDir,
-				storage,
-				config,
-			);
-			const { audioPaths, hasAudio } = await prepareAudioSources(
-				request.audioSources || [],
-				tempDir,
-				totalDurationSegments,
-				storage,
-			);
-
-			const filename = getOutputFilename(request.format);
-			const s3Key = `${config.S3_OUTPUT_PREFIX}/${filename}`;
-
-			const result = await finalRenderToS3(
-				segmentPaths,
-				overlayInputs,
-				request.overlays,
-				keepSegments,
-				totalDurationSegments,
-				hasOverlays,
-				request.sources,
-				tempDir,
-				request.format,
-				audioPaths,
-				hasAudio,
-				request.audioMixMode || "mix",
-				request.frameTimeMs,
+			const result = await videoRenderUseCase.execute(
+				renderInput,
 				s3Key,
-				storage,
-				config,
-				86400,
-				async (p: number) => {
-					await saveJobState(jobId, { status: "PROCESSING", progress: p });
+				async (p) => {
+					await renderJobStatePort.saveState(jobId, {
+						status: "PROCESSING",
+						progress: p,
+					});
 				},
-				request.cropRegion,
 			);
-
-			await saveJobState(jobId, {
+			await renderJobStatePort.saveState(jobId, {
 				status: "COMPLETED",
 				progress: 100,
 				url: result.url,
 			});
 		} catch (err) {
 			const message = err instanceof Error ? err.message : "Render failed";
-			await saveJobState(jobId, {
+			await renderJobStatePort.saveState(jobId, {
 				status: "FAILED",
 				progress: 0,
 				error: message,
 			});
-			fastify.log.error(err, `Render job ${jobId} failed`);
 		}
 	};
 
@@ -189,9 +109,11 @@ export const RenderHandler = (fastify: FastifyInstance): RenderHandlerType => {
 				frameTimeMs,
 			};
 
-			await saveJobState(jobId, { status: "PROCESSING", progress: 0 });
+			await renderJobStatePort.saveState(jobId, {
+				status: "PROCESSING",
+				progress: 0,
+			});
 
-			// Fire-and-forget
 			void runRender(jobId, renderRequest);
 
 			return reply.status(202).send({ id: jobId });
@@ -207,27 +129,18 @@ export const RenderHandler = (fastify: FastifyInstance): RenderHandlerType => {
 				return reply.status(400).send({ error: "id query param is required" });
 			}
 
-			try {
-				const raw = await fastify.redis.get(JOB_KEY(jobId));
-				if (!raw) {
-					return reply.status(404).send({ error: "Job not found" });
-				}
-
-				const state = JSON.parse(raw) as RenderJobState;
-				return reply.send({
-					status: state.status,
-					progress: state.progress,
-					url: state.url,
-					error: state.error,
-					// Alias for frontend compatibility
-					presigned_url: state.url,
-				});
-			} catch (err) {
-				fastify.log.error(err, `Failed to get render status: ${jobId}`);
-				return reply
-					.status(500)
-					.send({ error: "Failed to retrieve job status" });
+			const state = await renderJobStatePort.getState(jobId);
+			if (!state) {
+				return reply.status(404).send({ error: "Job not found" });
 			}
+
+			return reply.send({
+				status: state.status,
+				progress: state.progress,
+				url: state.url,
+				error: state.error,
+				presigned_url: state.url,
+			});
 		},
 	};
 };

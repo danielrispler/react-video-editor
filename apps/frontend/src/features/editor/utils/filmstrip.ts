@@ -1,4 +1,4 @@
-import { FilmstripBacklogOptions } from "../timeline/types";
+import type { FilmstripBacklogOptions } from "../timeline/types";
 
 export const calculateThumbnailSegmentLayout = (
 	thumbnailWidth: number,

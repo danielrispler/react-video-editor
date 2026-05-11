@@ -1,12 +1,12 @@
 import { BoxAnim, ContentAnim } from "@designcombo/animations";
-import { ICaption } from "@designcombo/types";
+import type { ICaption } from "@designcombo/types";
 import { calculateFrames } from "../../utils/frames";
 import { getAnimations } from "../../utils/get-animations";
-import { BaseSequence, SequenceItemOptions } from "../base-sequence";
+import { BaseSequence, type SequenceItemOptions } from "../base-sequence";
 import { calculateContainerStyles, calculateTextStyles } from "../styles";
 import {
 	ANIMATION_CONFIGS,
-	AnimationConfig,
+	type AnimationConfig,
 	OpacityAnimationCaption,
 	ScaleAnimationBetween,
 	ScaleAnimationCaption,
@@ -84,7 +84,6 @@ export default function Caption({
 						...calculateTextStyles(updatedDetails),
 						...transformStyles,
 						...extraStyles,
-						transition: "transform 0.2s ease",
 						borderRadius: "16px",
 						display: currentFrame > 0 ? "block" : "none",
 						maxWidth: "100%",

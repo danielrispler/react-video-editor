@@ -3,7 +3,7 @@ import { dispatch } from "@designcombo/events";
 import { ADD_ANIMATION } from "@designcombo/state";
 import React from "react";
 import { presets } from "../player/animated";
-import { PresetName } from "../player/animated/presets";
+import type { PresetName } from "../player/animated/presets";
 import useStore from "../store/use-store";
 
 const Animations = () => {

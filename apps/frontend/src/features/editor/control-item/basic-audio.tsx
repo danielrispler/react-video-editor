@@ -1,7 +1,7 @@
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { dispatch } from "@designcombo/events";
 import { EDIT_OBJECT } from "@designcombo/state";
-import { IAudio, ITrackItem } from "@designcombo/types";
+import type { IAudio, ITrackItem } from "@designcombo/types";
 import React, { useState } from "react";
 import Speed from "./common/speed";
 import Volume from "./common/volume";

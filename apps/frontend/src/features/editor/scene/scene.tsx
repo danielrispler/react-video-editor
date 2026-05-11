@@ -1,4 +1,4 @@
-import StateManager from "@designcombo/state";
+import type StateManager from "@designcombo/state";
 import { forwardRef, useImperativeHandle, useRef } from "react";
 import useZoom from "../hooks/use-zoom";
 import { Player } from "../player";
@@ -6,7 +6,7 @@ import useStore from "../store/use-store";
 import Board from "./board";
 import SceneEmpty from "./empty";
 import { SceneInteractions } from "./interactions";
-import { SceneRef } from "./scene.types";
+import type { SceneRef } from "./scene.types";
 
 const Scene = forwardRef<
 	SceneRef,

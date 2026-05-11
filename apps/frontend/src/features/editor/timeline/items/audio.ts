@@ -1,12 +1,12 @@
 import {
-	Control,
+	type Control,
 	Trimmable,
-	TrimmableProps,
+	type TrimmableProps,
 	timeMsToUnits,
 } from "@designcombo/timeline";
-import { IMetadata, ITrim } from "@designcombo/types";
+import type { IMetadata, ITrim } from "@designcombo/types";
 import {
-	MediaUtilsAudioData,
+	type MediaUtilsAudioData,
 	getAudioData,
 	getWaveformPortion,
 } from "@remotion/media-utils";

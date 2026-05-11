@@ -1,12 +1,12 @@
 import { dispatch } from "@designcombo/events";
 import { EDIT_OBJECT } from "@designcombo/state";
-import StateManager from "@designcombo/state";
+import type StateManager from "@designcombo/state";
 import { Moveable, Selection } from "@interactify/toolkit";
 import { useEffect, useMemo, useRef, useState } from "react";
 import useStore from "../store/use-store";
 import { getIdFromClassName } from "../utils/scene";
 import {
-	SelectionInfo,
+	type SelectionInfo,
 	emptySelection,
 	getSelectionByIds,
 	getTargetById,

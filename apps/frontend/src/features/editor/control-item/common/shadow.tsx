@@ -7,7 +7,7 @@ import {
 	PopoverTrigger,
 } from "@/components/ui/popover";
 import { useIsLargeScreen } from "@/hooks/use-media-query";
-import { IBoxShadow } from "@designcombo/types";
+import type { IBoxShadow } from "@designcombo/types";
 import { X } from "lucide-react";
 import { useEffect, useState } from "react";
 import useLayoutStore from "../../store/use-layout-store";

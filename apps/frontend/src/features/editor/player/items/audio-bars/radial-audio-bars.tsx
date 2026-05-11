@@ -1,6 +1,6 @@
-import { IRadialAudioBars } from "@designcombo/types";
+import type { IRadialAudioBars } from "@designcombo/types";
 import { Audio } from "remotion";
-import { SequenceItemOptions } from "../../base-sequence";
+import type { SequenceItemOptions } from "../../base-sequence";
 import { audioDataManager } from "../../lib/audio-data";
 import { RadialBarsVisualization } from "./radial-bars-visualization";
 

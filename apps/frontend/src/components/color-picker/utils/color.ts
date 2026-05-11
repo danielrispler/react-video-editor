@@ -1,4 +1,4 @@
-import tinycolor, { Instance, ColorFormats } from "tinycolor2";
+import tinycolor, { type Instance, type ColorFormats } from "tinycolor2";
 
 interface IInput {
 	h: number;

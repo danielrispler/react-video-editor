@@ -16,11 +16,26 @@ export interface UploadCallbacks {
 	onStatus: UploadStatusCallback;
 }
 
+export interface UploadData {
+	fileName: string;
+	filePath: string;
+	fileSize: number;
+	contentType: string;
+	url: string;
+	metadata: { uploadedUrl: string };
+	folder: string | null;
+	type: string;
+	method: string;
+	origin: string;
+	status: string;
+	isPreview: boolean;
+}
+
 export async function processFileUpload(
 	uploadId: string,
 	file: File,
 	callbacks: UploadCallbacks,
-): Promise<any> {
+): Promise<UploadData> {
 	try {
 		const formData = new FormData();
 		formData.append("userId", "PJ1nkaufw0hZPyhN7bWCP");
@@ -74,7 +89,7 @@ export async function processUpload(
 	uploadId: string,
 	upload: { file?: File },
 	callbacks: UploadCallbacks,
-): Promise<any> {
+): Promise<UploadData> {
 	if (upload.file) {
 		return await processFileUpload(uploadId, upload.file, callbacks);
 	}

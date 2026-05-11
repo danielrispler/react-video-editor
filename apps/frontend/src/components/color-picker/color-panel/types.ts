@@ -1,6 +1,6 @@
-import { Dispatch, SetStateAction } from "react";
+import type { Dispatch, SetStateAction } from "react";
 
-import { ITinyColor } from "../utils/color";
+import type { ITinyColor } from "../utils/color";
 
 export type TPropsChange = {
 	alpha: number;

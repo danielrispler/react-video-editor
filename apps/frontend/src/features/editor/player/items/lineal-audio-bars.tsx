@@ -1,5 +1,5 @@
-import { ILinealAudioBars } from "@designcombo/types";
-import { BaseSequence, SequenceItemOptions } from "../base-sequence";
+import type { ILinealAudioBars } from "@designcombo/types";
+import { BaseSequence, type SequenceItemOptions } from "../base-sequence";
 import { LinealBars } from "./audio-bars/lineal-audio-bars";
 
 export default function LinealAudioBars({

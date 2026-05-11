@@ -1,6 +1,6 @@
 import { Icons } from "@/components/shared/icons";
 import { Button } from "@/components/ui/button";
-import { ItemType } from "@designcombo/types";
+import type { ItemType } from "@designcombo/types";
 import { useCallback, useEffect, useState } from "react";
 import useLayoutStore from "./store/use-layout-store";
 import useStore from "./store/use-store";

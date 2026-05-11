@@ -1,11 +1,11 @@
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { dispatch } from "@designcombo/events";
 import { EDIT_OBJECT } from "@designcombo/state";
-import { ITrackItem } from "@designcombo/types";
+import type { ITrackItem } from "@designcombo/types";
 import { SearchIcon, X } from "lucide-react";
 import { useRef, useState } from "react";
 import useClickOutside from "../../hooks/useClickOutside";
-import { ICompactFont } from "../../interfaces/editor";
+import type { ICompactFont } from "../../interfaces/editor";
 import useDataState from "../../store/use-data-state";
 import useLayoutStore from "../../store/use-layout-store";
 import { loadFonts } from "../../utils/fonts";

@@ -1,5 +1,5 @@
-import { ITextDetails } from "@designcombo/types";
-import React from "react";
+import type { ITextDetails } from "@designcombo/types";
+import type React from "react";
 import { useCurrentFrame } from "remotion";
 import { renderFullTextAnimation } from "./text-animated-full";
 import BeatifulQuestionAnimationIn from "./text-animated-types/animations-in/beatiful-question-in";

@@ -1,8 +1,14 @@
 import styled from "@emotion/styled";
 /** @jsxImportSource @emotion/react */
-import { FC, MouseEvent, TouchEvent, useEffect, useRef } from "react";
+import {
+	type FC,
+	type MouseEvent,
+	type TouchEvent,
+	useEffect,
+	useRef,
+} from "react";
 
-import { TCoords, TPropsCompAlpha } from "./types";
+import type { TCoords, TPropsCompAlpha } from "./types";
 
 const rgbaColor = (r: number, g: number, b: number, a: number) => {
 	return `rgba(${[r, g, b, a / 100].join(",")})`;
@@ -71,7 +77,6 @@ const Alpha: FC<TPropsCompAlpha> = ({ color, alpha, onChange, setChange }) => {
 			removeListeners();
 			removeTouchListeners();
 		};
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	const onMouseDown = (e: MouseEvent) => {
@@ -87,7 +92,7 @@ const Alpha: FC<TPropsCompAlpha> = ({ color, alpha, onChange, setChange }) => {
 		window.addEventListener("mouseup", onDragEnd);
 	};
 
-	const onDrag = (e: any) => {
+	const onDrag = (e: globalThis.MouseEvent) => {
 		const x = e.clientX;
 		const y = e.clientY;
 
@@ -97,7 +102,7 @@ const Alpha: FC<TPropsCompAlpha> = ({ color, alpha, onChange, setChange }) => {
 		});
 	};
 
-	const onDragEnd = (event: any) => {
+	const onDragEnd = (event: globalThis.MouseEvent) => {
 		const x = event.clientX;
 		const y = event.clientY;
 
@@ -131,7 +136,7 @@ const Alpha: FC<TPropsCompAlpha> = ({ color, alpha, onChange, setChange }) => {
 		window.addEventListener("touchend", onTouchEnd, { passive: false });
 	};
 
-	const onTouchMove = (e: any) => {
+	const onTouchMove = (e: globalThis.TouchEvent) => {
 		if (e.cancelable) {
 			e.preventDefault();
 		}

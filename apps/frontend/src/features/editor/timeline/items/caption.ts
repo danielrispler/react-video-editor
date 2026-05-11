@@ -1,5 +1,9 @@
-import { Control, Resizable, ResizableProps } from "@designcombo/timeline";
-import { IDisplay } from "@designcombo/types";
+import {
+	type Control,
+	Resizable,
+	type ResizableProps,
+} from "@designcombo/timeline";
+import type { IDisplay } from "@designcombo/types";
 import { SECONDARY_FONT } from "../../constants/constants";
 import { createResizeControls } from "../controls";
 

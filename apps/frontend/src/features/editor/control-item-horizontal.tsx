@@ -6,7 +6,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useIsLargeScreen } from "@/hooks/use-media-query";
 import { dispatch } from "@designcombo/events";
 import { EDIT_OBJECT } from "@designcombo/state";
-import {
+import type {
 	IAudio,
 	ICaption,
 	IImage,
@@ -14,8 +14,9 @@ import {
 	ITrackItemAndDetails,
 	IVideo,
 } from "@designcombo/types";
-import { PanInfo, motion, useAnimation } from "framer-motion";
-import React, { useEffect, useRef, useState } from "react";
+import { type PanInfo, motion, useAnimation } from "framer-motion";
+import type React from "react";
+import { useEffect, useRef, useState } from "react";
 import BasicAudio from "./control-item/basic-audio";
 import BasicCaption from "./control-item/basic-caption";
 import BasicImage from "./control-item/basic-image";

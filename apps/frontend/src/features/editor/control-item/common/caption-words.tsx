@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { dispatch } from "@designcombo/events";
 import { ADD_ITEMS, EDIT_OBJECT, LAYER_DELETE } from "@designcombo/state";
 import { generateId } from "@designcombo/timeline";
-import { ICaption, ITrackItem } from "@designcombo/types";
+import type { ICaption, ITrackItem } from "@designcombo/types";
 import { debounce } from "lodash";
 import { useCallback, useEffect, useRef, useState } from "react";
 import useStore from "../../store/use-store";

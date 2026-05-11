@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from "react";
+import { type FC, useEffect, useState } from "react";
 import tinycolor from "tinycolor2";
 import { Input } from "../ui/input";
 import { getAlphaValue, onlyDigits, onlyLatins } from "./helpers";

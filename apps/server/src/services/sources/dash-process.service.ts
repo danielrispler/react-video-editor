@@ -32,8 +32,11 @@ export const processMpdSource = async (
 				.addOption("-preset", config.MPD_TRANSCODE_PRESET)
 				.addOption("-crf", mpdCrf)
 				.fps(25)
+				.videoFilters([
+					FFMPEG_COMMAND.EVEN_DIMENSIONS,
+					FFMPEG_COMMAND.FORMAT_YUV420P,
+				])
 				.outputOptions([
-					...FFMPEG_COMMAND.FORMAT_YUV420P,
 					...FFMPEG_COMMAND.CONSTANT_FRAME_RATE,
 					...FFMPEG_COMMAND.MOVE_METADATA_TO_BEGINNING,
 				])

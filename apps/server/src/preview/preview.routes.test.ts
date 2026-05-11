@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import path from "node:path";
-import { Readable } from "node:stream";
+import type { Readable } from "node:stream";
 import { afterEach, beforeEach, describe, it, mock } from "node:test";
 import type { EnvConfig } from "../config/env.ts";
 import { createFastifyInstance } from "../fastify/fastify.ts";
@@ -284,10 +284,7 @@ describe("POST /api/editor/preview-source — inline MPD (no channel API)", () =
 		});
 
 		assert.equal(res.statusCode, 200);
-		assert.match(
-			res.headers["content-type"] ?? "",
-			/application\/dash\+xml/,
-		);
+		assert.match(res.headers["content-type"] ?? "", /application\/dash\+xml/);
 		assert.ok(res.body.includes("<MPD"), "demo MPD must be returned");
 	});
 });
@@ -486,7 +483,7 @@ describe("POST /api/editor/preview-source — channel API (mocked fetch)", () =>
 			globalThis,
 			"fetch",
 			async (
-				url: string | URL | Request,
+				_url: string | URL | Request,
 				init?: RequestInit,
 			): Promise<Response> => {
 				const urlStr = url.toString();
@@ -563,7 +560,7 @@ describe("GET /api/editor/segment — proxy route", () => {
 			globalThis,
 			"fetch",
 			async (
-				url: string | URL | Request,
+				_url: string | URL | Request,
 				init?: RequestInit,
 			): Promise<Response> => {
 				capturedHeaders["vod-token"] =

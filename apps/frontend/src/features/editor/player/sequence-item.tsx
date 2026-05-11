@@ -1,4 +1,4 @@
-import {
+import type {
 	IAudio,
 	ICaption,
 	IHillAudioBars,
@@ -14,8 +14,8 @@ import {
 	IVideo,
 	IWaveAudioBars,
 } from "@designcombo/types";
-import React from "react";
-import { SequenceItemOptions } from "./base-sequence";
+import type React from "react";
+import type { SequenceItemOptions } from "./base-sequence";
 import {
 	Audio,
 	Caption,

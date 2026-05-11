@@ -1,5 +1,5 @@
-import { IRadialAudioBars } from "@designcombo/types";
-import { BaseSequence, SequenceItemOptions } from "../base-sequence";
+import type { IRadialAudioBars } from "@designcombo/types";
+import { BaseSequence, type SequenceItemOptions } from "../base-sequence";
 import { RadialBars } from "./audio-bars/radial-audio-bars";
 
 export default function RadialAudioBars({

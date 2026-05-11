@@ -1,11 +1,11 @@
 import { BoxAnim, ContentAnim, MaskAnim } from "@designcombo/animations";
-import { IVideo } from "@designcombo/types";
+import type { IVideo } from "@designcombo/types";
 import { Video as RemotionMediaVideo } from "@remotion/media";
 import { OffthreadVideo } from "remotion";
 import { isLikelyHlsSrc } from "../../external-preview/utils";
 import { calculateFrames } from "../../utils/frames";
 import { getAnimations } from "../../utils/get-animations";
-import { BaseSequence, SequenceItemOptions } from "../base-sequence";
+import { BaseSequence, type SequenceItemOptions } from "../base-sequence";
 import { calculateContainerStyles, calculateMediaStyles } from "../styles";
 
 export const Video = ({

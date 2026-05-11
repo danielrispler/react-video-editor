@@ -1,8 +1,8 @@
 /** @jsxImportSource @emotion/react */
 import {
-	FC,
-	MouseEvent,
-	TouchEvent,
+	type FC,
+	type MouseEvent,
+	type TouchEvent,
 	memo,
 	useEffect,
 	useRef,
@@ -15,7 +15,7 @@ import { getGradient } from "../utils";
 
 import { RADIALS_POS } from "../constants";
 import Markers from "./Markers";
-import { IPropsPanel, TCoords } from "./types";
+import type { IPropsPanel, TCoords } from "./types";
 
 const GradientPanel: FC<IPropsPanel> = ({
 	color,

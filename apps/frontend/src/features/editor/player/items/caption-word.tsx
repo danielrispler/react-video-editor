@@ -1,21 +1,15 @@
-import { css, keyframes } from "@emotion/react";
+import { css } from "@emotion/react";
 import styled from "@emotion/styled";
-import React from "react";
+import type React from "react";
 import { useCurrentPlayerFrame } from "../../hooks/use-current-frame";
 import useStore from "../../store/use-store";
 import { ANIMATION_CAPTION_LIST } from "./caption-animations";
 import {
 	ANIMATION_CONFIGS,
 	ANIMATION_FUNCTIONS,
-	WordAnimationState,
+	type WordAnimationState,
 	createAnimationFunctions,
 } from "./caption-word-animations";
-
-const scalePulse = keyframes`
-  0% { transform: scale(1); }
-  50% { transform: scale(1.2); }
-  100% { transform: scale(1); }
-`;
 
 interface WordSpanProps {
 	isActive: boolean;
@@ -27,6 +21,7 @@ interface WordSpanProps {
 	scaleFactor: number;
 	animationNoneCaption: boolean;
 	showObject: string;
+	highlightScale: number;
 }
 
 const WordSpan = styled.span<WordSpanProps>`
@@ -37,7 +32,6 @@ const WordSpan = styled.span<WordSpanProps>`
   scale: ${(props) => props.scale};
   border-radius: 16px;
   z-index: 99;
-  transition: opacity 0.2s ease;
 
   ${(props) => {
 		if (props.isActive && props.animation.includes("underline-effect")) {
@@ -75,8 +69,8 @@ const WordSpan = styled.span<WordSpanProps>`
     right: -0.2em;
     top: 0;
     bottom: 0;
-    transition: background-color 0.2s ease;
     border-radius: ${(props) => `${props.scaleFactor * 16}px`};
+    transform: scale(${(props) => props.highlightScale});
   }
 
   ${(props) =>
@@ -84,17 +78,7 @@ const WordSpan = styled.span<WordSpanProps>`
 		css`
       &::before {
         background-color: ${props.activeFillColor};
-
-        ${
-					props.animation === "captionAnimation10" ||
-					props.animation === "captionAnimationKeyword42" ||
-					props.animation === "captionAnimationKeyword57" ||
-					(props.animation === "captionAnimationKeyword48" &&
-						css`
-            animation: ${scalePulse} 0.4s ease-in-out;
-            transform-origin: center;
-          `)
-				}
+        transform-origin: center;
       }
     `}
 `;
@@ -200,6 +184,12 @@ export const CaptionWord: React.FC<CaptionWordProps> = ({
 	};
 
 	const displayText = getDisplayText();
+	const highlightScale = calculateHighlightScale(
+		animation,
+		currentFrame,
+		startAtFrame,
+		endAtFrame,
+	);
 
 	// Transform style helper
 	const getTransformStyle = () => {
@@ -227,11 +217,38 @@ export const CaptionWord: React.FC<CaptionWordProps> = ({
 			isAppeared={isAppeared}
 			scaleFactor={scaleFactor}
 			showObject={showObject}
+			highlightScale={highlightScale}
 		>
 			{displayText}
 		</WordSpan>
 	);
 };
+
+const PULSING_ANIMATIONS = new Set([
+	"captionAnimation10",
+	"captionAnimationKeyword42",
+	"captionAnimationKeyword48",
+	"captionAnimationKeyword57",
+]);
+
+function calculateHighlightScale(
+	animation: string,
+	currentFrame: number,
+	startAtFrame: number,
+	endAtFrame: number,
+) {
+	if (!PULSING_ANIMATIONS.has(animation)) {
+		return 1;
+	}
+
+	const { pulseAnim } = createAnimationFunctions(
+		currentFrame,
+		startAtFrame,
+		endAtFrame,
+	);
+
+	return pulseAnim().scale ?? 1;
+}
 
 function calculateAnimationState(
 	currentFrame: number,

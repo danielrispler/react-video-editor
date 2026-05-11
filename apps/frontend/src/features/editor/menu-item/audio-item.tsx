@@ -1,6 +1,6 @@
 import Draggable from "@/components/shared/draggable";
 import { Button } from "@/components/ui/button";
-import { IAudio } from "@designcombo/types";
+import type { IAudio } from "@designcombo/types";
 import { Pause, Play } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useIsDraggingOverTimeline } from "../hooks/is-dragging-over-timeline";

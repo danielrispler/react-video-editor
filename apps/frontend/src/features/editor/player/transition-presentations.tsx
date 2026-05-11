@@ -1,5 +1,5 @@
 import {
-	SlideDirection,
+	type SlideDirection,
 	circle,
 	clockWipe,
 	fade,
@@ -12,7 +12,7 @@ import {
 	wipe,
 } from "@designcombo/transitions";
 import { TransitionSeries } from "@designcombo/transitions";
-import { JSX } from "react";
+import type { JSX } from "react";
 
 interface TransitionOptions {
 	width: number;

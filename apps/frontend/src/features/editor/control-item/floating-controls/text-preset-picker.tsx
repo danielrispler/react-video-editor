@@ -1,7 +1,7 @@
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { dispatch } from "@designcombo/events";
 import { EDIT_OBJECT } from "@designcombo/state";
-import { ITrackItem } from "@designcombo/types";
+import type { ITrackItem } from "@designcombo/types";
 import { CircleOff, XIcon } from "lucide-react";
 import { useRef } from "react";
 import useClickOutside from "../../hooks/useClickOutside";

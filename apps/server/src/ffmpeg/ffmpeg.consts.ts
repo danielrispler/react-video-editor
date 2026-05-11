@@ -16,6 +16,7 @@ export const FFMPEG_COMMAND = {
 	// encode the video using the H.264 standard
 	H264_VIDEO_CODEC: "libx264",
 	FORMAT_YUV420P: "format=yuv420p",
+	EVEN_DIMENSIONS: "scale=trunc(iw/2)*2:trunc(ih/2)*2",
 	// Move the MP4 metadata to the beginning of the file so video can start playing before it fully downloads
 	MOVE_METADATA_TO_BEGINNING: ["-movflags", "+faststart"],
 	ALLOW_MULTIPLE_PATHS: ["-safe", "0"],

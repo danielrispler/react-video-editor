@@ -1,4 +1,4 @@
-import { PlayerRef, Player as RemotionPlayer } from "@remotion/player";
+import { type PlayerRef, Player as RemotionPlayer } from "@remotion/player";
 import { useEffect, useRef } from "react";
 import useStore from "../store/use-store";
 import Composition from "./composition";
@@ -9,7 +9,7 @@ const Player = () => {
 
 	useEffect(() => {
 		setPlayerRef(playerRef as React.RefObject<PlayerRef>);
-	}, []);
+	}, [setPlayerRef]);
 
 	return (
 		<RemotionPlayer
@@ -18,8 +18,9 @@ const Player = () => {
 			durationInFrames={Math.round((duration / 1000) * fps) || 1}
 			compositionWidth={size.width}
 			compositionHeight={size.height}
-			className={`h-full w-full bg-[${background.value}]`}
-			fps={30}
+			className="h-full w-full"
+			fps={fps}
+			style={{ backgroundColor: background.value }}
 			overflowVisible
 		/>
 	);

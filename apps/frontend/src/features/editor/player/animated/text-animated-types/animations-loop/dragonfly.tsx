@@ -19,7 +19,6 @@ const DragonflyText = ({
 			style={{
 				display: "inline-block",
 				transform: `translate(${x}px, ${y}px) rotate(${rotate}deg) scale(${scale})`,
-				transition: "transform 0.1s linear",
 			}}
 		>
 			{char}

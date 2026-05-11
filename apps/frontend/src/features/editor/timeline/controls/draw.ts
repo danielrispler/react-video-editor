@@ -1,4 +1,4 @@
-import { util, FabricObject } from "@designcombo/timeline";
+import { util, type FabricObject } from "@designcombo/timeline";
 
 export function drawVerticalLine(
 	ctx: CanvasRenderingContext2D,

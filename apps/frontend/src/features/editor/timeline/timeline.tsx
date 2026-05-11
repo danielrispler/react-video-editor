@@ -1,4 +1,4 @@
-import StateManager from "@designcombo/state";
+import type StateManager from "@designcombo/state";
 import { timeMsToUnits, unitsToTimeMs } from "@designcombo/timeline";
 import { useTheme } from "next-themes";
 import { useEffect, useRef, useState } from "react";

@@ -1,10 +1,10 @@
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { dispatch } from "@designcombo/events";
 import { EDIT_OBJECT } from "@designcombo/state";
-import { IBoxShadow, IText, ITrackItem } from "@designcombo/types";
+import type { IBoxShadow, IText, ITrackItem } from "@designcombo/types";
 import React, { useEffect, useState } from "react";
 import { DEFAULT_FONT } from "../constants/font";
-import { ICompactFont, IFont } from "../interfaces/editor";
+import type { ICompactFont, IFont } from "../interfaces/editor";
 import useDataState from "../store/use-data-state";
 import { loadFonts } from "../utils/fonts";
 import { Animations } from "./common/animations";

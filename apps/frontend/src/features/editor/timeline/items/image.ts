@@ -1,9 +1,9 @@
 import {
 	util,
-	Control,
+	type Control,
 	Pattern,
 	Resizable,
-	ResizableProps,
+	type ResizableProps,
 } from "@designcombo/timeline";
 import { createResizeControls } from "../controls";
 

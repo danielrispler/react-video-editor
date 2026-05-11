@@ -1,10 +1,10 @@
-import { FC, useEffect, useRef, useState } from "react";
+import { type FC, useEffect, useRef, useState } from "react";
 import Alpha from "./alpha";
 import Board from "./board";
 import Ribbon from "./ribbon";
 
-import TinyColor, { ITinyColor } from "../utils/color";
-import { TPropsMain } from "./types";
+import TinyColor, { type ITinyColor } from "../utils/color";
+import type { TPropsMain } from "./types";
 
 const Panel: FC<TPropsMain> = ({ alpha, hex, colorBoardHeight, onChange }) => {
 	const node = useRef<HTMLDivElement>(null);
@@ -24,7 +24,6 @@ const Panel: FC<TPropsMain> = ({ alpha, hex, colorBoardHeight, onChange }) => {
 				alpha,
 			});
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [hex, alpha]);
 
 	const handleAlphaChange = (alpha: number) => {

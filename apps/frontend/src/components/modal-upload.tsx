@@ -2,7 +2,8 @@ import useUploadStore from "@/features/editor/store/use-upload-store";
 import clsx from "clsx";
 import { AnimatePresence, motion } from "framer-motion";
 import { FileIcon, UploadIcon, X } from "lucide-react";
-import React, { useEffect, useRef, useState } from "react";
+import type React from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "./ui/button";
 import {
 	Dialog,
@@ -155,7 +156,7 @@ const ModalUpload: React.FC<ModalUploadProps> = ({ type = "all" }) => {
 	};
 	useEffect(() => {
 		setFiles([]);
-	}, [setFiles, showUploadModal]);
+	}, [showUploadModal]);
 
 	return (
 		<div>

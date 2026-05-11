@@ -1,5 +1,5 @@
 import type { Static } from "@sinclair/typebox";
-import {
+import type {
 	audioSourceSchema,
 	circleOverlaySchema,
 	editVideoRequestSchema,

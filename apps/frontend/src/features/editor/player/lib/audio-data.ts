@@ -1,6 +1,6 @@
-import { IAudio, ITrackItem, IVideo } from "@designcombo/types";
+import type { IAudio, ITrackItem, IVideo } from "@designcombo/types";
 import {
-	MediaUtilsAudioData,
+	type MediaUtilsAudioData,
 	getAudioData,
 	visualizeAudio,
 } from "@remotion/media-utils";

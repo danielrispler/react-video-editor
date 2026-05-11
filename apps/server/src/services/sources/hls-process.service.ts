@@ -28,7 +28,10 @@ export const processHlsSource = async (
 				.addOption("-preset", config.FFMPEG_PRESET)
 				.addOption("-crf", config.FFMPEG_CRF)
 				.fps(25)
-				.videoFilters(FFMPEG_COMMAND.FORMAT_YUV420P)
+				.videoFilters([
+					FFMPEG_COMMAND.EVEN_DIMENSIONS,
+					FFMPEG_COMMAND.FORMAT_YUV420P,
+				])
 				.outputOptions([
 					...FFMPEG_COMMAND.CONSTANT_FRAME_RATE,
 					...FFMPEG_COMMAND.MOVE_METADATA_TO_BEGINNING,

@@ -1,7 +1,8 @@
-import { ITrackItemBase } from "@designcombo/types";
-import React, { useEffect, useRef } from "react";
+import type { ITrackItemBase } from "@designcombo/types";
+import type React from "react";
+import { useEffect, useRef } from "react";
 import { usePointerDrag } from "../hooks/use-pointer-drag";
-import { Area } from "../interfaces/editor";
+import type { Area } from "../interfaces/editor";
 import useCropStore from "../store/use-crop-store";
 import { clamp } from "../utils/math";
 

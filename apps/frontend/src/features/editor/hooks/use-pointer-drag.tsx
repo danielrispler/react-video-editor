@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import type React from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 /**
  * Event object to be applied on the target element.

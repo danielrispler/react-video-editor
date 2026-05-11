@@ -1,6 +1,7 @@
 import { getBoundingBox, translatePath } from "@remotion/paths";
 import { makeStar } from "@remotion/shapes";
-import React, { useMemo, useState } from "react";
+import type React from "react";
+import { useMemo, useState } from "react";
 import { AbsoluteFill, random } from "remotion";
 import type {
 	TransitionPresentation,

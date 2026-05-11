@@ -1,8 +1,8 @@
 import { BoxAnim, ContentAnim } from "@designcombo/animations";
-import { IText } from "@designcombo/types";
+import type { IText } from "@designcombo/types";
 import { calculateFrames } from "../../utils/frames";
 import { getAnimations } from "../../utils/get-animations";
-import { BaseSequence, SequenceItemOptions } from "../base-sequence";
+import { BaseSequence, type SequenceItemOptions } from "../base-sequence";
 import MotionText from "../motion-text";
 import { calculateContainerStyles, calculateTextStyles } from "../styles";
 

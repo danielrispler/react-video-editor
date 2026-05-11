@@ -1,5 +1,5 @@
-import { IWaveAudioBars } from "@designcombo/types";
-import { BaseSequence, SequenceItemOptions } from "../base-sequence";
+import type { IWaveAudioBars } from "@designcombo/types";
+import { BaseSequence, type SequenceItemOptions } from "../base-sequence";
 import { WaveBars } from "./audio-bars/wave-audio-bars";
 
 export default function WaveAudioBars({

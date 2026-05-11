@@ -1,4 +1,4 @@
-import { FC, useCallback, useEffect, useState } from "react";
+import { type FC, useCallback, useEffect, useState } from "react";
 import tinyColor from "tinycolor2";
 import InputRgba from "../color-control";
 import ColorPanel from "../color-panel";
@@ -12,7 +12,7 @@ import {
 	useDebounce,
 } from "../utils";
 
-import { IActiveColor, IPropsComp, TPropsChange } from "../types";
+import type { IActiveColor, IPropsComp, TPropsChange } from "../types";
 
 const Gradient: FC<IPropsComp> = ({
 	value = "#ffffff",

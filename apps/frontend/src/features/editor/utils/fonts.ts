@@ -1,5 +1,5 @@
 import { groupBy } from "lodash";
-import { ICompactFont, IFont } from "../interfaces/editor";
+import type { ICompactFont, IFont } from "../interfaces/editor";
 
 export const loadFonts = (fonts: { name: string; url: string }[]) => {
 	const promisesList = fonts.map((font) => {

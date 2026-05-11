@@ -1,7 +1,7 @@
 import { useTheme } from "next-themes";
 import {
-	MouseEvent,
-	TouchEvent,
+	type MouseEvent,
+	type TouchEvent,
 	useEffect,
 	useMemo,
 	useRef,

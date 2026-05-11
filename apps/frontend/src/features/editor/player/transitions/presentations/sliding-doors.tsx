@@ -1,6 +1,7 @@
-import React, { useMemo, useState } from "react";
+import type React from "react";
+import { useMemo, useState } from "react";
 import { AbsoluteFill, random } from "remotion";
-import {
+import type {
 	TransitionPresentation,
 	TransitionPresentationComponentProps,
 } from "..";

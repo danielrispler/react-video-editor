@@ -8,7 +8,7 @@ import {
 	LAYER_DELETE,
 	TIMELINE_SCALE_CHANGED,
 } from "@designcombo/state";
-import { ITimelineScaleState } from "@designcombo/types";
+import type { ITimelineScaleState } from "@designcombo/types";
 import { SquareSplitHorizontal, Trash, ZoomIn, ZoomOut } from "lucide-react";
 import { useEffect, useState } from "react";
 import { PLAYER_PAUSE, PLAYER_PLAY } from "../constants/events";

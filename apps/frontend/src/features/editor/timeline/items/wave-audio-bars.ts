@@ -1,4 +1,4 @@
-import { Resizable, ResizableProps } from "@designcombo/timeline";
+import { Resizable, type ResizableProps } from "@designcombo/timeline";
 
 interface WaveAudioBarsProps extends ResizableProps {
 	src: string;

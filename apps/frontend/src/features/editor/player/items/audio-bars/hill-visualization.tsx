@@ -1,5 +1,5 @@
 import React from "react";
-import { CSSProperties, useEffect, useRef, useState } from "react";
+import { type CSSProperties, useEffect, useRef, useState } from "react";
 import { random, useCurrentFrame } from "remotion";
 import { processAudioFftValue } from "./audio-utils";
 

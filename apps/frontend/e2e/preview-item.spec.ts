@@ -158,10 +158,12 @@ test.beforeEach(async ({ page }) => {
 });
 
 test.beforeAll(async () => {
-	crossOriginServer = createServer((_req: IncomingMessage, res: ServerResponse) => {
-		res.writeHead(200, { "content-type": "text/html; charset=utf-8" });
-		res.end(PARENT_HTML);
-	});
+	crossOriginServer = createServer(
+		(_req: IncomingMessage, res: ServerResponse) => {
+			res.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+			res.end(PARENT_HTML);
+		},
+	);
 
 	await new Promise<void>((resolve, reject) => {
 		crossOriginServer?.once("error", reject);
@@ -245,7 +247,8 @@ test.describe("recording-range with inline playback", () => {
 		expect(item.trim?.to).toBe(SOURCE_OFFSET_MS + DURATION_MS);
 		expect(item.metadata?.sourceStartTimeMs).toBe(START_TIME_MS);
 		expect(item.metadata?.sourceEndTimeMs).toBe(END_TIME_MS);
-		expect(item.metadata?.sourceOffsetMs).toBe(SOURCE_OFFSET_MS);
+		expect(item.metadata?.previewUrl).toBe("https://example.com/poster.jpg");
+		expect(item.metadata?.sourceOffsetMs).toBeUndefined();
 		expect(item.metadata?.channelId).toBe("20574");
 	});
 
@@ -281,6 +284,9 @@ test.describe("recording-range with inline playback", () => {
 		expect(item.trim?.from).toBe(0);
 		expect(item.trim?.to).toBe(DURATION_MS);
 		expect(item.metadata?.externalKind).toBe("media");
+		expect(item.metadata?.previewUrl).toBe(
+			"https://example.com/media/poster.jpg",
+		);
 	});
 
 	test("EDITOR_PREVIEW_ITEM_REJECTED for invalid payload; state unchanged", async ({

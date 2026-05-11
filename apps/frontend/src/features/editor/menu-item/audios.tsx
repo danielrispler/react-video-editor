@@ -4,10 +4,11 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { dispatch } from "@designcombo/events";
 import { ADD_AUDIO } from "@designcombo/state";
 import { generateId } from "@designcombo/timeline";
-import { IAudio } from "@designcombo/types";
+import type { IAudio } from "@designcombo/types";
 import { debounce } from "lodash";
 import { Loader2, Music2, Search } from "lucide-react";
-import React, { useCallback, useEffect, useState } from "react";
+import type React from "react";
+import { useCallback, useEffect, useState } from "react";
 import { AudioItem } from "./audio-item";
 
 export const Audios = () => {

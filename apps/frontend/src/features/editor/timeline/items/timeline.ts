@@ -1,6 +1,6 @@
 import TimelineBase from "@designcombo/timeline";
-import { TimelineOptions } from "@designcombo/timeline";
-import { ITimelineScaleState } from "@designcombo/types";
+import type { TimelineOptions } from "@designcombo/timeline";
+import type { ITimelineScaleState } from "@designcombo/types";
 import { throttle } from "lodash";
 import Audio from "./audio";
 import Video from "./video";

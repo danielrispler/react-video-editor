@@ -249,7 +249,7 @@ function isSceneAdjustedVisual(item: ITrackItemBase, size: ISize): boolean {
 
 export function transformDesignToRenderRequest(
 	design: IDesign,
-	format: "mp4" | "webp" = "mp4",
+	format: "mp4" | "webp" | "dash" = "mp4",
 ): Omit<RenderRequest, "jobId"> {
 	const { tracks, trackItemsMap, size, duration: designDuration } = design;
 

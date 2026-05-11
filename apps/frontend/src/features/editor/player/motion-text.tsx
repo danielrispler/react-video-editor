@@ -1,4 +1,4 @@
-import { ITextDetails } from "@designcombo/types";
+import type { ITextDetails } from "@designcombo/types";
 import { useEffect, useRef, useState } from "react";
 import { TextAnimated } from "./animated/text-animated";
 

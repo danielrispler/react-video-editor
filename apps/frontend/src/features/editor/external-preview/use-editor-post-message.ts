@@ -1,8 +1,8 @@
 import { dispatch } from "@designcombo/events";
 import { ADD_AUDIO, ADD_VIDEO } from "@designcombo/state";
-import StateManager from "@designcombo/state";
+import type StateManager from "@designcombo/state";
 import { generateId } from "@designcombo/timeline";
-import { ITrackItem } from "@designcombo/types";
+import type { ITrackItem } from "@designcombo/types";
 import {
 	type EditorPreviewItemAddedMessage,
 	type EditorPreviewItemRejectedMessage,
@@ -37,9 +37,6 @@ type ExternalMetadata = {
 	audioId?: string;
 	sourceStartTimeMs?: number;
 	sourceEndTimeMs?: number;
-	sourceDurationMs?: number;
-	sourceOffsetMs?: number;
-	posterSrc?: string;
 };
 
 const getProjectDuration = (stateManager: StateManager) => {
@@ -68,9 +65,6 @@ const buildExternalMetadata = (
 			channelId: payload.channelId,
 			sourceStartTimeMs: payload.startTimeMs,
 			sourceEndTimeMs: payload.endTimeMs,
-			sourceDurationMs: payload.durationMs,
-			sourceOffsetMs: payload.sourceOffsetMs ?? 0,
-			posterSrc: payload.posterSrc,
 		};
 	}
 
@@ -79,8 +73,6 @@ const buildExternalMetadata = (
 			sourceKind: payload.playback.kind,
 			externalKind: "media",
 			mediaId: payload.mediaId,
-			sourceDurationMs: payload.durationMs,
-			posterSrc: payload.posterSrc,
 		};
 	}
 
@@ -90,8 +82,6 @@ const buildExternalMetadata = (
 		audioId: payload.audioId,
 		sourceStartTimeMs: payload.startTimeMs,
 		sourceEndTimeMs: payload.endTimeMs,
-		sourceDurationMs: payload.durationMs,
-		sourceOffsetMs: payload.sourceOffsetMs ?? 0,
 	};
 };
 
@@ -256,8 +246,7 @@ const appendItemState = (
 			metadata: {
 				...(currentItem.metadata || {}),
 				...metadata,
-				previewUrl:
-					metadata.posterSrc || currentItem.metadata?.previewUrl || "",
+				previewUrl: currentItem.metadata?.previewUrl || "",
 			},
 		},
 	};

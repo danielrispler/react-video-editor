@@ -1,13 +1,13 @@
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { dispatch } from "@designcombo/events";
 import { ADD_ANIMATION, EDIT_OBJECT } from "@designcombo/state";
-import { IBoxShadow, ICaption, ITrackItem } from "@designcombo/types";
+import type { IBoxShadow, ICaption, ITrackItem } from "@designcombo/types";
 import { X } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { DEFAULT_FONT } from "../constants/font";
-import { ICompactFont, IFont } from "../interfaces/editor";
-import { Animation, presets } from "../player/animated";
-import { PresetName } from "../player/animated/presets";
+import type { ICompactFont, IFont } from "../interfaces/editor";
+import { type Animation, presets } from "../player/animated";
+import type { PresetName } from "../player/animated/presets";
 import useDataState from "../store/use-data-state";
 import { loadFonts } from "../utils/fonts";
 import AnimationCaption from "./common/animation-caption";

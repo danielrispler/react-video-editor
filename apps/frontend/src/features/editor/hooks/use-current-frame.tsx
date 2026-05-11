@@ -1,4 +1,4 @@
-import { CallbackListener, PlayerRef } from "@remotion/player";
+import type { CallbackListener, PlayerRef } from "@remotion/player";
 import { useCallback, useSyncExternalStore } from "react";
 import { getSafeCurrentFrame } from "../utils/time";
 

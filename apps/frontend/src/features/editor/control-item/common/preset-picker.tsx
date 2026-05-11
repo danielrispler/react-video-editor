@@ -3,7 +3,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CircleOff } from "lucide-react";
 import { useState } from "react";
 import {
-	ICaptionsControlProps,
+	type ICaptionsControlProps,
 	NONE_PRESET,
 	STYLE_CAPTION_PRESETS,
 	getTextShadow,

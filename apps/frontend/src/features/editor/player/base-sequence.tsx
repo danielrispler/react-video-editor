@@ -1,5 +1,5 @@
 import { TransitionSeries } from "@designcombo/transitions";
-import { ISize, ITrackItem } from "@designcombo/types";
+import type { ISize, ITrackItem } from "@designcombo/types";
 import { AbsoluteFill, Sequence } from "remotion";
 import { calculateFrames } from "../utils/frames";
 import { calculateContainerStyles } from "./styles";
