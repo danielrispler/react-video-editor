@@ -92,7 +92,6 @@ class Audio extends Trimmable {
 		);
 
 		ctx.restore();
-		this.canvas?.requestRenderAll();
 	}
 
 	private async initialize() {

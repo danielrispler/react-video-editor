@@ -17,9 +17,7 @@ export const useStateManagerEvents = (stateManager: StateManager) => {
 
 		const handleTrackItemUpdate = () => {
 			const currentState = stateManager.getState();
-			const filterTrackItems = Object.values(
-				currentState.trackItemsMap,
-			).filter(
+			const filterTrackItems = Object.values(currentState.trackItemsMap).filter(
 				(item) => item.type === "video" || item.type === "audio",
 			) as (ITrackItem & (IVideo | IAudio))[];
 
@@ -33,9 +31,7 @@ export const useStateManagerEvents = (stateManager: StateManager) => {
 
 		const handleAddRemoveItems = () => {
 			const currentState = stateManager.getState();
-			const filterTrackItems = Object.values(
-				currentState.trackItemsMap,
-			).filter(
+			const filterTrackItems = Object.values(currentState.trackItemsMap).filter(
 				(item) => item.type === "video" || item.type === "audio",
 			) as (ITrackItem & (IVideo | IAudio))[];
 

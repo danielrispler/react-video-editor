@@ -21,6 +21,25 @@ interface ICropState {
 	};
 }
 
+const disposeMediaElement = (
+	element: HTMLImageElement | HTMLVideoElement | undefined,
+) => {
+	if (!element) return;
+
+	if (element instanceof HTMLVideoElement) {
+		element.pause();
+		element.removeAttribute("src");
+		element.load();
+	}
+
+	element.onload = null;
+	element.onerror = null;
+	element.onloadedmetadata = null;
+	element.oncanplay = null;
+	element.onended = null;
+	element.ontimeupdate = null;
+};
+
 const useCropStore = create<ICropState>((set) => ({
 	area: [0, 0, 0, 0],
 	src: "",
@@ -44,24 +63,28 @@ const useCropStore = create<ICropState>((set) => ({
 		});
 	},
 	clear: () => {
-		set({
-			area: [0, 0, 0, 0],
-			src: "",
-			size: {
-				width: 0,
-				height: 0,
-			},
-			fileLoading: false,
-			element: undefined,
+		set((state) => {
+			disposeMediaElement(state.element);
+			return {
+				area: [0, 0, 0, 0],
+				src: "",
+				size: {
+					width: 0,
+					height: 0,
+				},
+				fileLoading: false,
+				element: undefined,
+			};
 		});
 	},
 	setArea: (area: Area) => set({ area }),
 	setStep: (step: number) => set({ step }),
 	loadImage: (src: string) => {
+		disposeMediaElement(useCropStore.getState().element);
 		const image = document.createElement("img");
 		image.setAttribute("crossOrigin", "anonymous");
 		image.setAttribute("src", src);
-		image.addEventListener("load", () => {
+		image.onload = () => {
 			const imageWidth = image.naturalWidth;
 			const imageHeight = image.naturalHeight;
 			const maxWidth = 700;
@@ -79,10 +102,11 @@ const useCropStore = create<ICropState>((set) => ({
 				size: { width: imageWidth, height: imageHeight },
 			});
 			set({ element: image, scale: scaleFactor });
-		});
+		};
 		image.src = src;
 	},
 	loadVideo: (src: string) => {
+		disposeMediaElement(useCropStore.getState().element);
 		set({ area: [0, 0, 0, 0], src });
 
 		const video = document.createElement("video");
@@ -94,7 +118,7 @@ const useCropStore = create<ICropState>((set) => ({
 		// Required when using a Service Worker on iOS Safari.
 		video.crossOrigin = "anonymous";
 
-		video.addEventListener("loadedmetadata", () => {
+		video.onloadedmetadata = () => {
 			video.currentTime = 0.01;
 			const videoWidth = video.videoWidth;
 			const videoHeight = video.videoHeight;
@@ -119,20 +143,20 @@ const useCropStore = create<ICropState>((set) => ({
 				},
 				area: [0, 0, videoWidth * scaleFactor, videoHeight * scaleFactor],
 			});
-		});
+		};
 
-		video.addEventListener("canplay", () => {
+		video.oncanplay = () => {
 			set({
 				fileLoading: false,
 				step: 1,
 			});
-		});
+		};
 
-		video.addEventListener("ended", () => {
+		video.onended = () => {
 			video.currentTime = 0;
-		});
+		};
 
-		video.addEventListener("timeupdate", () => {
+		video.ontimeupdate = () => {
 			const start = 0;
 			const end = video.duration;
 
@@ -141,7 +165,7 @@ const useCropStore = create<ICropState>((set) => ({
 			} else if (video.currentTime < start - 1) {
 				video.currentTime = start;
 			}
-		});
+		};
 
 		video.src = src;
 	},

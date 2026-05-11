@@ -119,19 +119,21 @@ const Header = () => {
 	};
 
 	useEffect(() => {
-		playerRef?.current?.addEventListener("play", () => {
+		const player = playerRef?.current;
+		if (!player) return;
+
+		const handlePlay = () => {
 			setPlaying(true);
-		});
-		playerRef?.current?.addEventListener("pause", () => {
+		};
+		const handlePause = () => {
 			setPlaying(false);
-		});
+		};
+
+		player.addEventListener("play", handlePlay);
+		player.addEventListener("pause", handlePause);
 		return () => {
-			playerRef?.current?.removeEventListener("play", () => {
-				setPlaying(true);
-			});
-			playerRef?.current?.removeEventListener("pause", () => {
-				setPlaying(false);
-			});
+			player.removeEventListener("play", handlePlay);
+			player.removeEventListener("pause", handlePause);
 		};
 	}, [playerRef]);
 

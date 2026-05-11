@@ -1,3 +1,4 @@
+import { useObjectUrl } from "@/hooks/use-object-url";
 import { motion } from "framer-motion";
 import { FileIcon, X } from "lucide-react";
 import React, { useEffect } from "react";
@@ -28,6 +29,8 @@ FilePreview.displayName = "FilePreview";
 
 const ImageFilePreview = React.forwardRef<HTMLDivElement, FilePreviewProps>(
 	({ file, onRemove }, ref) => {
+		const objectUrl = useObjectUrl(file);
+
 		return (
 			<motion.div
 				ref={ref}
@@ -42,7 +45,7 @@ const ImageFilePreview = React.forwardRef<HTMLDivElement, FilePreviewProps>(
 					<img
 						alt={`Attachment ${file.name}`}
 						className="grid h-10 w-10 shrink-0 place-items-center rounded-sm border bg-muted object-cover"
-						src={URL.createObjectURL(file)}
+						src={objectUrl}
 					/>
 					<span className="w-full truncate text-muted-foreground">
 						{file.name}

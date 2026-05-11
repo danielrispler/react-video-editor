@@ -189,6 +189,7 @@ export const ElementCrop: React.FC<ElementCropProps> = ({
 	});
 	useEffect(() => {
 		let updating = true;
+		let animationFrameId = 0;
 
 		const canvas = canvasPreviewRef.current;
 		const context = canvas?.getContext("2d");
@@ -238,7 +239,7 @@ export const ElementCrop: React.FC<ElementCropProps> = ({
 					);
 				}
 			}
-			requestAnimationFrame(update);
+			animationFrameId = requestAnimationFrame(update);
 		};
 		const widthTotal = area[2];
 		const scaleWidth = targetDetails.width / widthTotal;
@@ -250,10 +251,13 @@ export const ElementCrop: React.FC<ElementCropProps> = ({
 			(targetDetails.crop?.height || targetDetails.height) / scaleWidth;
 		setArea([areaPosX, areaPosY, areaWidth, areaHeight]);
 
-		requestAnimationFrame(update);
+		animationFrameId = requestAnimationFrame(update);
 
 		return () => {
 			updating = false;
+			if (animationFrameId) {
+				cancelAnimationFrame(animationFrameId);
+			}
 		};
 	}, [element]);
 

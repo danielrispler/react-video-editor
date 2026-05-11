@@ -27,8 +27,10 @@ export class AudioDataManager {
 	}
 
 	private async loadAudioData(src: string, id: string): Promise<void> {
+		if (isLikelyHlsSrc(src)) {
+			return;
+		}
 		try {
-			console.log("Loading audio data for", src);
 			const data = await getAudioData(src);
 			this.audioDatas[id] = {
 				data,
@@ -36,22 +38,9 @@ export class AudioDataManager {
 			};
 			this.cleanupCache();
 		} catch (error) {
-			console.error(`Error loading audio data for ${src}:`, error);
-
-			// If it's an EncodingError (no audio track), just ignore it
 			if (error instanceof Error && error.name === "EncodingError") {
-				console.log(`No audio track found for ${src}, ignoring`);
 				return;
 			}
-
-			if (isLikelyHlsSrc(src)) {
-				console.debug(
-					`Skipping waveform extraction for HLS/DASH source ${src}`,
-				);
-				return;
-			}
-
-			// For other errors, still throw them
 			throw error;
 		}
 	}

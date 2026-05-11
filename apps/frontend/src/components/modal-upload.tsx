@@ -1,4 +1,5 @@
 import useUploadStore from "@/features/editor/store/use-upload-store";
+import { useObjectUrl } from "@/hooks/use-object-url";
 import clsx from "clsx";
 import { AnimatePresence, motion } from "framer-motion";
 import { FileIcon, UploadIcon, X } from "lucide-react";
@@ -13,6 +14,7 @@ import {
 	DialogTitle,
 } from "./ui/dialog";
 import { ScrollArea } from "./ui/scroll-area";
+
 type ModalUploadProps = {
 	type?: string;
 };
@@ -20,7 +22,15 @@ type ModalUploadProps = {
 export const extractVideoThumbnail = (file: File) => {
 	return new Promise<string>((resolve) => {
 		const video = document.createElement("video");
-		video.src = URL.createObjectURL(file);
+		const objectUrl = URL.createObjectURL(file);
+		const cleanup = () => {
+			video.pause();
+			video.removeAttribute("src");
+			video.load();
+			URL.revokeObjectURL(objectUrl);
+		};
+
+		video.src = objectUrl;
 		video.currentTime = 1;
 		video.muted = true;
 		video.playsInline = true;
@@ -30,11 +40,34 @@ export const extractVideoThumbnail = (file: File) => {
 			canvas.height = video.videoHeight;
 			const ctx = canvas.getContext("2d");
 			ctx?.drawImage(video, 0, 0, canvas.width, canvas.height);
+			cleanup();
 			resolve(canvas.toDataURL("image/png"));
 		};
-		video.onerror = () => resolve("");
+		video.onerror = () => {
+			cleanup();
+			resolve("");
+		};
 	});
 };
+
+const UploadImagePreview = ({ file }: { file: File }) => {
+	const objectUrl = useObjectUrl(file);
+
+	if (!objectUrl) {
+		return (
+			<div className="h-5 w-5 sm:h-6 sm:w-6 md:h-8 md:w-8 rounded border bg-muted" />
+		);
+	}
+
+	return (
+		<img
+			src={objectUrl}
+			alt={file.name}
+			className="h-5 w-5 sm:h-6 sm:w-6 md:h-8 md:w-8 object-cover rounded border"
+		/>
+	);
+};
+
 const ModalUpload: React.FC<ModalUploadProps> = ({ type = "all" }) => {
 	const {
 		setShowUploadModal,
@@ -156,7 +189,8 @@ const ModalUpload: React.FC<ModalUploadProps> = ({ type = "all" }) => {
 	};
 	useEffect(() => {
 		setFiles([]);
-	}, [showUploadModal]);
+		setVideoThumbnails({});
+	}, [showUploadModal, setFiles]);
 
 	return (
 		<div>
@@ -222,11 +256,7 @@ const ModalUpload: React.FC<ModalUploadProps> = ({ type = "all" }) => {
 														<div className="flex flex-1 gap-1 sm:gap-1.5 md:gap-2  items-center">
 															<div className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 flex items-center justify-center">
 																{file.file?.type.startsWith("image/") ? (
-																	<img
-																		src={URL.createObjectURL(file.file)}
-																		alt={file.file.name}
-																		className="h-5 w-5 sm:h-6 sm:w-6 md:h-8 md:w-8 object-cover rounded border"
-																	/>
+																	<UploadImagePreview file={file.file} />
 																) : file.file?.type.startsWith("video/") &&
 																	videoThumbnails[file.file.name] ? (
 																	<img
