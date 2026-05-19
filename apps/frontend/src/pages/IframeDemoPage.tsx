@@ -56,9 +56,9 @@ export default function IframeDemoPage() {
 	};
 
 	return (
-		<div className="min-h-screen bg-zinc-950 px-6 py-8 text-zinc-100">
-			<div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-[420px_1fr]">
-				<section className="rounded-3xl border border-zinc-800 bg-zinc-900 p-6">
+		<div className="h-screen overflow-hidden bg-zinc-950 px-6 py-8 text-zinc-100 flex flex-col">
+			<div className="flex-1 overflow-hidden mx-auto grid w-full max-w-7xl gap-6 lg:grid-cols-[420px_1fr]">
+				<section className="rounded-3xl border border-zinc-800 bg-zinc-900 p-6 overflow-y-auto">
 					<h1 className="text-2xl font-semibold">Iframe demo flow</h1>
 					<p className="mt-2 text-sm text-zinc-400">
 						Send a demo recording-range payload to the embedded editor. The
@@ -139,12 +139,12 @@ export default function IframeDemoPage() {
 					</pre>
 				</section>
 
-				<section className="overflow-hidden rounded-3xl border border-zinc-800 bg-zinc-900">
+				<section className="overflow-hidden rounded-3xl border border-zinc-800 bg-zinc-900 h-full">
 					<iframe
 						ref={iframeRef}
 						title="Editor iframe demo"
 						src="/editor/embed"
-						className="h-[80vh] w-full bg-white"
+						className="h-full w-full bg-white"
 					/>
 				</section>
 			</div>

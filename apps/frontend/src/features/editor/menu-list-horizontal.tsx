@@ -8,6 +8,11 @@ import {
 	DrawerTitle,
 } from "@/components/ui/drawer";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { VisuallyHidden } from "@/components/ui/visually-hidden";
 import { useIsLargeScreen } from "@/hooks/use-media-query";
 import { MenuItem } from "./menu-item/menu-item";
@@ -17,19 +22,34 @@ import useLayoutStore from "./store/use-layout-store";
 interface MenuItemData {
 	id: string;
 	label: string;
+	tooltip: string;
 	icon: React.ComponentType<{ width?: number }>;
 }
 
 // Menu items configuration
 const menuItems: MenuItemData[] = [
 	{
+		id: "uploads",
+		label: "העלאות",
+		tooltip: "הוסף ונהל העלאות",
+		icon: Icons.upload,
+	},
+	{
+		id: "shapes",
+		label: "צורות",
+		tooltip: "הוסף צורות",
+		icon: Icons.shapes,
+	},
+	{
 		id: "texts",
 		label: "טקסט",
+		tooltip: "הוסף טקסט לפרויקט",
 		icon: Icons.type,
 	},
 	{
 		id: "audios",
 		label: "שמע",
+		tooltip: "הוסף ונהל תוכן שמע",
 		icon: Icons.audio,
 	},
 ];
@@ -43,14 +63,19 @@ interface MenuButtonProps {
 
 function MenuButton({ item, isActive, onClick }: MenuButtonProps) {
 	return (
-		<Button
-			onClick={onClick}
-			variant={isActive ? "default" : "ghost"}
-			size={"sm"}
-			className="text-muted-foreground"
-		>
-			{item.label}
-		</Button>
+		<Tooltip>
+			<TooltipTrigger asChild>
+				<Button
+					onClick={onClick}
+					variant={isActive ? "default" : "ghost"}
+					size={"sm"}
+					className="text-muted-foreground"
+				>
+					{item.label}
+				</Button>
+			</TooltipTrigger>
+			<TooltipContent side="top">{item.tooltip}</TooltipContent>
+		</Tooltip>
 	);
 }
 

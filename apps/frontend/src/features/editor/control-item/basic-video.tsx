@@ -1,6 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { dispatch } from "@designcombo/events";
 import { EDIT_OBJECT } from "@designcombo/state";
 import type { IBoxShadow, ITrackItem, IVideo } from "@designcombo/types";
@@ -176,29 +181,26 @@ const BasicVideo = ({
 
 	const components = [
 		{
-			key: "crop",
-			component: (
-				<div className="flex flex-col gap-2">
-					<Label className="font-sans text-xs font-semibold">חיתוך</Label>
-					<div className="mb-4">
-						<Button
-							variant={"secondary"}
-							size={"icon"}
-							onClick={() => {
-								setCropTarget(trackItem);
-							}}
-						>
-							<Crop size={18} />
-						</Button>
-					</div>
-				</div>
-			),
-		},
-		{
 			key: "basic",
 			component: (
 				<div className="flex flex-col gap-2">
 					<Label className="font-sans text-xs font-semibold">בסיסי</Label>
+					<div className="mb-2">
+						<Tooltip>
+							<TooltipTrigger asChild>
+								<Button
+									variant={"secondary"}
+									size={"icon"}
+									onClick={() => {
+										setCropTarget(trackItem);
+									}}
+								>
+									<Crop size={18} />
+								</Button>
+							</TooltipTrigger>
+							<TooltipContent side="top">חתוך וידאו</TooltipContent>
+						</Tooltip>
+					</div>
 					<AspectRatio />
 					<Volume
 						onChange={(v: number) => handleChangeVolume(v)}
@@ -226,30 +228,27 @@ const BasicVideo = ({
 		{
 			key: "outline",
 			component: (
-				<Outline
-					onChageBorderWidth={(v: number) => onChangeBorderWidth(v)}
-					onChangeBorderColor={(v: string) => onChangeBorderColor(v)}
-					valueBorderWidth={properties.details.borderWidth as number}
-					valueBorderColor={properties.details.borderColor as string}
-					label="Outline"
-				/>
-			),
-		},
-		{
-			key: "shadow",
-			component: (
-				<Shadow
-					onChange={(v: IBoxShadow) => onChangeBoxShadow(v)}
-					value={
-						properties.details.boxShadow ?? {
-							color: "transparent",
-							x: 0,
-							y: 0,
-							blur: 0,
+				<>
+					<Outline
+						onChageBorderWidth={(v: number) => onChangeBorderWidth(v)}
+						onChangeBorderColor={(v: string) => onChangeBorderColor(v)}
+						valueBorderWidth={properties.details.borderWidth as number}
+						valueBorderColor={properties.details.borderColor as string}
+						label="מסגרת"
+					/>
+					<Shadow
+						onChange={(v: IBoxShadow) => onChangeBoxShadow(v)}
+						value={
+							properties.details.boxShadow ?? {
+								color: "transparent",
+								x: 0,
+								y: 0,
+								blur: 0,
+							}
 						}
-					}
-					label="Shadow"
-				/>
+						label="צל"
+					/>
+				</>
 			),
 		},
 	];

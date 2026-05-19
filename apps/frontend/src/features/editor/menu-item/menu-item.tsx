@@ -1,6 +1,7 @@
 import useLayoutStore from "../store/use-layout-store";
 import { Audios } from "./audios";
 import { Elements } from "./elements";
+import Shapes from "./shapes";
 import { Texts } from "./texts";
 import { Uploads } from "./uploads";
 
@@ -11,7 +12,7 @@ const ActiveMenuItem = () => {
 		return <Texts />;
 	}
 	if (activeMenuItem === "shapes") {
-		return <Elements />;
+		return <Shapes />;
 	}
 
 	if (activeMenuItem === "audios") {

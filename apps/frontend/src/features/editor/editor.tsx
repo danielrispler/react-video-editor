@@ -4,11 +4,15 @@ import {
 	ResizablePanelGroup,
 } from "@/components/ui/resizable";
 import { useIsLargeScreen } from "@/hooks/use-media-query";
-import StateManager from "@designcombo/state";
+import { dispatch } from "@designcombo/events";
+import StateManager, { ADD_SHAPE, ADD_TEXT } from "@designcombo/state";
+import { generateId } from "@designcombo/timeline";
 import type { ITrackItem } from "@designcombo/types";
+import { nanoid } from "nanoid";
 import { useEffect, useRef, useState } from "react";
 import type { ImperativePanelHandle } from "react-resizable-panels";
 import { SECONDARY_FONT, SECONDARY_FONT_URL } from "./constants/constants";
+import { TEXT_ADD_PAYLOAD } from "./constants/payload";
 import { ControlItem } from "./control-item";
 import ControlItemHorizontal from "./control-item-horizontal";
 import FloatingControl from "./control-item/floating-controls/floating-control";
@@ -17,7 +21,6 @@ import { FONTS } from "./data/fonts";
 import { useEditorPostMessage } from "./external-preview/use-editor-post-message";
 import useTimelineEvents from "./hooks/use-timeline-events";
 import MenuList from "./menu-list";
-import MenuListHorizontal from "./menu-list-horizontal";
 import Navbar from "./navbar";
 import Scene from "./scene";
 import type { SceneRef } from "./scene/scene.types";
@@ -27,10 +30,108 @@ import useStore from "./store/use-store";
 import Timeline from "./timeline";
 import { getCompactFontData, loadFonts } from "./utils/fonts";
 
+const svgToDataUrl = (svg: string) => `data:image/svg+xml;base64,${btoa(svg)}`;
+
+const SHAPES_DIRECT = [
+	{
+		id: "square",
+		label: "ריבוע",
+		svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="3" y="3" width="94" height="94" rx="6" fill="none" stroke="black" stroke-width="6"/></svg>`,
+		width: 80,
+		height: 80,
+	},
+	{
+		id: "circle",
+		label: "עיגול",
+		svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" fill="none" stroke="black" stroke-width="6"/></svg>`,
+		width: 80,
+		height: 80,
+	},
+	{
+		id: "arrow",
+		label: "חץ",
+		svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 60"><polygon points="2,18 58,18 58,3 98,30 58,57 58,42 2,42" fill="none" stroke="black" stroke-width="5" stroke-linejoin="round"/></svg>`,
+		width: 120,
+		height: 72,
+	},
+	{
+		id: "triangle",
+		label: "משולש",
+		svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><polygon points="50,4 97,96 3,96" fill="none" stroke="black" stroke-width="6" stroke-linejoin="round"/></svg>`,
+		width: 80,
+		height: 80,
+	},
+].map((s) => ({ ...s, dataUrl: svgToDataUrl(s.svg) }));
+
+const addShape = (shape: (typeof SHAPES_DIRECT)[0]) => {
+	dispatch(ADD_SHAPE, {
+		payload: {
+			id: generateId(),
+			type: "shape",
+			display: { from: 0, to: 5000 },
+			details: {
+				src: shape.dataUrl,
+				path: "",
+				width: shape.width,
+				height: shape.height,
+				backgroundColor: "transparent",
+				opacity: 100,
+				transform: "",
+				border: "",
+				top: "0px",
+				left: "0px",
+				flipX: false,
+				flipY: false,
+				rotate: "0deg",
+				visibility: "visible" as const,
+			},
+			metadata: {},
+		},
+		options: {},
+	});
+};
+
+const addText = () => {
+	dispatch(ADD_TEXT, {
+		payload: { ...TEXT_ADD_PAYLOAD, id: nanoid() },
+		options: {},
+	});
+};
+
+const RightSideMenu = () => {
+	return (
+		<div className="absolute right-0 top-1/2 -translate-y-1/2 z-10 flex flex-col gap-1 p-1.5 bg-card border border-border/80 border-r-0 rounded-l-xl shadow-lg">
+			<button
+				type="button"
+				aria-label="טקסט"
+				onClick={addText}
+				className="flex h-8 w-8 items-center justify-center rounded-lg transition-all duration-150 text-muted-foreground hover:bg-secondary hover:text-foreground font-bold text-sm"
+			>
+				T
+			</button>
+			{SHAPES_DIRECT.map((shape) => (
+				<button
+					key={shape.id}
+					type="button"
+					aria-label={shape.label}
+					onClick={() => addShape(shape)}
+					className="flex h-8 w-8 items-center justify-center rounded-lg transition-all duration-150 text-muted-foreground hover:bg-secondary hover:text-foreground"
+				>
+					<img
+						src={shape.dataUrl}
+						alt={shape.label}
+						style={{ width: 20, height: 20, objectFit: "contain" }}
+					/>
+				</button>
+			))}
+		</div>
+	);
+};
+
 const stateManager = new StateManager({
 	size: {
-		width: 1080,
-		height: 1920,
+		width: 1920,
+		height: 1080,
 	},
 });
 
@@ -60,13 +161,13 @@ const SceneContainer = ({
 						<Scene ref={sceneRef} stateManager={stateManager} />
 					</div>
 				</div>
+				{!isLargeScreen && !trackItem && loaded && <RightSideMenu />}
 			</div>
 
 			<div className="w-full">
 				{playerRef && <Timeline stateManager={stateManager} />}
 			</div>
 
-			{!isLargeScreen && !trackItem && loaded && <MenuListHorizontal />}
 			{!isLargeScreen && trackItem && <ControlItemHorizontal />}
 		</div>
 	);
@@ -103,9 +204,6 @@ const Editor = ({ tempId, id }: { tempId?: string; id?: string }) => {
 	useEditorPostMessage(stateManager);
 
 	const { setCompactFonts, setFonts } = useDataState();
-	// useEffect(() => {
-	//   dispatch(DESIGN_LOAD, { payload: design });
-	// }, []);
 	useEffect(() => {
 		setCompactFonts(getCompactFontData(FONTS));
 		setFonts(FONTS);
@@ -141,7 +239,6 @@ const Editor = ({ tempId, id }: { tempId?: string; id?: string }) => {
 			},
 		);
 
-		// Trigger zoom recalculation when timeline is resized
 		setTimeout(() => {
 			sceneRef.current?.recalculateZoom();
 		}, 100);
@@ -175,6 +272,22 @@ const Editor = ({ tempId, id }: { tempId?: string; id?: string }) => {
 
 	useEffect(() => {
 		setLoaded(true);
+	}, []);
+
+	useEffect(() => {
+		const handleKeyDown = (e: KeyboardEvent) => {
+			if (e.key !== "t" && e.key !== "T") return;
+			const target = e.target as HTMLElement;
+			if (
+				target.tagName === "INPUT" ||
+				target.tagName === "TEXTAREA" ||
+				target.isContentEditable
+			)
+				return;
+			addText();
+		};
+		window.addEventListener("keydown", handleKeyDown);
+		return () => window.removeEventListener("keydown", handleKeyDown);
 	}, []);
 
 	return (

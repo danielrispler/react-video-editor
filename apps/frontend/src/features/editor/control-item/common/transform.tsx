@@ -1,6 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { RotateCw } from "lucide-react";
 import { useState } from "react";
 
@@ -28,13 +33,18 @@ const Transform = () => {
 					/>
 					<Input className="w-11 px-2 text-center text-sm" defaultValue={100} />
 					<div className="flex items-center">
-						<Button
-							size="icon"
-							variant="ghost"
-							className="h-6 w-6 text-zinc-400"
-						>
-							<RotateCw size={14} />
-						</Button>
+						<Tooltip>
+							<TooltipTrigger asChild>
+								<Button
+									size="icon"
+									variant="ghost"
+									className="h-6 w-6 text-zinc-400"
+								>
+									<RotateCw size={14} />
+								</Button>
+							</TooltipTrigger>
+							<TooltipContent>אפס גודל</TooltipContent>
+						</Tooltip>
 					</div>
 				</div>
 			</div>
@@ -62,13 +72,18 @@ const Transform = () => {
 					</div>
 
 					<div className="flex items-center">
-						<Button
-							size="icon"
-							variant="ghost"
-							className="h-6 w-6 text-zinc-400"
-						>
-							<RotateCw size={14} />
-						</Button>
+						<Tooltip>
+							<TooltipTrigger asChild>
+								<Button
+									size="icon"
+									variant="ghost"
+									className="h-6 w-6 text-zinc-400"
+								>
+									<RotateCw size={14} />
+								</Button>
+							</TooltipTrigger>
+							<TooltipContent>אפס מיקום</TooltipContent>
+						</Tooltip>
 					</div>
 				</div>
 			</div>
@@ -85,13 +100,18 @@ const Transform = () => {
 					<Input className="px-2 text-sm" defaultValue={100} />
 					<div />
 					<div className="flex items-center">
-						<Button
-							size="icon"
-							variant="ghost"
-							className="h-6 w-6 text-zinc-400"
-						>
-							<RotateCw size={14} />
-						</Button>
+						<Tooltip>
+							<TooltipTrigger asChild>
+								<Button
+									size="icon"
+									variant="ghost"
+									className="h-6 w-6 text-zinc-400"
+								>
+									<RotateCw size={14} />
+								</Button>
+							</TooltipTrigger>
+							<TooltipContent>אפס סיבוב</TooltipContent>
+						</Tooltip>
 					</div>
 				</div>
 			</div>

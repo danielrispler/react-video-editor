@@ -1,5 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useIsLargeScreen } from "@/hooks/use-media-query";
 import { dispatch } from "@designcombo/events";
 import {
@@ -10,7 +15,7 @@ import {
 } from "@designcombo/state";
 import type { ITimelineScaleState } from "@designcombo/types";
 import { SquareSplitHorizontal, Trash, ZoomIn, ZoomOut } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { PLAYER_PAUSE, PLAYER_PLAY } from "../constants/events";
 import { useCurrentPlayerFrame } from "../hooks/use-current-frame";
 import { useTimelineOffsetX } from "../hooks/use-timeline-offset";
@@ -167,73 +172,104 @@ const Header = () => {
 					}}
 				>
 					<div className="flex px-2">
-						<Button
-							disabled={!activeIds.length}
-							onClick={doActiveDelete}
-							variant={"ghost"}
-							size={isLargeScreen ? "sm" : "icon"}
-							className="flex items-center gap-1 px-2"
-						>
-							<Trash size={14} /> <span className="hidden lg:block">מחק</span>
-						</Button>
+						<Tooltip>
+							<TooltipTrigger asChild>
+								<Button
+									disabled={!activeIds.length}
+									onClick={doActiveDelete}
+									variant={"ghost"}
+									size={isLargeScreen ? "sm" : "icon"}
+									className="flex items-center gap-1 px-2"
+								>
+									<Trash size={14} />{" "}
+									<span className="hidden lg:block">מחק</span>
+								</Button>
+							</TooltipTrigger>
+							<TooltipContent side="top">מחק שכבה</TooltipContent>
+						</Tooltip>
 
-						<Button
-							disabled={!activeIds.length}
-							onClick={doActiveSplit}
-							variant={"ghost"}
-							size={isLargeScreen ? "sm" : "icon"}
-							className="flex items-center gap-1 px-2"
-						>
-							<SquareSplitHorizontal size={15} />{" "}
-							<span className="hidden lg:block">פצל</span>
-						</Button>
-						<Button
-							disabled={!activeIds.length}
-							onClick={() => {
-								dispatch(LAYER_CLONE);
-							}}
-							variant={"ghost"}
-							size={isLargeScreen ? "sm" : "icon"}
-							className="flex items-center gap-1 px-2"
-						>
-							<SquareSplitHorizontal size={15} />{" "}
-							<span className="hidden lg:block">שכפל</span>
-						</Button>
+						<Tooltip>
+							<TooltipTrigger asChild>
+								<Button
+									disabled={!activeIds.length}
+									onClick={doActiveSplit}
+									variant={"ghost"}
+									size={isLargeScreen ? "sm" : "icon"}
+									className="flex items-center gap-1 px-2"
+								>
+									<SquareSplitHorizontal size={15} />{" "}
+									<span className="hidden lg:block">פצל</span>
+								</Button>
+							</TooltipTrigger>
+							<TooltipContent side="top">פצל בנקודת הסמן</TooltipContent>
+						</Tooltip>
+						<Tooltip>
+							<TooltipTrigger asChild>
+								<Button
+									disabled={!activeIds.length}
+									onClick={() => {
+										dispatch(LAYER_CLONE);
+									}}
+									variant={"ghost"}
+									size={isLargeScreen ? "sm" : "icon"}
+									className="flex items-center gap-1 px-2"
+								>
+									<SquareSplitHorizontal size={15} />{" "}
+									<span className="hidden lg:block">שכפל</span>
+								</Button>
+							</TooltipTrigger>
+							<TooltipContent side="top">שכפל שכבה</TooltipContent>
+						</Tooltip>
 					</div>
 					<div className="flex items-center justify-center">
 						<div>
-							<Button
-								className="hidden lg:inline-flex"
-								onClick={doActiveDelete}
-								variant={"ghost"}
-								size={"icon"}
-							>
-								<IconPlayerSkipBack size={14} />
-							</Button>
-							<Button
-								onClick={() => {
-									if (playing) {
-										return handlePause();
-									}
-									handlePlay();
-								}}
-								variant={"ghost"}
-								size={"icon"}
-							>
-								{playing ? (
-									<IconPlayerPauseFilled size={14} />
-								) : (
-									<IconPlayerPlayFilled size={14} />
-								)}
-							</Button>
-							<Button
-								className="hidden lg:inline-flex"
-								onClick={doActiveSplit}
-								variant={"ghost"}
-								size={"icon"}
-							>
-								<IconPlayerSkipForward size={14} />
-							</Button>
+							<Tooltip>
+								<TooltipTrigger asChild>
+									<Button
+										className="hidden lg:inline-flex"
+										onClick={doActiveDelete}
+										variant={"ghost"}
+										size={"icon"}
+									>
+										<IconPlayerSkipBack size={14} />
+									</Button>
+								</TooltipTrigger>
+								<TooltipContent side="top">קפוץ להתחלה</TooltipContent>
+							</Tooltip>
+							<Tooltip>
+								<TooltipTrigger asChild>
+									<Button
+										onClick={() => {
+											if (playing) {
+												return handlePause();
+											}
+											handlePlay();
+										}}
+										variant={"ghost"}
+										size={"icon"}
+									>
+										{playing ? (
+											<IconPlayerPauseFilled size={14} />
+										) : (
+											<IconPlayerPlayFilled size={14} />
+										)}
+									</Button>
+								</TooltipTrigger>
+								<TooltipContent side="top">נגן / השהה</TooltipContent>
+							</Tooltip>
+							<Tooltip>
+								<TooltipTrigger asChild>
+									<Button
+										className="hidden lg:inline-flex"
+										onClick={doActiveSplit}
+										variant={"ghost"}
+										size={"icon"}
+									>
+										<IconPlayerSkipForward size={14} />
+									</Button>
+								</TooltipTrigger>
+								<TooltipContent side="top">קפוץ לסוף</TooltipContent>
+							</Tooltip>
 						</div>
 						<div
 							className="text-xs font-light flex"
@@ -290,10 +326,29 @@ const ZoomControl = ({
 }) => {
 	const [localValue, setLocalValue] = useState(scale.index);
 	const timelineOffsetX = useTimelineOffsetX();
+	const prevDuration = useRef(duration);
+	const scaleRef = useRef(scale);
+	scaleRef.current = scale;
+	const timelineOffsetXRef = useRef(timelineOffsetX);
+	timelineOffsetXRef.current = timelineOffsetX;
+	const onChangeRef = useRef(onChangeTimelineScale);
+	onChangeRef.current = onChangeTimelineScale;
 
 	useEffect(() => {
 		setLocalValue(scale.index);
 	}, [scale.index]);
+
+	useEffect(() => {
+		if (duration > prevDuration.current) {
+			const fitZoom = getFitZoomLevel(
+				duration,
+				scaleRef.current.zoom,
+				timelineOffsetXRef.current,
+			);
+			onChangeRef.current(fitZoom);
+		}
+		prevDuration.current = duration;
+	}, [duration]);
 
 	const onZoomOutClick = () => {
 		const previousZoom = getPreviousZoomLevel(scale);
@@ -313,9 +368,14 @@ const ZoomControl = ({
 	return (
 		<div className="flex items-center justify-end">
 			<div className="flex lg:border-l pl-4 pr-2">
-				<Button size={"icon"} variant={"ghost"} onClick={onZoomOutClick}>
-					<ZoomOut size={16} />
-				</Button>
+				<Tooltip>
+					<TooltipTrigger asChild>
+						<Button size={"icon"} variant={"ghost"} onClick={onZoomOutClick}>
+							<ZoomOut size={16} />
+						</Button>
+					</TooltipTrigger>
+					<TooltipContent side="top">הקטן תצוגה</TooltipContent>
+				</Tooltip>
 				<Slider
 					className="w-28 hidden lg:flex"
 					value={[localValue]}
@@ -330,21 +390,31 @@ const ZoomControl = ({
 						onChangeTimelineScale(zoom); // Propagate value to parent when user commits change
 					}}
 				/>
-				<Button size={"icon"} variant={"ghost"} onClick={onZoomInClick}>
-					<ZoomIn size={16} />
-				</Button>
-				<Button onClick={onZoomFitClick} variant={"ghost"} size={"icon"}>
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						width="16"
-						viewBox="0 0 24 24"
-					>
-						<path
-							fill="currentColor"
-							d="M20 8V6h-2q-.425 0-.712-.288T17 5t.288-.712T18 4h2q.825 0 1.413.588T22 6v2q0 .425-.288.713T21 9t-.712-.288T20 8M2 8V6q0-.825.588-1.412T4 4h2q.425 0 .713.288T7 5t-.288.713T6 6H4v2q0 .425-.288.713T3 9t-.712-.288T2 8m18 12h-2q-.425 0-.712-.288T17 19t.288-.712T18 18h2v-2q0-.425.288-.712T21 15t.713.288T22 16v2q0 .825-.587 1.413T20 20M4 20q-.825 0-1.412-.587T2 18v-2q0-.425.288-.712T3 15t.713.288T4 16v2h2q.425 0 .713.288T7 19t-.288.713T6 20zm2-6v-4q0-.825.588-1.412T8 8h8q.825 0 1.413.588T18 10v4q0 .825-.587 1.413T16 16H8q-.825 0-1.412-.587T6 14"
-						/>
-					</svg>
-				</Button>
+				<Tooltip>
+					<TooltipTrigger asChild>
+						<Button size={"icon"} variant={"ghost"} onClick={onZoomInClick}>
+							<ZoomIn size={16} />
+						</Button>
+					</TooltipTrigger>
+					<TooltipContent side="top">הגדל תצוגה</TooltipContent>
+				</Tooltip>
+				<Tooltip>
+					<TooltipTrigger asChild>
+						<Button onClick={onZoomFitClick} variant={"ghost"} size={"icon"}>
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								width="16"
+								viewBox="0 0 24 24"
+							>
+								<path
+									fill="currentColor"
+									d="M20 8V6h-2q-.425 0-.712-.288T17 5t.288-.712T18 4h2q.825 0 1.413.588T22 6v2q0 .425-.288.713T21 9t-.712-.288T20 8M2 8V6q0-.825.588-1.412T4 4h2q.425 0 .713.288T7 5t-.288.713T6 6H4v2q0 .425-.288.713T3 9t-.712-.288T2 8m18 12h-2q-.425 0-.712-.288T17 19t.288-.712T18 18h2v-2q0-.425.288-.712T21 15t.713.288T22 16v2q0 .825-.587 1.413T20 20M4 20q-.825 0-1.412-.587T2 18v-2q0-.425.288-.712T3 15t.713.288T4 16v2h2q.425 0 .713.288T7 19t-.288.713T6 20zm2-6v-4q0-.825.588-1.412T8 8h8q.825 0 1.413.588T18 10v4q0 .825-.587 1.413T16 16H8q-.825 0-1.412-.587T6 14"
+								/>
+							</svg>
+						</Button>
+					</TooltipTrigger>
+					<TooltipContent side="top">התאם לחלון</TooltipContent>
+				</Tooltip>
 			</div>
 		</div>
 	);

@@ -1,5 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { dispatch } from "@designcombo/events";
 import { EDIT_OBJECT } from "@designcombo/state";
 import type { IImage, ITrackItem, IVideo } from "@designcombo/types";
@@ -44,12 +49,22 @@ export default function Flip({
 		<div className="flex flex-col gap-2 py-4">
 			<Label className="font-sans text-xs font-semibold">היפוך</Label>
 			<div className="flex">
-				<Button variant="outline" onClick={() => handleFlip("x")}>
-					היפוך אופקי
-				</Button>
-				<Button variant="outline" onClick={() => handleFlip("y")}>
-					היפוך אנכי
-				</Button>
+				<Tooltip>
+					<TooltipTrigger asChild>
+						<Button variant="outline" onClick={() => handleFlip("x")}>
+							היפוך אופקי
+						</Button>
+					</TooltipTrigger>
+					<TooltipContent>היפוך אופקי</TooltipContent>
+				</Tooltip>
+				<Tooltip>
+					<TooltipTrigger asChild>
+						<Button variant="outline" onClick={() => handleFlip("y")}>
+							היפוך אנכי
+						</Button>
+					</TooltipTrigger>
+					<TooltipContent>היפוך אנכי</TooltipContent>
+				</Tooltip>
 			</div>
 		</div>
 	);

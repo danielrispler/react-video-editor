@@ -41,16 +41,10 @@ export const Shape = ({
 					keyframeAnimations={animationTimed}
 					frame={frame || 0}
 				>
-					<div
-						style={{
-							width: "100%",
-							height: "100%",
-							WebkitMaskImage: `url(${details.src})`,
-							WebkitMaskSize: "cover",
-							WebkitMaskPosition: "center",
-							WebkitMaskRepeat: "no-repeat",
-							backgroundColor: details.backgroundColor || "#808080",
-						}}
+					<img
+						src={details.src}
+						alt=""
+						style={{ width: "100%", height: "100%", objectFit: "fill" }}
 					/>
 				</MaskAnim>
 			</ContentAnim>

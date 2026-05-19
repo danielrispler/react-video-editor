@@ -18,6 +18,12 @@ const MENU_ITEMS = [
 		ariaLabel: "הוסף ונהל העלאות",
 	},
 	{
+		id: "shapes",
+		icon: Icons.shapes,
+		label: "צורות",
+		ariaLabel: "הוסף צורות",
+	},
+	{
 		id: "texts",
 		icon: Icons.type,
 		label: "טקסטים",

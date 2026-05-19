@@ -7,6 +7,11 @@ import {
 	PopoverContent,
 	PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { dispatch } from "@designcombo/events";
 import { HISTORY_REDO, HISTORY_UNDO } from "@designcombo/state";
 import { ChevronDown } from "lucide-react";
@@ -27,10 +32,10 @@ import DownloadProgressModal from "./download-progress-modal";
 import { useDownloadState } from "./store/use-download-state";
 
 const CANVAS_PRESETS = [
-	{ label: "דיוקן", width: 1080, height: 1920 },
-	{ label: "נוף", width: 1920, height: 1080 },
-	{ label: "ריבוע", width: 1080, height: 1080 },
-	{ label: "סטורי", width: 720, height: 1280 },
+	{ label: "דיוקן", width: 1080, height: 1920, tooltip: "1080×1920 — פורטרט" },
+	{ label: "נוף", width: 1920, height: 1080, tooltip: "1920×1080 — נוף רחב" },
+	{ label: "ריבוע", width: 1080, height: 1080, tooltip: "1080×1080 — ריבוע" },
+	{ label: "סטורי", width: 720, height: 1280, tooltip: "1080×1920 — סטורי" },
 ];
 
 const MIN_CANVAS_SIZE = 64;
@@ -128,22 +133,32 @@ export default function Navbar({
 
 			<div className="flex items-center gap-2">
 				<div className=" pointer-events-auto flex h-10 items-center px-1.5">
-					<Button
-						onClick={handleUndo}
-						className="text-muted-foreground"
-						variant="ghost"
-						size="icon"
-					>
-						<Icons.undo width={20} />
-					</Button>
-					<Button
-						onClick={handleRedo}
-						className="text-muted-foreground"
-						variant="ghost"
-						size="icon"
-					>
-						<Icons.redo width={20} />
-					</Button>
+					<Tooltip>
+						<TooltipTrigger asChild>
+							<Button
+								onClick={handleUndo}
+								className="text-muted-foreground"
+								variant="ghost"
+								size="icon"
+							>
+								<Icons.undo width={20} />
+							</Button>
+						</TooltipTrigger>
+						<TooltipContent side="bottom">בטל פעולה</TooltipContent>
+					</Tooltip>
+					<Tooltip>
+						<TooltipTrigger asChild>
+							<Button
+								onClick={handleRedo}
+								className="text-muted-foreground"
+								variant="ghost"
+								size="icon"
+							>
+								<Icons.redo width={20} />
+							</Button>
+						</TooltipTrigger>
+						<TooltipContent side="bottom">בצע שוב</TooltipContent>
+					</Tooltip>
 				</div>
 			</div>
 
@@ -204,14 +219,19 @@ const CanvasSizePopover = ({
 }) => {
 	return (
 		<Popover>
-			<PopoverTrigger asChild>
-				<Button
-					className="h-8 rounded-full border border-border"
-					variant="outline"
-				>
-					קנבס
-				</Button>
-			</PopoverTrigger>
+			<Tooltip>
+				<TooltipTrigger asChild>
+					<PopoverTrigger asChild>
+						<Button
+							className="h-8 rounded-full border border-border"
+							variant="outline"
+						>
+							קנבס
+						</Button>
+					</PopoverTrigger>
+				</TooltipTrigger>
+				<TooltipContent side="bottom">שנה גודל קנבס</TooltipContent>
+			</Tooltip>
 			<PopoverContent
 				align="end"
 				className="bg-sidebar z-[250] flex w-72 flex-col gap-4"
@@ -252,19 +272,28 @@ const CanvasSizePopover = ({
 
 				<div className="flex flex-wrap gap-2">
 					{CANVAS_PRESETS.map((preset) => (
-						<Button
-							key={preset.label}
-							type="button"
-							variant="outline"
-							className="h-8 rounded-full px-3 text-xs"
-							onClick={() => onPresetSelect(preset.width, preset.height)}
-						>
-							{preset.label} {preset.width}x{preset.height}
-						</Button>
+						<Tooltip key={preset.label}>
+							<TooltipTrigger asChild>
+								<Button
+									type="button"
+									variant="outline"
+									className="h-8 rounded-full px-3 text-xs"
+									onClick={() => onPresetSelect(preset.width, preset.height)}
+								>
+									{preset.label} {preset.width}x{preset.height}
+								</Button>
+							</TooltipTrigger>
+							<TooltipContent side="bottom">{preset.tooltip}</TooltipContent>
+						</Tooltip>
 					))}
 				</div>
 
-				<Button onClick={onApply}>החל</Button>
+				<Tooltip>
+					<TooltipTrigger asChild>
+						<Button onClick={onApply}>החל</Button>
+					</TooltipTrigger>
+					<TooltipContent side="bottom">החל שינויי גודל</TooltipContent>
+				</Tooltip>
 			</PopoverContent>
 		</Popover>
 	);
@@ -292,15 +321,20 @@ const DownloadPopover = ({ stateManager }: { stateManager: StateManager }) => {
 
 	return (
 		<Popover open={open} onOpenChange={setOpen}>
-			<PopoverTrigger asChild>
-				<Button
-					className="flex h-8 gap-1 border border-border rounded-full"
-					size={isMediumScreen ? "sm" : "icon"}
-				>
-					{/* <Download width={18} />{" "} */}
-					<span className="hidden md:block">הורדה</span>
-				</Button>
-			</PopoverTrigger>
+			<Tooltip>
+				<TooltipTrigger asChild>
+					<PopoverTrigger asChild>
+						<Button
+							className="flex h-8 gap-1 border border-border rounded-full"
+							size={isMediumScreen ? "sm" : "icon"}
+						>
+							{/* <Download width={18} />{" "} */}
+							<span className="hidden md:block">הורדה</span>
+						</Button>
+					</PopoverTrigger>
+				</TooltipTrigger>
+				<TooltipContent side="bottom">הורד פרויקט</TooltipContent>
+			</Tooltip>
 			<PopoverContent
 				align="end"
 				className="bg-sidebar z-[250] flex w-60 flex-col gap-4"
@@ -308,12 +342,17 @@ const DownloadPopover = ({ stateManager }: { stateManager: StateManager }) => {
 				<Label>הגדרות ייצוא</Label>
 
 				<Popover open={isExportTypeOpen} onOpenChange={setIsExportTypeOpen}>
-					<PopoverTrigger asChild>
-						<Button className="w-full justify-between" variant="outline">
-							<div>{exportType.toUpperCase()}</div>
-							<ChevronDown width={16} />
-						</Button>
-					</PopoverTrigger>
+					<Tooltip>
+						<TooltipTrigger asChild>
+							<PopoverTrigger asChild>
+								<Button className="w-full justify-between" variant="outline">
+									<div>{exportType.toUpperCase()}</div>
+									<ChevronDown width={16} />
+								</Button>
+							</PopoverTrigger>
+						</TooltipTrigger>
+						<TooltipContent side="bottom">בחר פורמט ייצוא</TooltipContent>
+					</Tooltip>
 					<PopoverContent className="bg-background z-[251] w-[--radix-popover-trigger-width] px-2 py-2">
 						<div
 							className="flex h-7 items-center rounded-sm px-3 text-sm hover:cursor-pointer hover:bg-secondary"
@@ -346,9 +385,14 @@ const DownloadPopover = ({ stateManager }: { stateManager: StateManager }) => {
 				</Popover>
 
 				<div>
-					<Button onClick={handleExport} className="w-full">
-						ייצא
-					</Button>
+					<Tooltip>
+						<TooltipTrigger asChild>
+							<Button onClick={handleExport} className="w-full">
+								ייצא
+							</Button>
+						</TooltipTrigger>
+						<TooltipContent side="bottom">התחל ייצוא</TooltipContent>
+					</Tooltip>
 				</div>
 			</PopoverContent>
 		</Popover>

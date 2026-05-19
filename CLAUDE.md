@@ -66,9 +66,11 @@ Configure `apps/server/.env`. Frontend needs no `.env` in dev. The server defaul
 
 **Entry:** `src/main.tsx` — mounts React, wraps with `BrowserRouter`, `ThemeProvider`, `QueryProvider`.
 
-**Routing:** React Router v7. Two routes in `src/App.tsx`:
+**Routing:** React Router v7. Routes in `src/App.tsx`:
 - `/` → `src/pages/Home.tsx`
-- `/edit/:id` → `src/pages/EditPage.tsx`
+- `/edit` / `/edit/:id` → `src/pages/EditPage.tsx`
+- `/editor/embed` → `src/pages/EditPage.tsx` (editor as embeddable iframe target)
+- `/editor/iframe-demo` → `src/pages/IframeDemoPage.tsx` (dev harness for testing iframe postMessage flow)
 
 **Path alias:** `@/` maps to `apps/frontend/src/`.
 
@@ -87,6 +89,8 @@ Configure `apps/server/.env`. Frontend needs no `.env` in dev. The server defaul
 - `EDITOR_CLEAR_PROJECT` — wipes all tracks and resets duration.
 
 Responses are sent back via `postMessage` to the parent. Allowed origins are configured via `VITE_EDITOR_PARENT_ORIGINS` (defaults to `window.location.origin`).
+
+**`/editor/iframe-demo` (`src/pages/IframeDemoPage.tsx`):** Dev harness for the iframe postMessage flow. Embeds `/editor/embed` in an iframe and provides a control panel to send `EDITOR_ADD_PREVIEW_ITEM` (`recording-range` kind) and `EDITOR_CLEAR_PROJECT` messages. Displays outgoing payload and last response. This is the primary page used for development and testing of the iframe integration.
 
 **State management:** Zustand (`src/features/editor/store/`). Global scene store at `src/store/use-scene-store.ts`.
 

@@ -20,6 +20,7 @@ import {
 	Image,
 	LinealAudioBars,
 	RadialAudioBars,
+	Shape,
 	Text,
 	Track,
 	Video,
@@ -33,6 +34,7 @@ import Ruler from "./ruler";
 CanvasTimeline.registerItems({
 	Text,
 	Image,
+	Shape,
 	Audio,
 	Video,
 	Caption,
@@ -165,6 +167,7 @@ const Timeline = ({ stateManager }: { stateManager: StateManager }) => {
 			itemTypes: [
 				"text",
 				"image",
+				"shape",
 				"audio",
 				"video",
 				"caption",

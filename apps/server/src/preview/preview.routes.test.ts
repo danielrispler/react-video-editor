@@ -60,14 +60,14 @@ class MemoryStorage implements StorageProvider {
 // Test config
 // ---------------------------------------------------------------------------
 const baseConfig: EnvConfig = {
-	PORT: 4000,
+	PORT: 4001,
 	HOST: "127.0.0.1",
 	MIN_TRANSCODE_SEGMENT_SECONDS: 0.35,
 	FFMPEG_PRESET: "veryfast",
 	FFMPEG_CRF: "20",
 	FFMPEG_AUDIO_BITRATE: "192k",
 	CHANNEL_PLAY_API_BASE_URL: "",
-	SERVER_BASE_URL: "http://localhost:4000",
+	SERVER_BASE_URL: "http://localhost:4001",
 	MAX_PREVIEW_DURATION_MS: 3600000,
 	PREVIEW_JOB_TTL_SECONDS: 86400,
 	S3_PREVIEW_PREFIX: "preview",
@@ -302,7 +302,7 @@ describe("POST /api/editor/preview-source — channel API (mocked fetch)", () =>
 	beforeEach(async () => {
 		({ app, storage } = buildApp({
 			CHANNEL_PLAY_API_BASE_URL: CHANNEL_BASE,
-			SERVER_BASE_URL: "http://localhost:4000",
+			SERVER_BASE_URL: "http://localhost:4001",
 		}));
 
 		mock.method(
@@ -383,7 +383,7 @@ describe("POST /api/editor/preview-source — channel API (mocked fetch)", () =>
 		const [, playlist] = [...storage.store.entries()][0];
 		const segmentLines = playlist
 			.split("\n")
-			.filter((l) => l.startsWith("http://localhost:4000/api/editor/segment"));
+			.filter((l) => l.startsWith("http://localhost:4001/api/editor/segment"));
 
 		assert.ok(segmentLines.length > 0, "must have proxy segment lines");
 		assert.ok(

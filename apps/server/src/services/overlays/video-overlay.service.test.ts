@@ -17,7 +17,7 @@ import type { StorageProvider } from "../storage/storage.types.ts";
 import { prepareVideoOverlay } from "./video-overlay.service.ts";
 
 const testConfig: EnvConfig = {
-	PORT: 4000,
+	PORT: 4001,
 	HOST: "127.0.0.1",
 	MIN_TRANSCODE_SEGMENT_SECONDS: 0.35,
 	FFMPEG_PRESET: "veryfast",
@@ -43,7 +43,7 @@ const testConfig: EnvConfig = {
 	REDIS_PASSWORD: "",
 	JOB_PROGRESS_TTL_SECONDS: 600,
 	CHANNEL_PLAY_API_BASE_URL: "",
-	SERVER_BASE_URL: "http://localhost:4000",
+	SERVER_BASE_URL: "http://localhost:4001",
 	MAX_PREVIEW_DURATION_MS: 3600000,
 	PREVIEW_JOB_TTL_SECONDS: 86400,
 	S3_PREVIEW_PREFIX: "preview",

@@ -10,16 +10,17 @@ import type {
 	IAudio,
 	ICaption,
 	IImage,
+	IShape,
 	ITrackItem,
 	ITrackItemAndDetails,
 	IVideo,
 } from "@designcombo/types";
-import { type PanInfo, motion, useAnimation } from "framer-motion";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import BasicAudio from "./control-item/basic-audio";
 import BasicCaption from "./control-item/basic-caption";
 import BasicImage from "./control-item/basic-image";
+import BasicShape from "./control-item/basic-shape";
 import BasicText from "./control-item/basic-text";
 import BasicVideo from "./control-item/basic-video";
 import useLayoutStore from "./store/use-layout-store";
@@ -41,6 +42,7 @@ const ActiveControlItem = ({
 					image: <ItemImage handleMenuItemClick={handleMenuItemClick} />,
 					video: <ItemVideo handleMenuItemClick={handleMenuItemClick} />,
 					audio: <ItemAudio handleMenuItemClick={handleMenuItemClick} />,
+					shape: <ItemShape handleMenuItemClick={handleMenuItemClick} />,
 				}[trackItem?.type as "text"]
 			}
 		</>
@@ -513,6 +515,12 @@ const ControlItem = ({
 							type={feature}
 						/>
 					),
+					shape: (
+						<BasicShape
+							trackItem={trackItem as ITrackItem & IShape}
+							type={feature}
+						/>
+					),
 				}[trackItem?.type as "text"]
 			}
 		</>
@@ -531,9 +539,6 @@ export default function ControlItemHorizontal() {
 		controItemDrawerOpen,
 		setLabelControlItem,
 	} = useLayoutStore();
-
-	// Framer Motion controls
-	const controls = useAnimation();
 
 	useEffect(() => {
 		if (activeIds.length === 1) {
@@ -576,45 +581,6 @@ export default function ControlItemHorizontal() {
 		return () => document.removeEventListener("mousedown", handleClickOutside);
 	}, []);
 
-	// Handle drag end with Framer Motion
-	const handleDragEnd = (event: any, info: PanInfo) => {
-		const { offset, velocity } = info;
-
-		// Close drawer if dragged down more than 50px or with sufficient velocity
-		if (offset.y > 50 || velocity.y > 500) {
-			setControItemDrawerOpen(false);
-		} else {
-			// Animate back to original position
-			controls.start({
-				y: 0,
-				transition: { type: "spring", damping: 25, stiffness: 300 },
-			});
-		}
-	};
-
-	// Animation variants
-	const drawerVariants = {
-		hidden: { y: "100%" },
-		visible: {
-			y: 0,
-			transition: {
-				type: "spring",
-				damping: 25,
-				stiffness: 300,
-				duration: 0.3,
-			},
-		},
-		exit: {
-			y: "100%",
-			transition: {
-				type: "spring",
-				damping: 25,
-				stiffness: 300,
-				duration: 0.2,
-			},
-		},
-	};
-
 	return (
 		<>
 			<div className="flex h-12 items-center border-t">
@@ -628,32 +594,15 @@ export default function ControlItemHorizontal() {
 				</ScrollArea>
 			</div>
 			{!isLargeScreen && controItemDrawerOpen && (
-				<motion.div
-					className="fixed inset-0 z-50 flex items-end pointer-events-none"
-					initial="hidden"
-					animate="visible"
-					exit="exit"
-					variants={drawerVariants}
-				>
-					<motion.div
+				<div className="fixed inset-0 z-50 flex items-end pointer-events-none">
+					<div
 						ref={drawerRef}
 						className="bg-background mb-12 w-full max-h-[80vh] min-h-[340px] rounded-t-lg border-t shadow-lg pointer-events-auto"
-						drag="y"
-						dragConstraints={{ top: 0, bottom: 0 }}
-						dragElastic={0.1}
-						onDragEnd={handleDragEnd}
-						animate={controls}
-						whileDrag={{ scale: 0.98 }}
-						transition={{ type: "spring", damping: 25, stiffness: 300 }}
 					>
 						<div className="flex flex-col h-full">
-							<motion.div
-								className="flex items-center justify-center p-4 cursor-grab active:cursor-grabbing touch-none"
-								whileHover={{ scale: 1.05 }}
-								whileTap={{ scale: 0.95 }}
-							>
-								<motion.div className="h-1 w-24 bg-zinc-700 rounded-full" />
-							</motion.div>
+							<div className="flex items-center justify-center p-4 cursor-grab active:cursor-grabbing touch-none">
+								<div className="h-1 w-24 bg-zinc-700 rounded-full" />
+							</div>
 							<div className="flex-1 overflow-auto">
 								<ControlItem
 									trackItem={trackItem as ITrackItem & any}
@@ -661,8 +610,8 @@ export default function ControlItemHorizontal() {
 								/>
 							</div>
 						</div>
-					</motion.div>
-				</motion.div>
+					</div>
+				</div>
 			)}
 		</>
 	);
@@ -710,7 +659,6 @@ const ItemText = ({
 		items={[
 			{ icon: Icons.preset, label: "תבנית", id: "textPreset" },
 			{ icon: Icons.style, label: "סגנונות", id: "textControls" },
-			{ icon: Icons.animation, label: "אנימציות", id: "animations" },
 			{ icon: Icons.fontStroke, label: "קו מתאר", id: "fontStroke" },
 			{ icon: Icons.fontShadow, label: "צל", id: "fontShadow" },
 		]}
@@ -743,11 +691,8 @@ const ItemImage = ({
 }) => (
 	<ItemGroup
 		items={[
-			{ icon: Icons.crop, label: "חיתוך", id: "crop" },
 			{ icon: Icons.basic, label: "בסיסי", id: "basic" },
-			{ icon: Icons.animation, label: "אנימציות", id: "animations" },
-			{ icon: Icons.outline, label: "מסגרת", id: "outline" },
-			{ icon: Icons.shadow, label: "צל", id: "shadow" },
+			{ icon: Icons.outline, label: "מסגרת וצל", id: "outline" },
 		]}
 		handleMenuItemClick={handleMenuItemClick}
 	/>
@@ -760,11 +705,8 @@ const ItemVideo = ({
 }) => (
 	<ItemGroup
 		items={[
-			{ icon: Icons.crop, label: "חיתוך", id: "crop" },
 			{ icon: Icons.basic, label: "בסיסי", id: "basic" },
-			{ icon: Icons.animation, label: "אנימציות", id: "animations" },
-			{ icon: Icons.outline, label: "מסגרת", id: "outline" },
-			{ icon: Icons.shadow, label: "צל", id: "shadow" },
+			{ icon: Icons.outline, label: "מסגרת וצל", id: "outline" },
 		]}
 		handleMenuItemClick={handleMenuItemClick}
 	/>
@@ -780,6 +722,20 @@ const ItemAudio = ({
 			{ icon: Icons.audio, label: "החלף", id: "replace" },
 			{ icon: Icons.speed, label: "מהירות", id: "speed" },
 			{ icon: Icons.volume, label: "עוצמת קול", id: "volume" },
+		]}
+		handleMenuItemClick={handleMenuItemClick}
+	/>
+);
+
+const ItemShape = ({
+	handleMenuItemClick,
+}: {
+	handleMenuItemClick: (menuItem: string, label: string) => void;
+}) => (
+	<ItemGroup
+		items={[
+			{ icon: Icons.basic, label: "בסיסי", id: "basic" },
+			{ icon: Icons.outline, label: "מסגרת וצל", id: "outline" },
 		]}
 		handleMenuItemClick={handleMenuItemClick}
 	/>

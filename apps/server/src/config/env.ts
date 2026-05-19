@@ -4,7 +4,7 @@ import fp from "fastify-plugin";
 
 export const envSchema = Type.Object({
 	// Server
-	PORT: Type.Number({ default: 4000 }),
+	PORT: Type.Number({ default: 4001 }),
 	HOST: Type.String({ default: "127.0.0.1" }),
 	MIN_TRANSCODE_SEGMENT_SECONDS: Type.Number({ default: 0.35 }),
 	FFMPEG_PRESET: Type.String({ default: "veryfast" }),
@@ -12,7 +12,7 @@ export const envSchema = Type.Object({
 	FFMPEG_AUDIO_BITRATE: Type.String({ default: "192k" }),
 	// Preview source (MPD → HLS)
 	CHANNEL_PLAY_API_BASE_URL: Type.String({ default: "" }),
-	SERVER_BASE_URL: Type.String({ default: "http://localhost:4000" }),
+	SERVER_BASE_URL: Type.String({ default: "http://localhost:4001" }),
 	MAX_PREVIEW_DURATION_MS: Type.Number({ default: 3600000 }), // 1 hour
 	PREVIEW_JOB_TTL_SECONDS: Type.Number({ default: 86400 }),
 	S3_PREVIEW_PREFIX: Type.String({ default: "preview" }),
