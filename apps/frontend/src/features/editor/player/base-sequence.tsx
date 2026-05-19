@@ -1,4 +1,3 @@
-import { TransitionSeries } from "@designcombo/transitions";
 import type { ISize, ITrackItem } from "@designcombo/types";
 import { AbsoluteFill, Sequence } from "remotion";
 import { calculateFrames } from "../utils/frames";
@@ -26,7 +25,7 @@ export const BaseSequence = ({
 	children: React.ReactNode;
 }) => {
 	const { details } = item as ITrackItem;
-	const { fps, isTransition } = options;
+	const { fps } = options;
 	const { from, durationInFrames } = calculateFrames(
 		{
 			from: item.display.from,
@@ -47,25 +46,6 @@ export const BaseSequence = ({
 			: typeof details?.background === "string"
 				? details?.background
 				: "transparent";
-
-	if (isTransition) {
-		return (
-			<TransitionSeries.Sequence
-				key={item.id}
-				durationInFrames={durationInFrames}
-				style={{ pointerEvents: "none" }}
-			>
-				<AbsoluteFill
-					id={item.id}
-					data-track-item="transition-element"
-					className={`designcombo-scene-item id-${item.id} designcombo-scene-item-type-${item.type}`}
-					style={calculateContainerStyles(details, crop, { background })}
-				>
-					{children}
-				</AbsoluteFill>
-			</TransitionSeries.Sequence>
-		);
-	}
 
 	return (
 		<Sequence

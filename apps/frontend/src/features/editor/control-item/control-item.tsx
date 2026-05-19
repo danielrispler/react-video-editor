@@ -43,7 +43,7 @@ const ActiveControlItem = ({
 };
 
 export const ControlItem = () => {
-	const { activeIds, trackItemsMap, transitionsMap } = useStore();
+	const { activeIds, trackItemsMap } = useStore();
 	const [trackItem, setTrackItem] = useState<ITrackItem | null>(null);
 	const { setTrackItem: setLayoutTrackItem } = useLayoutStore();
 
@@ -55,7 +55,6 @@ export const ControlItem = () => {
 				setTrackItem(item);
 				setLayoutTrackItem(item);
 			} else {
-				console.log(transitionsMap[id]);
 				setTrackItem(null);
 				setLayoutTrackItem(null);
 			}
@@ -63,7 +62,7 @@ export const ControlItem = () => {
 			setTrackItem(null);
 			setLayoutTrackItem(null);
 		}
-	}, [activeIds, trackItemsMap, transitionsMap, setLayoutTrackItem]);
+	}, [activeIds, trackItemsMap, setLayoutTrackItem]);
 
 	if (!trackItem) {
 		return <MenuItem />;

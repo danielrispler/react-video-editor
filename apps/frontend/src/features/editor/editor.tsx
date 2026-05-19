@@ -49,7 +49,10 @@ const SceneContainer = ({
 	isLargeScreen,
 }: any) => {
 	return (
-		<div className="relative flex h-full w-full flex-col bg-background">
+		<div
+			dir="ltr"
+			className="relative flex h-full w-full flex-col bg-background"
+		>
 			<div className="flex-1 relative overflow-hidden w-full h-full">
 				<div className="flex h-full flex-1">
 					<div className="flex-1 relative overflow-hidden w-full h-full">
@@ -85,7 +88,7 @@ const Editor = ({ tempId, id }: { tempId?: string; id?: string }) => {
 	const timelinePanelRef = useRef<ImperativePanelHandle>(null);
 	const sceneRef = useRef<SceneRef>(null);
 	const { timeline, playerRef } = useStore();
-	const { activeIds, trackItemsMap, transitionsMap } = useStore();
+	const { activeIds, trackItemsMap } = useStore();
 	const [loaded, setLoaded] = useState(false);
 	const [trackItem, setTrackItem] = useState<ITrackItem | null>(null);
 	const {
@@ -157,7 +160,7 @@ const Editor = ({ tempId, id }: { tempId?: string; id?: string }) => {
 			if (trackItem) {
 				setTrackItem(trackItem);
 				setLayoutTrackItem(trackItem);
-			} else console.log(transitionsMap[id]);
+			}
 		} else {
 			setTrackItem(null);
 			setLayoutTrackItem(null);

@@ -447,8 +447,6 @@ const clearProject = (stateManager: StateManager) => {
 			tracks: [],
 			trackItemIds: [],
 			trackItemsMap: {},
-			transitionIds: [],
-			transitionsMap: {},
 			structure: [],
 			activeIds: [],
 			duration: 0,

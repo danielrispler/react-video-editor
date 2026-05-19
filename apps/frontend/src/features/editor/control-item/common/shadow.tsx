@@ -45,7 +45,7 @@ function Shadow({
 
 			<div className="flex gap-2">
 				<div className="flex flex-1 items-center text-sm text-muted-foreground">
-					Color
+					צבע
 				</div>
 
 				{isLargeScreen ? (
@@ -72,7 +72,7 @@ function Shadow({
 								className="z-[300] w-[280px] p-4"
 							>
 								<div className="drag-handle flex w-[266px] cursor-grab justify-between rounded-t-lg bg-popover px-4 pt-4">
-									<p className="text-sm font-bold">Shadow</p>
+									<p className="text-sm font-bold">צל</p>
 									<div
 										className="h-4 w-4"
 										onClick={() => {
@@ -191,7 +191,7 @@ function Shadow({
 
 			<div className="flex gap-2">
 				<div className="flex flex-1 items-center text-sm text-muted-foreground">
-					Blur
+					טשטוש
 				</div>
 				<div className="relative w-32">
 					<Input

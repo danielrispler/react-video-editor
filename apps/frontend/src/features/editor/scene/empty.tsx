@@ -58,9 +58,9 @@ const SceneEmpty = () => {
 								<PlusIcon className="h-5 w-5" aria-hidden="true" />
 							</div>
 							<div className="flex flex-col gap-px">
-								<p className="text-sm text-muted-foreground">Click to upload</p>
+								<p className="text-sm text-muted-foreground">לחץ להעלאה</p>
 								<p className="text-xs text-muted-foreground/70">
-									Or drag and drop files here
+									או גרור ושחרר קבצים לכאן
 								</p>
 							</div>
 						</div>
@@ -69,7 +69,7 @@ const SceneEmpty = () => {
 			) : (
 				<div className="fixed top-0 left-0 z-50 flex h-screen w-screen flex-col items-center justify-center gap-4 bg-card">
 					<Loader2 className="h-8 w-8 animate-spin text-primary" />
-					<p className="text-sm text-muted-foreground">Loading...</p>
+					<p className="text-sm text-muted-foreground">טוען...</p>
 				</div>
 			)}
 		</div>

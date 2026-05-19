@@ -42,13 +42,13 @@ export default function Flip({
 	};
 	return (
 		<div className="flex flex-col gap-2 py-4">
-			<Label className="font-sans text-xs font-semibold">Flip</Label>
+			<Label className="font-sans text-xs font-semibold">היפוך</Label>
 			<div className="flex">
 				<Button variant="outline" onClick={() => handleFlip("x")}>
-					Flip X
+					היפוך אופקי
 				</Button>
 				<Button variant="outline" onClick={() => handleFlip("y")}>
-					Flip Y
+					היפוך אנכי
 				</Button>
 			</div>
 		</div>

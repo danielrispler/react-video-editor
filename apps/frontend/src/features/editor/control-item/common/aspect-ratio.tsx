@@ -9,7 +9,7 @@ export default function AspectRatio() {
 	return (
 		<div className="flex gap-2">
 			<div className="flex flex-1 items-center text-sm text-muted-foreground">
-				Lock Ratio
+				נעל יחס
 			</div>
 			<div className="w-32">
 				<ToggleGroup
@@ -21,10 +21,10 @@ export default function AspectRatio() {
 					variant={"default"}
 				>
 					<ToggleGroupItem value="locked" aria-label="Toggle italic">
-						Yes
+						כן
 					</ToggleGroupItem>
 					<ToggleGroupItem size="sm" value="unlocked" aria-label="Toggle left">
-						No
+						לא
 					</ToggleGroupItem>
 				</ToggleGroup>
 			</div>

@@ -520,7 +520,7 @@ const ControlItem = ({
 };
 
 export default function ControlItemHorizontal() {
-	const { activeIds, trackItemsMap, transitionsMap } = useStore();
+	const { activeIds, trackItemsMap } = useStore();
 	const [trackItem, setTrackItem] = useState<ITrackItem | null>(null);
 	const { setTrackItem: setLayoutTrackItem } = useLayoutStore();
 	const isLargeScreen = useIsLargeScreen();
@@ -542,7 +542,7 @@ export default function ControlItemHorizontal() {
 			if (trackItem) {
 				setTrackItem(trackItem);
 				setLayoutTrackItem(trackItem);
-			} else console.log(transitionsMap[id]);
+			}
 		} else {
 			setTrackItem(null);
 			setLayoutTrackItem(null);
@@ -708,11 +708,11 @@ const ItemText = ({
 }) => (
 	<ItemGroup
 		items={[
-			{ icon: Icons.preset, label: "Preset", id: "textPreset" },
-			{ icon: Icons.style, label: "Styles", id: "textControls" },
-			{ icon: Icons.animation, label: "Animations", id: "animations" },
-			{ icon: Icons.fontStroke, label: "Stroke", id: "fontStroke" },
-			{ icon: Icons.fontShadow, label: "Shadow", id: "fontShadow" },
+			{ icon: Icons.preset, label: "תבנית", id: "textPreset" },
+			{ icon: Icons.style, label: "סגנונות", id: "textControls" },
+			{ icon: Icons.animation, label: "אנימציות", id: "animations" },
+			{ icon: Icons.fontStroke, label: "קו מתאר", id: "fontStroke" },
+			{ icon: Icons.fontShadow, label: "צל", id: "fontShadow" },
 		]}
 		handleMenuItemClick={handleMenuItemClick}
 	/>
@@ -725,12 +725,12 @@ const ItemCaption = ({
 }) => (
 	<ItemGroup
 		items={[
-			{ icon: Icons.preset, label: "Preset", id: "captionPreset" },
-			{ icon: Icons.type, label: "Words", id: "captionWords" },
-			{ icon: Icons.style, label: "Styles", id: "textControls" },
-			{ icon: Icons.animation, label: "Colors", id: "captionColors" },
-			{ icon: Icons.fontStroke, label: "Stroke", id: "fontStroke" },
-			{ icon: Icons.fontShadow, label: "Shadow", id: "fontShadow" },
+			{ icon: Icons.preset, label: "תבנית", id: "captionPreset" },
+			{ icon: Icons.type, label: "מילים", id: "captionWords" },
+			{ icon: Icons.style, label: "סגנונות", id: "textControls" },
+			{ icon: Icons.animation, label: "צבעים", id: "captionColors" },
+			{ icon: Icons.fontStroke, label: "קו מתאר", id: "fontStroke" },
+			{ icon: Icons.fontShadow, label: "צל", id: "fontShadow" },
 		]}
 		handleMenuItemClick={handleMenuItemClick}
 	/>
@@ -743,11 +743,11 @@ const ItemImage = ({
 }) => (
 	<ItemGroup
 		items={[
-			{ icon: Icons.crop, label: "Crop", id: "crop" },
-			{ icon: Icons.basic, label: "Basic", id: "basic" },
-			{ icon: Icons.animation, label: "Animations", id: "animations" },
-			{ icon: Icons.outline, label: "Outline", id: "outline" },
-			{ icon: Icons.shadow, label: "Shadow", id: "shadow" },
+			{ icon: Icons.crop, label: "חיתוך", id: "crop" },
+			{ icon: Icons.basic, label: "בסיסי", id: "basic" },
+			{ icon: Icons.animation, label: "אנימציות", id: "animations" },
+			{ icon: Icons.outline, label: "מסגרת", id: "outline" },
+			{ icon: Icons.shadow, label: "צל", id: "shadow" },
 		]}
 		handleMenuItemClick={handleMenuItemClick}
 	/>
@@ -760,11 +760,11 @@ const ItemVideo = ({
 }) => (
 	<ItemGroup
 		items={[
-			{ icon: Icons.crop, label: "Crop", id: "crop" },
-			{ icon: Icons.basic, label: "Basic", id: "basic" },
-			{ icon: Icons.animation, label: "Animations", id: "animations" },
-			{ icon: Icons.outline, label: "Outline", id: "outline" },
-			{ icon: Icons.shadow, label: "Shadow", id: "shadow" },
+			{ icon: Icons.crop, label: "חיתוך", id: "crop" },
+			{ icon: Icons.basic, label: "בסיסי", id: "basic" },
+			{ icon: Icons.animation, label: "אנימציות", id: "animations" },
+			{ icon: Icons.outline, label: "מסגרת", id: "outline" },
+			{ icon: Icons.shadow, label: "צל", id: "shadow" },
 		]}
 		handleMenuItemClick={handleMenuItemClick}
 	/>
@@ -777,9 +777,9 @@ const ItemAudio = ({
 }) => (
 	<ItemGroup
 		items={[
-			{ icon: Icons.audio, label: "Replace", id: "replace" },
-			{ icon: Icons.speed, label: "Speed", id: "speed" },
-			{ icon: Icons.volume, label: "Volume", id: "volume" },
+			{ icon: Icons.audio, label: "החלף", id: "replace" },
+			{ icon: Icons.speed, label: "מהירות", id: "speed" },
+			{ icon: Icons.volume, label: "עוצמת קול", id: "volume" },
 		]}
 		handleMenuItemClick={handleMenuItemClick}
 	/>

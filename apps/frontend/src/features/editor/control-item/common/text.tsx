@@ -58,7 +58,7 @@ export const TextControls = ({
 			{typeof onChangeText === "function" ? (
 				<TextContent value={textValue || ""} onChange={onChangeText} />
 			) : null}
-			<Label className="font-sans text-xs font-semibold">Styles</Label>
+			<Label className="font-sans text-xs font-semibold">סגנונות</Label>
 			<FontFamily
 				handleChangeFont={onChangeFontFamily}
 				fontFamilyDisplay={properties.fontFamilyDisplay}
@@ -101,7 +101,7 @@ const TextContent = ({
 }) => {
 	return (
 		<div className="flex flex-col gap-2">
-			<Label className="font-sans text-xs font-semibold">Content</Label>
+			<Label className="font-sans text-xs font-semibold">תוכן</Label>
 			<Textarea
 				value={value}
 				onChange={(event) => onChange(event.target.value)}
@@ -139,7 +139,7 @@ const FontBackground = ({
 	return (
 		<div className="flex gap-2">
 			<div className="flex flex-1 items-center text-sm text-muted-foreground">
-				Fill
+				מילוי
 			</div>
 			{isLargeScreen ? (
 				<div className="relative w-32">
@@ -165,7 +165,7 @@ const FontBackground = ({
 							className="z-[300] w-[280px] p-4"
 						>
 							<div className="drag-handle flex w-[266px] cursor-grab justify-between rounded-t-lg bg-popover px-4 pt-4">
-								<p className="text-sm font-bold">Fill</p>
+								<p className="text-sm font-bold">מילוי</p>
 								<div
 									className="h-4 w-4"
 									onClick={() => {
@@ -236,7 +236,7 @@ const FontColor = ({
 	return (
 		<div className="flex gap-2">
 			<div className="flex flex-1 items-center text-sm text-muted-foreground">
-				Color
+				צבע
 			</div>
 			{isLargeScreen ? (
 				<div className="relative w-32">
@@ -261,7 +261,7 @@ const FontColor = ({
 							className="z-[300] w-[280px] p-4"
 						>
 							<div className="drag-handle flex w-[266px] cursor-grab justify-between rounded-t-lg bg-popover px-4 pt-4">
-								<p className="text-sm font-bold">Color</p>
+								<p className="text-sm font-bold">צבע</p>
 								<div
 									className="h-4 w-4"
 									onClick={() => {
@@ -335,7 +335,7 @@ const FontSize = ({
 	return (
 		<div className="flex gap-2">
 			<div className="flex flex-1 items-center text-sm text-muted-foreground">
-				Size
+				גודל
 			</div>
 			<div className="relative w-32">
 				<Input
@@ -382,7 +382,7 @@ const FontFamily = ({
 	return (
 		<div className="flex gap-2">
 			<div className="flex flex-1 items-center text-sm text-muted-foreground">
-				Font
+				גופן
 			</div>
 			{isLargeScreen ? (
 				<div className="relative w-32">
@@ -417,7 +417,7 @@ const FontFamily = ({
 								<Search className="h-5 w-5 text-muted-foreground" />
 								<Input
 									type="email"
-									placeholder="Search font..."
+									placeholder="חפש גופן..."
 									className="border-0 focus-visible:ring-0 shadow-none !bg-transparent"
 									value={value}
 									onChange={(e) => setValue(e.target.value)}
@@ -444,7 +444,7 @@ const FontFamily = ({
 									))
 								) : (
 									<p className="py-2 text-center text-sm text-muted-foreground">
-										No font found
+										לא נמצא גופן
 									</p>
 								)}
 							</ScrollArea>
@@ -465,7 +465,7 @@ const FontStyle = ({
 	return (
 		<div className="flex gap-2">
 			<div className="flex flex-1 items-center text-sm text-muted-foreground">
-				Weight
+				עובי גופן
 			</div>
 			<div className="relative w-32">
 				<Popover>
@@ -519,7 +519,7 @@ const TextDecoration = ({
 	return (
 		<div className="flex gap-2">
 			<div className="flex flex-1 items-center text-sm text-muted-foreground">
-				Decoration
+				קישוט
 			</div>
 			<div className="flex gap-2">
 				<div className="relative w-32">
@@ -567,9 +567,9 @@ const TextDecoration = ({
 };
 
 const fontAlignmentOptions = [
-	{ value: "left", label: "Left" },
-	{ value: "center", label: "Center" },
-	{ value: "right", label: "Right" },
+	{ value: "left", label: "שמאל" },
+	{ value: "center", label: "מרכז" },
+	{ value: "right", label: "ימין" },
 ];
 
 const Alignment = ({
@@ -588,7 +588,7 @@ const Alignment = ({
 	return (
 		<div className="flex gap-2">
 			<div className="flex flex-1 items-center text-sm text-muted-foreground">
-				Align
+				יישור
 			</div>
 			<div className="flex gap-2">
 				<div className="relative w-32">
@@ -629,9 +629,9 @@ const Alignment = ({
 };
 
 const fontCaseOptions = [
-	{ value: "none", label: "As typed" },
-	{ value: "uppercase", label: "Uppercase" },
-	{ value: "lowercase", label: "Lowercase" },
+	{ value: "none", label: "כמו שנכתב" },
+	{ value: "uppercase", label: "אותיות גדולות" },
+	{ value: "lowercase", label: "אותיות קטנות" },
 ];
 
 const FontCase = ({ id }: { id: string }) => {
@@ -651,7 +651,7 @@ const FontCase = ({ id }: { id: string }) => {
 	return (
 		<div className="flex gap-2">
 			<div className="flex flex-1 items-center text-sm text-muted-foreground">
-				Case
+				אותיות
 			</div>
 			<div className="relative w-32">
 				<div className="relative w-32">

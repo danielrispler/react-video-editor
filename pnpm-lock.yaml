@@ -32,9 +32,6 @@ importers:
       '@designcombo/timeline':
         specifier: ^5.5.8
         version: 5.5.8(@designcombo/events@1.0.2)(@designcombo/types@5.5.8)(@types/lodash-es@4.17.12)
-      '@designcombo/transitions':
-        specifier: ^5.5.8
-        version: 5.5.8(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(remotion@4.0.456(react-dom@19.2.5(react@19.2.5))(react@19.2.5))
       '@emotion/react':
         specifier: ^11.14.0
         version: 11.14.0(@types/react@19.2.14)(react@19.2.5)
@@ -726,12 +723,6 @@ packages:
       '@designcombo/events': ^1.0.2
       '@designcombo/types': 5.5.8
       '@types/lodash-es': ^4.17.12
-
-  '@designcombo/transitions@5.5.8':
-    resolution: {integrity: sha512-IaXOJWRgto/0mtCxFFkJDhwQ5LzvxSIz310zOEx4jjYUm/r6I9r0CMnnFRkZ++P/8i5dQY/XlDKHKRJqz2uZOQ==}
-    peerDependencies:
-      react: ^18.0.0 || ^19.0.0
-      remotion: 4.0.340
 
   '@designcombo/types@5.5.8':
     resolution: {integrity: sha512-fhgYm55vn5c48j2Ur6LlQYT/2Xzgy6ItvDQfz9yD3M02LqO/Vb5xT9EY3/qCCSaluI9GFjCAM9N8cjkvdEalWg==}
@@ -2373,9 +2364,6 @@ packages:
       react: '>=16.8.0'
       react-dom: '>=16.8.0'
 
-  '@remotion/paths@4.0.340':
-    resolution: {integrity: sha512-cOKj+SDnh+r8yQZ6WR5hHDPFW5rCdttzH19xvlWd9sRYuE/QnU63CQsaqkiPOkhwu57v9BxkcKTkQ+pWetgPCA==}
-
   '@remotion/paths@4.0.456':
     resolution: {integrity: sha512-RkKEbjEttNPouHuIQK5RCsU5ecXge4uFfq1Q690+b3D10+XuEZSDauAcyanpJsKvzCjhhQ0dHxDpuhJVZORIYg==}
 
@@ -2387,12 +2375,6 @@ packages:
 
   '@remotion/renderer@4.0.456':
     resolution: {integrity: sha512-GWQSBmao+Njl5ZnfP0xohK9Nk9LziYRPJ8kM+A8yTy33cTSPRL0yeMCse6iBsxpj2XrA6Ci58OWrSwYDLbhKTA==}
-    peerDependencies:
-      react: '>=16.8.0'
-      react-dom: '>=16.8.0'
-
-  '@remotion/shapes@4.0.340':
-    resolution: {integrity: sha512-JkRHB2KFPYxqpH3ubBCoAkBhFPu8xnWc/g/P+Hc61Ogh9SaHQsh7BjkT4lRDn3L3izJ87mv2w/vuqVM8k5+YwA==}
     peerDependencies:
       react: '>=16.8.0'
       react-dom: '>=16.8.0'
@@ -2426,12 +2408,6 @@ packages:
       react-dom: '>=16.8.0'
       remotion: 4.0.456
       three: '>=0.137.0'
-
-  '@remotion/transitions@4.0.340':
-    resolution: {integrity: sha512-rtPVTiaggAAZuNBYWcBDFy2sC7q41hOQ4totgxCyku+ReXcaeFmjjSVQQs9c4M9R5Wi0K9CrBE0E3Y3pA8l1TQ==}
-    peerDependencies:
-      react: '>=16.8.0'
-      react-dom: '>=16.8.0'
 
   '@remotion/transitions@4.0.456':
     resolution: {integrity: sha512-No5tUpinWe2F9qjVo1Z+2vNI2IsukTZ6WSbBTvqLmBS3/ACBf83djcBNIjqo/DTcM9CkzljHV9+sVVNxhc//yA==}
@@ -4942,12 +4918,6 @@ packages:
   remeda@2.34.0:
     resolution: {integrity: sha512-zL4cEPkLHxwmlDRPyvJZjojpG5M5HXrDiABNKof+dq7kkuyQttP6NrF2uJB0DKIU09K8cTq+sQDlbo2r7mdR5Q==}
 
-  remotion@4.0.340:
-    resolution: {integrity: sha512-AqfJCUFSVYoi0Hfepo9c6THOdu19GskMFxegdy8PRsn7H1pUUlkXiqPPQvL5v6I9qt8TYwlfbZRwY7cihzy27g==}
-    peerDependencies:
-      react: '>=16.8.0'
-      react-dom: '>=16.8.0'
-
   remotion@4.0.456:
     resolution: {integrity: sha512-yi0joZ0u4hIdhcSKV+Ou3myP5qQbzSyb592AjYUli1O9oOOt+CGFFn3LNNii4vI6pqM2Wjh+X1x9iSuITo7Vhw==}
     peerDependencies:
@@ -6279,16 +6249,6 @@ snapshots:
       - encoding
       - supports-color
       - utf-8-validate
-
-  '@designcombo/transitions@5.5.8(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(remotion@4.0.456(react-dom@19.2.5(react@19.2.5))(react@19.2.5))':
-    dependencies:
-      '@remotion/paths': 4.0.340
-      '@remotion/shapes': 4.0.340(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
-      '@remotion/transitions': 4.0.340(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
-      react: 19.2.5
-      remotion: 4.0.456(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
-    transitivePeerDependencies:
-      - react-dom
 
   '@designcombo/types@5.5.8':
     dependencies:
@@ -7726,7 +7686,7 @@ snapshots:
       react-refresh: 0.18.0
       remotion: 4.0.456(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       source-map: 0.7.3
-      style-loader: 4.0.0(webpack@5.105.0)
+      style-loader: 4.0.0(webpack@5.105.0(esbuild@0.25.0))
       webpack: 5.105.0(esbuild@0.25.0)
     transitivePeerDependencies:
       - '@swc/core'
@@ -7803,8 +7763,6 @@ snapshots:
       remotion: 4.0.456(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       zod: 4.3.6
 
-  '@remotion/paths@4.0.340': {}
-
   '@remotion/paths@4.0.456': {}
 
   '@remotion/player@4.0.456(react-dom@19.2.5(react@19.2.5))(react@19.2.5)':
@@ -7836,12 +7794,6 @@ snapshots:
       - bufferutil
       - supports-color
       - utf-8-validate
-
-  '@remotion/shapes@4.0.340(react-dom@19.2.5(react@19.2.5))(react@19.2.5)':
-    dependencies:
-      '@remotion/paths': 4.0.340
-      react: 19.2.5
-      react-dom: 19.2.5(react@19.2.5)
 
   '@remotion/shapes@4.0.456(react-dom@19.2.5(react@19.2.5))(react@19.2.5)':
     dependencies:
@@ -7913,14 +7865,6 @@ snapshots:
       react-dom: 19.2.5(react@19.2.5)
       remotion: 4.0.456(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       three: 0.184.0
-
-  '@remotion/transitions@4.0.340(react-dom@19.2.5(react@19.2.5))(react@19.2.5)':
-    dependencies:
-      '@remotion/paths': 4.0.340
-      '@remotion/shapes': 4.0.340(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
-      react: 19.2.5
-      react-dom: 19.2.5(react@19.2.5)
-      remotion: 4.0.340(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
 
   '@remotion/transitions@4.0.456(react-dom@19.2.5(react@19.2.5))(react@19.2.5)':
     dependencies:
@@ -10888,11 +10832,6 @@ snapshots:
 
   remeda@2.34.0: {}
 
-  remotion@4.0.340(react-dom@19.2.5(react@19.2.5))(react@19.2.5):
-    dependencies:
-      react: 19.2.5
-      react-dom: 19.2.5(react@19.2.5)
-
   remotion@4.0.456(react-dom@19.2.5(react@19.2.5))(react@19.2.5):
     dependencies:
       react: 19.2.5
@@ -11153,7 +11092,7 @@ snapshots:
 
   strnum@2.2.3: {}
 
-  style-loader@4.0.0(webpack@5.105.0):
+  style-loader@4.0.0(webpack@5.105.0(esbuild@0.25.0)):
     dependencies:
       webpack: 5.105.0(esbuild@0.25.0)
 

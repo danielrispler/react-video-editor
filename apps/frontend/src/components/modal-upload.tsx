@@ -197,7 +197,7 @@ const ModalUpload: React.FC<ModalUploadProps> = ({ type = "all" }) => {
 			<Dialog open={showUploadModal} onOpenChange={setShowUploadModal}>
 				<DialogContent>
 					<DialogHeader>
-						<DialogTitle className="text-md">Upload media</DialogTitle>
+						<DialogTitle className="text-md">העלה מדיה</DialogTitle>
 					</DialogHeader>
 					<div className="space-y-6">
 						<label className="flex flex-col gap-2">
@@ -222,10 +222,10 @@ const ModalUpload: React.FC<ModalUploadProps> = ({ type = "all" }) => {
 							>
 								<UploadIcon className="mx-auto h-8 w-8 text-muted-foreground mb-2" />
 								<p className="text-sm text-muted-foreground mb-2">
-									Drag and drop files here, or
+									גרור ושחרר קבצים לכאן, או
 								</p>
 								<Button onClick={triggerFileInput} variant="outline" size="sm">
-									browse files
+									עיין בקבצים
 								</Button>
 							</div>
 						</label>
@@ -233,7 +233,7 @@ const ModalUpload: React.FC<ModalUploadProps> = ({ type = "all" }) => {
 						{files.length > 0 && (
 							<div className="flex flex-col gap-2 mt-2">
 								<span className="text-xs text-muted-foreground">
-									Selected files:
+									קבצים נבחרים:
 								</span>
 								<ScrollArea className="max-h-48">
 									<AnimatePresence initial={false}>
@@ -308,10 +308,10 @@ const ModalUpload: React.FC<ModalUploadProps> = ({ type = "all" }) => {
 					</div>
 					<DialogFooter>
 						<Button variant="outline" onClick={() => setShowUploadModal(false)}>
-							Cancel
+							ביטול
 						</Button>
 						<Button onClick={handleUpload} disabled={files.length === 0}>
-							Upload
+							העלה
 						</Button>
 					</DialogFooter>
 				</DialogContent>

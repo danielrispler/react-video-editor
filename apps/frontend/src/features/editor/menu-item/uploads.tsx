@@ -175,7 +175,7 @@ export const Uploads = () => {
 				variant={"outline"}
 			>
 				<UploadIcon className="w-4 h-4" />
-				<span className="ml-2">Upload</span>
+				<span className="ml-2">העלה</span>
 			</Button>
 		</div>
 	);
@@ -195,7 +195,7 @@ export const Uploads = () => {
 				<div className="flex flex-col items-center justify-center py-10 text-muted-foreground gap-2">
 					<Upload size={32} className="opacity-50" />
 					<span className="text-sm">
-						{uploads.length === 0 ? "No uploads yet" : "No matches found"}
+						{uploads.length === 0 ? "עדיין אין העלאות" : "לא נמצאו תוצאות"}
 					</span>
 				</div>
 			)}
@@ -205,7 +205,7 @@ export const Uploads = () => {
 				<div className="p-4">
 					<div className="font-medium text-sm mb-2 flex items-center gap-2">
 						<Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
-						Uploads in Progress
+						העלאות בתהליך
 					</div>
 					<div className="flex flex-col gap-2">
 						{pendingUploads.map((upload) => (
@@ -213,7 +213,7 @@ export const Uploads = () => {
 								<span className="truncate text-xs flex-1">
 									{getUploadLabel(upload, "Unknown")}
 								</span>
-								<span className="text-xs text-muted-foreground">Pending</span>
+								<span className="text-xs text-muted-foreground">ממתין</span>
 							</div>
 						))}
 						{activeUploads.map((upload) => (
@@ -240,7 +240,7 @@ export const Uploads = () => {
 					<div>
 						<div className="flex items-center gap-2 mb-2">
 							<VideoIcon className="w-4 h-4 text-muted-foreground" />
-							<span className="font-medium text-sm">Videos</span>
+							<span className="font-medium text-sm">סרטונים</span>
 						</div>
 						<ScrollArea className="h-52">
 							<div className="grid grid-cols-3 gap-2 max-w-full">
@@ -273,7 +273,7 @@ export const Uploads = () => {
 					<div>
 						<div className="flex items-center gap-2 mb-2">
 							<ImageIcon className="w-4 h-4 text-muted-foreground" />
-							<span className="font-medium text-sm">Images</span>
+							<span className="font-medium text-sm">תמונות</span>
 						</div>
 						<ScrollArea className="h-52">
 							<div className="grid grid-cols-3 gap-2 max-w-full">
@@ -306,7 +306,7 @@ export const Uploads = () => {
 					<div>
 						<div className="flex items-center gap-2 mb-2">
 							<Music className="w-4 h-4 text-muted-foreground" />
-							<span className="font-medium text-sm">Audios</span>
+							<span className="font-medium text-sm">קטעי שמע</span>
 						</div>
 						<ScrollArea className="h-52">
 							<div className="grid grid-cols-3 gap-2 max-w-full">

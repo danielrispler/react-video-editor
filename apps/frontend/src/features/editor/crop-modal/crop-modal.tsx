@@ -123,21 +123,21 @@ const CropModal = () => {
 				>
 					<DialogOverlay className="z-[300] bg-zinc-950/80">
 						<DialogContent className="z-[300] flex max-h-[800px] w-full sm:max-w-[900px] flex-col bg-zinc-950 px-8">
-							<DialogTitle>Crop</DialogTitle>
+							<DialogTitle>חיתוך</DialogTitle>
 
 							<div className="flex gap-4">
 								<div className="w-56 flex flex-col gap-2">
-									<Label>Aspect Ratio</Label>
+									<Label>יחס גובה-רוחב</Label>
 									<Select
 										value={aspectRatio}
 										onValueChange={setAspectRatio}
 										defaultValue="free"
 									>
 										<SelectTrigger className="w-full">
-											<SelectValue placeholder="Select ratio" />
+											<SelectValue placeholder="בחר יחס" />
 										</SelectTrigger>
 										<SelectContent className="z-[1000]">
-											<SelectItem value="free">Free</SelectItem>
+											<SelectItem value="free">חופשי</SelectItem>
 											<SelectItem value="1:1">1:1</SelectItem>
 											<SelectItem value="2:3">2:3</SelectItem>
 											<SelectItem value="3:2">3:2</SelectItem>
@@ -167,9 +167,9 @@ const CropModal = () => {
 							</div>
 							<div className="flex h-16 items-center justify-end gap-4">
 								<Button variant="secondary" onClick={reset}>
-									Reset
+									אפס
 								</Button>
-								<Button onClick={apply}>Apply</Button>
+								<Button onClick={apply}>החל</Button>
 							</div>
 						</DialogContent>
 					</DialogOverlay>

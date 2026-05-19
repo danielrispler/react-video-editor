@@ -27,10 +27,10 @@ import DownloadProgressModal from "./download-progress-modal";
 import { useDownloadState } from "./store/use-download-state";
 
 const CANVAS_PRESETS = [
-	{ label: "Portrait", width: 1080, height: 1920 },
-	{ label: "Landscape", width: 1920, height: 1080 },
-	{ label: "Square", width: 1080, height: 1080 },
-	{ label: "Story", width: 720, height: 1280 },
+	{ label: "דיוקן", width: 1080, height: 1920 },
+	{ label: "נוף", width: 1920, height: 1080 },
+	{ label: "ריבוע", width: 1080, height: 1080 },
+	{ label: "סטורי", width: 720, height: 1280 },
 ];
 
 const MIN_CANVAS_SIZE = 64;
@@ -209,7 +209,7 @@ const CanvasSizePopover = ({
 					className="h-8 rounded-full border border-border"
 					variant="outline"
 				>
-					Canvas
+					קנבס
 				</Button>
 			</PopoverTrigger>
 			<PopoverContent
@@ -217,15 +217,15 @@ const CanvasSizePopover = ({
 				className="bg-sidebar z-[250] flex w-72 flex-col gap-4"
 			>
 				<div className="space-y-1">
-					<Label>Canvas size</Label>
+					<Label>גודל קנבס</Label>
 					<p className="text-muted-foreground text-xs">
-						Update the editor and export resolution.
+						עדכן את רזולוציית העורך והייצוא.
 					</p>
 				</div>
 
 				<div className="grid grid-cols-2 gap-2">
 					<div className="space-y-1">
-						<Label htmlFor="canvas-width">Width</Label>
+						<Label htmlFor="canvas-width">רוחב</Label>
 						<Input
 							id="canvas-width"
 							min={MIN_CANVAS_SIZE}
@@ -237,7 +237,7 @@ const CanvasSizePopover = ({
 						/>
 					</div>
 					<div className="space-y-1">
-						<Label htmlFor="canvas-height">Height</Label>
+						<Label htmlFor="canvas-height">גובה</Label>
 						<Input
 							id="canvas-height"
 							min={MIN_CANVAS_SIZE}
@@ -264,7 +264,7 @@ const CanvasSizePopover = ({
 					))}
 				</div>
 
-				<Button onClick={onApply}>Apply</Button>
+				<Button onClick={onApply}>החל</Button>
 			</PopoverContent>
 		</Popover>
 	);
@@ -298,14 +298,14 @@ const DownloadPopover = ({ stateManager }: { stateManager: StateManager }) => {
 					size={isMediumScreen ? "sm" : "icon"}
 				>
 					{/* <Download width={18} />{" "} */}
-					<span className="hidden md:block">Download</span>
+					<span className="hidden md:block">הורדה</span>
 				</Button>
 			</PopoverTrigger>
 			<PopoverContent
 				align="end"
 				className="bg-sidebar z-[250] flex w-60 flex-col gap-4"
 			>
-				<Label>Export settings</Label>
+				<Label>הגדרות ייצוא</Label>
 
 				<Popover open={isExportTypeOpen} onOpenChange={setIsExportTypeOpen}>
 					<PopoverTrigger asChild>
@@ -347,7 +347,7 @@ const DownloadPopover = ({ stateManager }: { stateManager: StateManager }) => {
 
 				<div>
 					<Button onClick={handleExport} className="w-full">
-						Export
+						ייצא
 					</Button>
 				</div>
 			</PopoverContent>

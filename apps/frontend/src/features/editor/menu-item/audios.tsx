@@ -131,7 +131,7 @@ export const Audios = () => {
 						)}
 					</Button>
 					<Input
-						placeholder="Search stock audios..."
+						placeholder="חפש מוזיקת רקע..."
 						value={searchQuery}
 						onChange={handleSearchChange}
 						onKeyPress={(e) => {
@@ -149,7 +149,7 @@ export const Audios = () => {
 						// onClick={handleClearSearch}
 						disabled={isLoading}
 					>
-						Clear
+						נקה
 					</Button>
 				)}
 			</div>
@@ -161,7 +161,7 @@ export const Audios = () => {
 				) : uniqueResults.length === 0 ? (
 					<div className="flex flex-col items-center justify-center py-10 text-muted-foreground gap-2">
 						<Music2 size={32} className="opacity-50" />
-						<span className="text-sm">No music found</span>
+						<span className="text-sm">לא נמצאה מוזיקה</span>
 					</div>
 				) : (
 					<div className="flex flex-col gap-2">
@@ -185,7 +185,7 @@ export const Audios = () => {
 							className="bg-primary/60 hover:bg-primary/80"
 						>
 							{isMoreLoading && <Loader2 className="animate-spin" size={12} />}
-							Load More
+							טען עוד
 						</Button>
 					</div>
 				)}

@@ -174,8 +174,7 @@ const Header = () => {
 							size={isLargeScreen ? "sm" : "icon"}
 							className="flex items-center gap-1 px-2"
 						>
-							<Trash size={14} />{" "}
-							<span className="hidden lg:block">Delete</span>
+							<Trash size={14} /> <span className="hidden lg:block">מחק</span>
 						</Button>
 
 						<Button
@@ -186,7 +185,7 @@ const Header = () => {
 							className="flex items-center gap-1 px-2"
 						>
 							<SquareSplitHorizontal size={15} />{" "}
-							<span className="hidden lg:block">Split</span>
+							<span className="hidden lg:block">פצל</span>
 						</Button>
 						<Button
 							disabled={!activeIds.length}
@@ -198,7 +197,7 @@ const Header = () => {
 							className="flex items-center gap-1 px-2"
 						>
 							<SquareSplitHorizontal size={15} />{" "}
-							<span className="hidden lg:block">Clone</span>
+							<span className="hidden lg:block">שכפל</span>
 						</Button>
 					</div>
 					<div className="flex items-center justify-center">

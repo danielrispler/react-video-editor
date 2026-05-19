@@ -66,7 +66,6 @@ export const design = {
 		"fnrFoQi3tzyp37z1",
 		"qcQkSDVFoVGK39oH",
 	],
-	transitionsMap: {},
 	trackItemsMap: {
 		Sg1khxvLnuxK9gwN: {
 			id: "Sg1khxvLnuxK9gwN",
@@ -840,5 +839,4 @@ export const design = {
 			isMain: false,
 		},
 	},
-	transitionIds: [],
 };

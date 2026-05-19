@@ -24,18 +24,13 @@ interface MenuItemData {
 const menuItems: MenuItemData[] = [
 	{
 		id: "texts",
-		label: "Text",
+		label: "טקסט",
 		icon: Icons.type,
 	},
 	{
 		id: "audios",
-		label: "Audio",
+		label: "שמע",
 		icon: Icons.audio,
-	},
-	{
-		id: "transitions",
-		label: "Transitions",
-		icon: Icons.transition,
 	},
 ];
 
@@ -111,9 +106,9 @@ export default function MenuListHorizontal() {
 					<DrawerContent className="max-h-[80vh] min-h-[340px] mt-0">
 						<VisuallyHidden>
 							<DrawerHeader>
-								<DrawerTitle>Menu Options</DrawerTitle>
+								<DrawerTitle>אפשרויות תפריט</DrawerTitle>
 								<DrawerDescription>
-									Select from available menu options
+									בחר מאפשרויות התפריט הזמינות
 								</DrawerDescription>
 							</DrawerHeader>
 						</VisuallyHidden>

@@ -6,7 +6,6 @@ import type {
 	ITimelineScrollState,
 	ITrack,
 	ITrackItem,
-	ITransition,
 	ItemStructure,
 } from "@designcombo/types";
 import type { Moveable } from "@interactify/toolkit";
@@ -22,8 +21,6 @@ interface ITimelineStore {
 	setSize: (size: ISize) => void;
 	tracks: ITrack[];
 	trackItemIds: string[];
-	transitionIds: string[];
-	transitionsMap: Record<string, ITransition>;
 	trackItemsMap: Record<string, ITrackItem>;
 	structure: ItemStructure[];
 	activeIds: string[];
@@ -85,8 +82,6 @@ const useStore = create<ITimelineStore>((set) => ({
 	targetIds: [],
 	tracks: [],
 	trackItemIds: [],
-	transitionIds: [],
-	transitionsMap: {},
 	trackItemsMap: {},
 	sceneMoveableRef: null,
 

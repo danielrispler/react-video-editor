@@ -20,7 +20,7 @@ const Brightness = ({
 	return (
 		<div className="flex gap-2">
 			<div className="flex flex-1 items-center text-sm text-muted-foreground">
-				Brightness
+				בהירות
 			</div>
 			<div
 				className="w-32"

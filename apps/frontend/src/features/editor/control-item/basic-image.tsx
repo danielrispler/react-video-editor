@@ -182,7 +182,7 @@ const BasicImage = ({
 			key: "crop",
 			component: (
 				<div className="flex flex-col gap-2">
-					<Label className="font-sans text-xs font-semibold">Crop</Label>
+					<Label className="font-sans text-xs font-semibold">חיתוך</Label>
 					<div className="mb-4">
 						<Button
 							variant={"secondary"}
@@ -201,7 +201,7 @@ const BasicImage = ({
 			key: "basic",
 			component: (
 				<div className="flex flex-col gap-2">
-					<Label className="font-sans text-xs font-semibold">Basic</Label>
+					<Label className="font-sans text-xs font-semibold">בסיסי</Label>
 
 					<AspectRatio />
 					<Rounded

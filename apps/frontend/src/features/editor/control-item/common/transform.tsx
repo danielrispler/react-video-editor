@@ -9,9 +9,9 @@ const Transform = () => {
 
 	return (
 		<div className="flex flex-col gap-2">
-			<div>Transform</div>
+			<div>שינוי</div>
 			<div className="flex flex-col gap-2">
-				<div className="text-sm text-zinc-400">Scale</div>
+				<div className="text-sm text-zinc-400">שינוי גודל</div>
 				<div
 					style={{
 						display: "grid",
@@ -40,7 +40,7 @@ const Transform = () => {
 			</div>
 
 			<div className="flex flex-col gap-2">
-				<div className="text-sm text-zinc-400">Position</div>
+				<div className="text-sm text-zinc-400">מיקום</div>
 				<div
 					style={{
 						display: "grid",
@@ -74,7 +74,7 @@ const Transform = () => {
 			</div>
 
 			<div className="flex flex-col gap-2">
-				<div className="text-sm text-zinc-400">Rotate</div>
+				<div className="text-sm text-zinc-400">סיבוב</div>
 				<div
 					style={{
 						display: "grid",

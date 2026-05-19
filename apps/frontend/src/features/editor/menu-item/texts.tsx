@@ -24,7 +24,7 @@ export const Texts = () => {
 					data={TEXT_ADD_PAYLOAD}
 					renderCustomPreview={
 						<Button variant="secondary" className="w-60">
-							Add text
+							הוסף טקסט
 						</Button>
 					}
 					shouldDisplayPreview={!isDraggingOverTimeline}
@@ -36,7 +36,7 @@ export const Texts = () => {
 							"cursor-pointer",
 						)}
 					>
-						Add text
+						הוסף טקסט
 					</div>
 				</Draggable>
 			</div>

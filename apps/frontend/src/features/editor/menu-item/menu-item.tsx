@@ -2,15 +2,11 @@ import useLayoutStore from "../store/use-layout-store";
 import { Audios } from "./audios";
 import { Elements } from "./elements";
 import { Texts } from "./texts";
-import { Transitions } from "./transitions";
 import { Uploads } from "./uploads";
 
 const ActiveMenuItem = () => {
 	const { activeMenuItem } = useLayoutStore();
 
-	if (activeMenuItem === "transitions") {
-		return <Transitions />;
-	}
 	if (activeMenuItem === "texts") {
 		return <Texts />;
 	}

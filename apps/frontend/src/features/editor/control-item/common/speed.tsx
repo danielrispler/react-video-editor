@@ -35,7 +35,7 @@ const Speed = ({
 	return (
 		<div className="flex gap-2">
 			<div className="flex flex-1 items-center text-sm text-muted-foreground">
-				Speed
+				מהירות
 			</div>
 			<div
 				className="w-32"

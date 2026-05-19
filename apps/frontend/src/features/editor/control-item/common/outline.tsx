@@ -52,7 +52,7 @@ function Outline({
 
 			<div className="flex gap-2">
 				<div className="flex flex-1 items-center text-sm text-muted-foreground">
-					Color
+					צבע
 				</div>
 
 				{isLargeScreen ? (
@@ -115,7 +115,7 @@ function Outline({
 
 			<div className="flex gap-2">
 				<div className="flex flex-1 items-center text-sm text-muted-foreground">
-					Size
+					גודל
 				</div>
 				<div className="relative w-32">
 					<Input

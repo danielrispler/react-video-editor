@@ -21,7 +21,7 @@ const Rounded = ({
 	return (
 		<div className="flex gap-2">
 			<div className="flex flex-1 items-center text-sm text-muted-foreground">
-				Round
+				עיגול פינות
 			</div>
 			<div
 				className="w-32"

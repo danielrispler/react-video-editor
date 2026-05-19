@@ -26,61 +26,61 @@ interface ShortcutCategory {
 
 const SHORTCUTS: ShortcutCategory[] = [
 	{
-		title: "Globe",
+		title: "כללי",
 		items: [
-			{ label: "Select all", keys: ["⌘", "A"] },
+			{ label: "בחר הכל", keys: ["⌘", "A"] },
 			{
-				label: "Select multiple clips",
+				label: "בחר מספר קליפים",
 				keys: ["⇧", "Left-Click"],
 			},
-			{ label: "Copy", keys: ["⌘", "C"] },
-			{ label: "Cut", keys: ["⌘", "X"] },
-			{ label: "Paste", keys: ["⌘", "V"] },
-			{ label: "Delete", keys: ["⌫"] },
-			{ label: "Undo", keys: ["⌘", "Z"] },
-			{ label: "Redo", keys: ["⇧", "⌘", "Z"] },
-			{ label: "Play or pause", keys: ["Space"] },
-			{ label: "Text wrap", keys: ["⌘", "Enter"], disabled: true },
-			{ label: "Split sentence", keys: ["Enter"], disabled: true },
+			{ label: "העתק", keys: ["⌘", "C"] },
+			{ label: "גזור", keys: ["⌘", "X"] },
+			{ label: "הדבק", keys: ["⌘", "V"] },
+			{ label: "מחק", keys: ["⌫"] },
+			{ label: "בטל", keys: ["⌘", "Z"] },
+			{ label: "בצע שוב", keys: ["⇧", "⌘", "Z"] },
+			{ label: "הפעל או השהה", keys: ["Space"] },
+			{ label: "גלישת טקסט", keys: ["⌘", "Enter"], disabled: true },
+			{ label: "פצל משפט", keys: ["Enter"], disabled: true },
 		],
 	},
 	{
-		title: "Timeline",
+		title: "ציר זמן",
 		items: [
-			{ label: "Split", keys: ["⌘", "B"] },
-			{ label: "Zoom in", keys: ["⌘", "+"] },
-			{ label: "Zoom out", keys: ["⌘", "-"] },
-			{ label: "Scroll up or down", keys: ["Scroll"], disabled: true },
-			{ label: "Scroll left or right", keys: ["⇧", "Scroll"], disabled: true },
-			{ label: "Last frame", keys: ["⌘", "←"] },
-			{ label: "Next frame", keys: ["⌘", "→"] },
-			{ label: "Turn on or off preview axis", keys: ["S"], disabled: true },
-			{ label: "Attach", keys: ["N"], disabled: true },
+			{ label: "פצל", keys: ["⌘", "B"] },
+			{ label: "הגדל", keys: ["⌘", "+"] },
+			{ label: "הקטן", keys: ["⌘", "-"] },
+			{ label: "גלול למעלה או למטה", keys: ["Scroll"], disabled: true },
+			{ label: "גלול שמאלה או ימינה", keys: ["⇧", "Scroll"], disabled: true },
+			{ label: "פריים ראשון", keys: ["⌘", "←"] },
+			{ label: "פריים הבא", keys: ["⌘", "→"] },
+			{ label: "הפעל/כבה ציר תצוגה מקדימה", keys: ["S"], disabled: true },
+			{ label: "עגן", keys: ["N"], disabled: true },
 			{
-				label: "Separate or restore audio",
+				label: "הפרד או שחזר שמע",
 				keys: ["⇧", "⌘", "S"],
 				disabled: true,
 			},
-			{ label: "Add or remove beats", keys: ["M"], disabled: true },
+			{ label: "הוסף או הסר פעימות", keys: ["M"], disabled: true },
 		],
 	},
 	{
-		title: "Canvas",
+		title: "קנבס",
 		items: [
-			{ label: "Full screen", keys: ["⇧", "⌘", "F"], disabled: true },
-			{ label: "Move", keys: ["V"], disabled: true },
-			{ label: "Hand tool", keys: ["H"], disabled: true },
-			{ label: "Zoom in", keys: ["⇧", "+"], disabled: true },
-			{ label: "Zoom out", keys: ["⇧", "-"], disabled: true },
-			{ label: "Zoom to fit", keys: ["⇧", "F"], disabled: true },
-			{ label: "Zoom to 50%", keys: ["⇧", "0"], disabled: true },
-			{ label: "Zoom to 100%", keys: ["⇧", "1"], disabled: true },
-			{ label: "Zoom to 200%", keys: ["⇧", "2"], disabled: true },
-			{ label: "Move up 1 px", keys: ["↑"] },
-			{ label: "Move down 1 px", keys: ["↓"] },
-			{ label: "Move left 1 px", keys: ["←"] },
-			{ label: "Move right 1 px", keys: ["→"] },
-			{ label: "Move 5 px", keys: ["⇧", "Arrow Keys"] },
+			{ label: "מסך מלא", keys: ["⇧", "⌘", "F"], disabled: true },
+			{ label: "הזז", keys: ["V"], disabled: true },
+			{ label: "כלי יד", keys: ["H"], disabled: true },
+			{ label: "הגדל", keys: ["⇧", "+"], disabled: true },
+			{ label: "הקטן", keys: ["⇧", "-"], disabled: true },
+			{ label: "התאם לתצוגה", keys: ["⇧", "F"], disabled: true },
+			{ label: "זום 50%", keys: ["⇧", "0"], disabled: true },
+			{ label: "זום 100%", keys: ["⇧", "1"], disabled: true },
+			{ label: "זום 200%", keys: ["⇧", "2"], disabled: true },
+			{ label: "הזז למעלה פיקסל", keys: ["↑"] },
+			{ label: "הזז למטה פיקסל", keys: ["↓"] },
+			{ label: "הזז שמאלה פיקסל", keys: ["←"] },
+			{ label: "הזז ימינה פיקסל", keys: ["→"] },
+			{ label: "הזז 5 פיקסלים", keys: ["⇧", "Arrow Keys"] },
 		],
 	},
 ];
@@ -90,7 +90,9 @@ export function ShortcutsModal({ open, onOpenChange }: ShortcutsModalProps) {
 		<Dialog open={open} onOpenChange={onOpenChange}>
 			<DialogContent className="md:max-w-5xl w-full max-w-5xl border bg-card p-6 py-8 overflow-hidden">
 				<DialogHeader className="px-6">
-					<DialogTitle className="text-lg font-semibold">Shortcuts</DialogTitle>
+					<DialogTitle className="text-lg font-semibold">
+						קיצורי דרך
+					</DialogTitle>
 				</DialogHeader>
 				<div className="px-6">
 					<div className="grid grid-cols-3 gap-8">

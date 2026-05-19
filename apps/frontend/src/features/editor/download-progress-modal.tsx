@@ -10,7 +10,7 @@ const DownloadProgressModal = () => {
 		useDownloadState();
 	const isCompleted = Boolean(output?.url) && !exporting;
 	const isFailed = Boolean(error) && !exporting && !isCompleted;
-	const exportLabel = output?.type === "webp" ? "image" : "video";
+	const exportLabel = output?.type === "webp" ? "התמונה" : "הסרטון";
 
 	const handleDownload = async () => {
 		if (output?.url) {
@@ -26,7 +26,7 @@ const DownloadProgressModal = () => {
 				<DialogTitle className="hidden" />
 				<DialogDescription className="hidden" />
 				<div className="flex h-16 items-center border-b px-4 font-medium">
-					Download
+					הורדה
 				</div>
 				{isCompleted ? (
 					<div className="flex flex-1 flex-col items-center justify-center gap-2 space-y-4">
@@ -34,16 +34,16 @@ const DownloadProgressModal = () => {
 							<div className="font-semibold">
 								<CircleCheckIcon />
 							</div>
-							<div className="font-bold">Exported</div>
+							<div className="font-bold">יוצא בהצלחה</div>
 							<div className="text-muted-foreground">
-								You can download the {exportLabel} to your device.
+								ניתן להוריד את {exportLabel} למכשירך.
 							</div>
 						</div>
-						<Button onClick={handleDownload}>Download</Button>
+						<Button onClick={handleDownload}>הורדה</Button>
 					</div>
 				) : isFailed ? (
 					<div className="flex flex-1 flex-col items-center justify-center gap-4 px-8 text-center">
-						<div className="font-bold">Export failed</div>
+						<div className="font-bold">הייצוא נכשל</div>
 						<div className="text-sm text-zinc-500">{error}</div>
 					</div>
 				) : (
@@ -51,12 +51,12 @@ const DownloadProgressModal = () => {
 						<div className="text-5xl font-semibold">
 							{Math.floor(progress)}%
 						</div>
-						<div className="font-bold">Exporting...</div>
+						<div className="font-bold">מייצא...</div>
 						<div className="text-center text-zinc-500">
-							<div>Closing the browser will not cancel the export.</div>
-							<div>The video will be saved in your space.</div>
+							<div>סגירת הדפדפן לא תבטל את הייצוא.</div>
+							<div>הסרטון יישמר במרחב שלך.</div>
 						</div>
-						<Button variant={"outline"}>Cancel</Button>
+						<Button variant={"outline"}>ביטול</Button>
 					</div>
 				)}
 			</DialogContent>

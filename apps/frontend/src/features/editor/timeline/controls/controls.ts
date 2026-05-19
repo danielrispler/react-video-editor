@@ -1,9 +1,5 @@
 import { Control, controlsUtils, resize } from "@designcombo/timeline";
-import {
-	drawVerticalLeftIcon,
-	drawVerticalLine,
-	drawVerticalRightIcon,
-} from "./draw";
+import { drawVerticalLeftIcon, drawVerticalRightIcon } from "./draw";
 
 const { scaleSkewCursorStyleHandler } = controlsUtils;
 
@@ -80,24 +76,5 @@ export const createMediaControls = () => ({
 		sizeX: 20,
 		sizeY: 32,
 		offsetX: -10,
-	}),
-});
-
-export const createTransitionControls = () => ({
-	mr: new Control({
-		x: 0.5,
-		y: 0,
-		actionHandler: resize.transition,
-		cursorStyleHandler: scaleSkewCursorStyleHandler,
-		actionName: "resizing",
-		render: drawVerticalLine,
-	}),
-	ml: new Control({
-		x: -0.5,
-		y: 0,
-		actionHandler: resize.transition,
-		cursorStyleHandler: scaleSkewCursorStyleHandler,
-		actionName: "resizing",
-		render: drawVerticalLine,
 	}),
 });

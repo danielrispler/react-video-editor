@@ -14,26 +14,20 @@ const MENU_ITEMS = [
 	{
 		id: "uploads",
 		icon: Icons.upload,
-		label: "Uploads",
-		ariaLabel: "Add and manage uploads",
+		label: "העלאות",
+		ariaLabel: "הוסף ונהל העלאות",
 	},
 	{
 		id: "texts",
 		icon: Icons.type,
-		label: "Texts",
-		ariaLabel: "Add and edit text elements",
+		label: "טקסטים",
+		ariaLabel: "הוסף וערוך אלמנטי טקסט",
 	},
 	{
 		id: "audios",
 		icon: Icons.audio,
-		label: "Audio",
-		ariaLabel: "Add and manage audio content",
-	},
-	{
-		id: "transitions",
-		icon: Icons.transition, // Custom SVG for transitions
-		label: "Transitions",
-		ariaLabel: "Add transition effects",
+		label: "שמע",
+		ariaLabel: "הוסף ונהל תוכן שמע",
 	},
 ] as const;
 
