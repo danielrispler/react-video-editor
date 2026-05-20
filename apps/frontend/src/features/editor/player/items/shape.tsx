@@ -47,7 +47,11 @@ export const Shape = ({
 							height: "100%",
 							color: (details as any).backgroundColor || "#ffffff",
 						}}
-						dangerouslySetInnerHTML={{ __html: details.src }}
+						dangerouslySetInnerHTML={{
+							__html: details.src.startsWith("data:image/svg+xml;base64,")
+								? atob(details.src.slice("data:image/svg+xml;base64,".length))
+								: details.src,
+						}}
 					/>
 				</MaskAnim>
 			</ContentAnim>

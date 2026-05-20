@@ -1,3 +1,4 @@
+import { useIsLargeScreen } from "@/hooks/use-media-query";
 import type {
 	IAudio,
 	ICaption,
@@ -45,7 +46,8 @@ const ActiveControlItem = ({
 export const ControlItem = () => {
 	const { activeIds, trackItemsMap } = useStore();
 	const [trackItem, setTrackItem] = useState<ITrackItem | null>(null);
-	const { setTrackItem: setLayoutTrackItem } = useLayoutStore();
+	const { setTrackItem: setLayoutTrackItem, showMenuItem } = useLayoutStore();
+	const isLargeScreen = useIsLargeScreen();
 
 	useEffect(() => {
 		if (activeIds.length === 1) {
@@ -64,13 +66,12 @@ export const ControlItem = () => {
 		}
 	}, [activeIds, trackItemsMap, setLayoutTrackItem]);
 
-	if (!trackItem) {
-		return <MenuItem />;
-	}
+	if (!isLargeScreen) return null;
+	if (!trackItem && !showMenuItem) return null;
 
 	return (
-		<div className="hidden h-full min-w-0 flex-1 overflow-hidden border-l border-border/80 bg-card lg:block">
-			<ActiveControlItem trackItem={trackItem} />
+		<div className="h-full min-w-0 flex-1 overflow-hidden border-l border-border/80 bg-card">
+			{trackItem ? <ActiveControlItem trackItem={trackItem} /> : <MenuItem />}
 		</div>
 	);
 };

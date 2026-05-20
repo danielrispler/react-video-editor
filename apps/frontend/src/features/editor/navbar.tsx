@@ -21,7 +21,6 @@ import AutosizeInput from "@/components/ui/autosize-input";
 import useStore from "@/features/editor/store/use-store";
 import {
 	useIsLargeScreen,
-	useIsMediumScreen,
 	useIsSmallScreen,
 } from "@/hooks/use-media-query";
 import type StateManager from "@designcombo/state";
@@ -300,7 +299,6 @@ const CanvasSizePopover = ({
 };
 
 const DownloadPopover = ({ stateManager }: { stateManager: StateManager }) => {
-	const isMediumScreen = useIsMediumScreen();
 	const { actions, exportType } = useDownloadState();
 	const [isExportTypeOpen, setIsExportTypeOpen] = useState(false);
 	const [open, setOpen] = useState(false);
@@ -325,11 +323,10 @@ const DownloadPopover = ({ stateManager }: { stateManager: StateManager }) => {
 				<TooltipTrigger asChild>
 					<PopoverTrigger asChild>
 						<Button
-							className="flex h-8 gap-1 border border-border rounded-full"
-							size={isMediumScreen ? "sm" : "icon"}
+							className="flex h-8 w-20 gap-1 border border-border rounded-full shrink-0"
+							size="sm"
 						>
-							{/* <Download width={18} />{" "} */}
-							<span className="hidden md:block">הורדה</span>
+							<span>הורדה</span>
 						</Button>
 					</PopoverTrigger>
 				</TooltipTrigger>

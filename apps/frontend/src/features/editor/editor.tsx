@@ -1,32 +1,25 @@
-import {
-	ResizableHandle,
-	ResizablePanel,
-	ResizablePanelGroup,
-} from "@/components/ui/resizable";
 import { useIsLargeScreen } from "@/hooks/use-media-query";
 import { dispatch } from "@designcombo/events";
 import StateManager, { ADD_SHAPE, ADD_TEXT } from "@designcombo/state";
 import { generateId } from "@designcombo/timeline";
 import type { ITrackItem } from "@designcombo/types";
+import { Upload } from "lucide-react";
 import { nanoid } from "nanoid";
 import { useEffect, useRef, useState } from "react";
-import type { ImperativePanelHandle } from "react-resizable-panels";
 import { SECONDARY_FONT, SECONDARY_FONT_URL } from "./constants/constants";
 import { TEXT_ADD_PAYLOAD } from "./constants/payload";
-import { ControlItem } from "./control-item";
 import ControlItemHorizontal from "./control-item-horizontal";
-import FloatingControl from "./control-item/floating-controls/floating-control";
 import CropModal from "./crop-modal/crop-modal";
 import { FONTS } from "./data/fonts";
 import { useEditorPostMessage } from "./external-preview/use-editor-post-message";
 import useTimelineEvents from "./hooks/use-timeline-events";
-import MenuList from "./menu-list";
 import Navbar from "./navbar";
 import Scene from "./scene";
 import type { SceneRef } from "./scene/scene.types";
 import useDataState from "./store/use-data-state";
 import useLayoutStore from "./store/use-layout-store";
 import useStore from "./store/use-store";
+import useUploadStore from "./store/use-upload-store";
 import Timeline from "./timeline";
 import { getCompactFontData, loadFonts } from "./utils/fonts";
 
@@ -99,8 +92,42 @@ const addText = () => {
 };
 
 const RightSideMenu = () => {
+	const fileInputRef = useRef<HTMLInputElement>(null);
+	const { addPendingUploads, processUploads } = useUploadStore();
+
+	const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const files = Array.from(e.target.files ?? []);
+		if (files.length === 0) return;
+		addPendingUploads(
+			files.map((file) => ({
+				id: nanoid(),
+				file,
+				type: file.type,
+				status: "pending" as const,
+			})),
+		);
+		processUploads();
+		e.target.value = "";
+	};
+
 	return (
 		<div className="absolute right-0 top-1/2 -translate-y-1/2 z-10 flex flex-col gap-1 p-1.5 bg-card border border-border/80 border-r-0 rounded-l-xl shadow-lg">
+			<input
+				ref={fileInputRef}
+				type="file"
+				multiple
+				accept="video/*,image/*,audio/*"
+				className="hidden"
+				onChange={handleFileChange}
+			/>
+			<button
+				type="button"
+				aria-label="העלאה"
+				onClick={() => fileInputRef.current?.click()}
+				className="flex h-8 w-8 items-center justify-center rounded-lg transition-all duration-150 text-muted-foreground hover:bg-secondary hover:text-foreground"
+			>
+				<Upload size={16} />
+			</button>
 			<button
 				type="button"
 				aria-label="טקסט"
@@ -109,21 +136,23 @@ const RightSideMenu = () => {
 			>
 				T
 			</button>
-			{SHAPES_DIRECT.map((shape) => (
-				<button
-					key={shape.id}
-					type="button"
-					aria-label={shape.label}
-					onClick={() => addShape(shape)}
-					className="flex h-8 w-8 items-center justify-center rounded-lg transition-all duration-150 text-muted-foreground hover:bg-secondary hover:text-foreground"
-				>
-					<img
-						src={shape.dataUrl}
-						alt={shape.label}
-						style={{ width: 20, height: 20, objectFit: "contain" }}
-					/>
-				</button>
-			))}
+			<div className="flex flex-col gap-0.5">
+				{SHAPES_DIRECT.map((shape) => (
+					<button
+						key={shape.id}
+						type="button"
+						aria-label={shape.label}
+						onClick={() => addShape(shape)}
+						className="flex h-8 w-8 items-center justify-center rounded-lg transition-all duration-150 text-muted-foreground hover:bg-secondary hover:text-foreground"
+					>
+						<img
+							src={shape.dataUrl}
+							alt={shape.label}
+							style={{ width: 20, height: 20, objectFit: "contain" }}
+						/>
+					</button>
+				))}
+			</div>
 		</div>
 	);
 };
@@ -147,7 +176,6 @@ const SceneContainer = ({
 	stateManager,
 	trackItem,
 	loaded,
-	isLargeScreen,
 }: any) => {
 	return (
 		<div
@@ -161,32 +189,20 @@ const SceneContainer = ({
 						<Scene ref={sceneRef} stateManager={stateManager} />
 					</div>
 				</div>
-				{!isLargeScreen && !trackItem && loaded && <RightSideMenu />}
+				{!trackItem && loaded && <RightSideMenu />}
 			</div>
 
 			<div className="w-full">
 				{playerRef && <Timeline stateManager={stateManager} />}
 			</div>
 
-			{!isLargeScreen && trackItem && <ControlItemHorizontal />}
-		</div>
-	);
-};
-
-const Sidebar = () => {
-	return (
-		<div className="bg-card flex h-[calc(100vh-52px)] w-full min-w-0 overflow-hidden border-r border-border/80">
-			<div className="flex h-full w-full min-w-0 overflow-hidden">
-				<MenuList />
-				<ControlItem />
-			</div>
+			{trackItem && <ControlItemHorizontal />}
 		</div>
 	);
 };
 
 const Editor = ({ tempId, id }: { tempId?: string; id?: string }) => {
 	const [projectName, setProjectName] = useState<string>("RoniCut");
-	const timelinePanelRef = useRef<ImperativePanelHandle>(null);
 	const sceneRef = useRef<SceneRef>(null);
 	const { timeline, playerRef } = useStore();
 	const { activeIds, trackItemsMap } = useStore();
@@ -216,13 +232,6 @@ const Editor = ({ tempId, id }: { tempId?: string; id?: string }) => {
 				url: SECONDARY_FONT_URL,
 			},
 		]);
-	}, []);
-
-	useEffect(() => {
-		const screenHeight = window.innerHeight;
-		const desiredHeight = 300;
-		const percentage = (desiredHeight / screenHeight) * 100;
-		timelinePanelRef.current?.resize(percentage);
 	}, []);
 
 	const handleTimelineResize = () => {
@@ -298,46 +307,14 @@ const Editor = ({ tempId, id }: { tempId?: string; id?: string }) => {
 				setProjectName={setProjectName}
 			/>
 
-			<div className="flex flex-1">
-				{isLargeScreen ? (
-					<ResizablePanelGroup direction="horizontal" className="h-full w-full">
-						<ResizablePanel
-							defaultSize={30}
-							minSize={20}
-							maxSize={40}
-							className="max-w-7xl relative bg-card min-w-0 overflow-visible!"
-						>
-							<Sidebar />
-							<FloatingControl />
-						</ResizablePanel>
-
-						<ResizableHandle className="bg-border/90" />
-
-						<ResizablePanel
-							defaultSize={70}
-							minSize={60}
-							className="min-w-0 min-h-0"
-						>
-							<SceneContainer
-								sceneRef={sceneRef}
-								playerRef={playerRef}
-								stateManager={stateManager}
-								trackItem={trackItem}
-								loaded={loaded}
-								isLargeScreen={isLargeScreen}
-							/>
-						</ResizablePanel>
-					</ResizablePanelGroup>
-				) : (
-					<SceneContainer
-						sceneRef={sceneRef}
-						playerRef={playerRef}
-						stateManager={stateManager}
-						trackItem={trackItem}
-						loaded={loaded}
-						isLargeScreen={isLargeScreen}
-					/>
-				)}
+			<div className="flex flex-1 min-h-0">
+				<SceneContainer
+					sceneRef={sceneRef}
+					playerRef={playerRef}
+					stateManager={stateManager}
+					trackItem={trackItem}
+					loaded={loaded}
+				/>
 			</div>
 		</div>
 	);

@@ -64,7 +64,7 @@ export const Shapes = () => {
 				type: "shape",
 				display: { from: 0, to: 5000 },
 				details: {
-					src: shape.svg,
+					src: svgToDataUrl(shape.svg),
 					path: "",
 					width: shape.width,
 					height: shape.height,

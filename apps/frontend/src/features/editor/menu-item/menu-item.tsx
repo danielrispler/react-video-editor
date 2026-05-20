@@ -1,23 +1,10 @@
 import useLayoutStore from "../store/use-layout-store";
-import { Audios } from "./audios";
 import { Elements } from "./elements";
-import Shapes from "./shapes";
-import { Texts } from "./texts";
 import { Uploads } from "./uploads";
 
 const ActiveMenuItem = () => {
 	const { activeMenuItem } = useLayoutStore();
 
-	if (activeMenuItem === "texts") {
-		return <Texts />;
-	}
-	if (activeMenuItem === "shapes") {
-		return <Shapes />;
-	}
-
-	if (activeMenuItem === "audios") {
-		return <Audios />;
-	}
 	if (activeMenuItem === "elements") {
 		return <Elements />;
 	}
@@ -29,6 +16,10 @@ const ActiveMenuItem = () => {
 };
 
 export const MenuItem = () => {
+	const { showMenuItem } = useLayoutStore();
+
+	if (!showMenuItem) return null;
+
 	return (
 		<div className={"w-full flex-1 flex h-[calc(100%-50px)]"}>
 			<ActiveMenuItem />
