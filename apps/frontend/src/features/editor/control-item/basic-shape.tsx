@@ -83,7 +83,7 @@ const BasicShape = ({
 					<Label className="font-sans text-xs font-semibold">צבע</Label>
 					<div className="flex items-center justify-center pb-2">
 						<ColorPicker
-							value={details.backgroundColor ?? "#6366f1"}
+							value={details.backgroundColor ?? "#ffffff"}
 							format="hex"
 							gradient={false}
 							solid={true}

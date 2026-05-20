@@ -41,10 +41,13 @@ export const Shape = ({
 					keyframeAnimations={animationTimed}
 					frame={frame || 0}
 				>
-					<img
-						src={details.src}
-						alt=""
-						style={{ width: "100%", height: "100%", objectFit: "fill" }}
+					<div
+						style={{
+							width: "100%",
+							height: "100%",
+							color: (details as any).backgroundColor || "#ffffff",
+						}}
+						dangerouslySetInnerHTML={{ __html: details.src }}
 					/>
 				</MaskAnim>
 			</ContentAnim>
