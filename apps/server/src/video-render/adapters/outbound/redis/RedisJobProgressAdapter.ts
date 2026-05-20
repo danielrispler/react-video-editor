@@ -1,7 +1,8 @@
 import type { Redis } from "ioredis";
 import type { JobProgressPort } from "../../../application/ports/outbound/JobProgressPort.ts";
 
-const progressKey = (jobId: string): string => `job:progress:${jobId}`;
+const progressKey = (jobId: string): string =>
+	`video-editor:edit-video:progress:${jobId}`;
 
 export class RedisJobProgressAdapter implements JobProgressPort {
 	private readonly redis: Redis;

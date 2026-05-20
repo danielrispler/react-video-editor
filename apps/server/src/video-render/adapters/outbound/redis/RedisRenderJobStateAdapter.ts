@@ -4,7 +4,7 @@ import type {
 	RenderJobStatePort,
 } from "../../../application/ports/outbound/RenderJobStatePort.ts";
 
-const jobKey = (jobId: string): string => `render:job:${jobId}`;
+const jobKey = (jobId: string): string => `video-editor:render:state:${jobId}`;
 const JOB_TTL = 3600;
 
 export class RedisRenderJobStateAdapter implements RenderJobStatePort {
