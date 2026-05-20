@@ -32,7 +32,12 @@ export type EditorProjectClearedMessage = {
 	requestId?: string;
 };
 
+export type EditorReadyMessage = {
+	type: "EDITOR_READY";
+};
+
 export type EditorToParentMessage =
 	| EditorPreviewItemAddedMessage
 	| EditorPreviewItemRejectedMessage
-	| EditorProjectClearedMessage;
+	| EditorProjectClearedMessage
+	| EditorReadyMessage;

@@ -116,6 +116,12 @@ export const processAudioFile = async (
 ): Promise<string> => {
 	const processing = calculateAudioProcessing(audio, totalDurationSegments);
 
+	if (processing.needsTrim && processing.extractDuration <= 0) {
+		throw new Error(
+			`Invalid audio trim range: audioTrimStart (${audio.audioTrimStart ?? 0}) must be less than audioTrimEnd (${audio.audioTrimEnd ?? audio.originalDuration ?? audio.duration})`,
+		);
+	}
+
 	if (processing.needsTimelineTrim && processing.extractDuration <= 0) {
 		throw new Error("Audio starts after video ends");
 	}
@@ -220,6 +226,9 @@ export const prepareAudioSources = async (
 					if (shouldProbeForEmbeddedAudio(audio)) {
 						const hasEmbeddedAudio = await hasAudioStream(audio.url);
 						if (!hasEmbeddedAudio) {
+							console.warn(
+								`Audio source at index ${index} has no audio stream, skipping: ${audio.url}`,
+							);
 							return null;
 						}
 					}
@@ -231,6 +240,9 @@ export const prepareAudioSources = async (
 				if (!isStreamingSource && shouldProbeForEmbeddedAudio(audio)) {
 					const hasEmbeddedAudio = await hasAudioStream(audioPath);
 					if (!hasEmbeddedAudio) {
+						console.warn(
+							`Audio source at index ${index} has no audio stream, skipping: ${audio.url}`,
+						);
 						return null;
 					}
 				}

@@ -7,6 +7,7 @@ import {
 	type EditorPreviewItemAddedMessage,
 	type EditorPreviewItemRejectedMessage,
 	type EditorProjectClearedMessage,
+	type EditorReadyMessage,
 	type EditorToParentMessage,
 	type ParentToEditorMessage,
 	type PreviewItemPayload,
@@ -585,6 +586,10 @@ export const useEditorPostMessage = (stateManager: StateManager) => {
 		};
 
 		window.addEventListener("message", handleMessage);
+		if (window.parent !== window) {
+			const readyMsg: EditorReadyMessage = { type: "EDITOR_READY" };
+			window.parent.postMessage(readyMsg, "*");
+		}
 		return () => {
 			window.removeEventListener("message", handleMessage);
 		};

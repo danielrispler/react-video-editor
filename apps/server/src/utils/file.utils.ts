@@ -24,8 +24,12 @@ export const downloadFile = (
 		const file = fs.createWriteStream(outputPath);
 
 		const timeoutId = setTimeout(() => {
-			file.close();
-			fs.unlink(outputPath, () => {});
+			file.destroy();
+			fs.unlink(outputPath, (err) => {
+				if (err && err.code !== "ENOENT") {
+					console.error(`Failed to delete partial download: ${err.message}`);
+				}
+			});
 			reject(new Error(`Download timeout after ${timeoutMs}ms: ${url}`));
 		}, timeoutMs);
 

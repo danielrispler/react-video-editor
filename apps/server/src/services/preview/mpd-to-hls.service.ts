@@ -143,9 +143,16 @@ export function generateHlsPlaylist(input: MpdToHlsInput): MpdToHlsOutput {
 	// Include all segments whose start time < requestedEndMs.
 	const lastSegIdx = Math.max(
 		firstSegIdx,
-		Math.ceil((requestedEndMs - segmentStartTimeMs) / segDurationMs) - 1,
+		Math.floor((requestedEndMs - segmentStartTimeMs - 1) / segDurationMs),
 	);
 	const lastSegNumber = st.startNumber + lastSegIdx;
+
+	const segCount = lastSegIdx - firstSegIdx + 1;
+	if (segCount > 10_000) {
+		throw new Error(
+			`Segment count ${segCount} exceeds maximum 10000. Check that requestedEndMs and segmentStartTimeMs use the same time reference.`,
+		);
+	}
 
 	const base = ensureTrailingSlash(baseUrl);
 	const initUri = `${base}${substituteTemplate(st.initialization, id)}`;

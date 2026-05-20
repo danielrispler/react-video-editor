@@ -6,6 +6,7 @@ import type { ITrackItem } from "@designcombo/types";
 import { Upload } from "lucide-react";
 import { nanoid } from "nanoid";
 import { useEffect, useRef, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { SECONDARY_FONT, SECONDARY_FONT_URL } from "./constants/constants";
 import { TEXT_ADD_PAYLOAD } from "./constants/payload";
 import ControlItemHorizontal from "./control-item-horizontal";
@@ -203,6 +204,7 @@ const SceneContainer = ({
 
 const Editor = ({ tempId, id }: { tempId?: string; id?: string }) => {
 	const [projectName, setProjectName] = useState<string>("RoniCut");
+	const [searchParams] = useSearchParams();
 	const sceneRef = useRef<SceneRef>(null);
 	const { timeline, playerRef } = useStore();
 	const { activeIds, trackItemsMap } = useStore();
@@ -213,7 +215,15 @@ const Editor = ({ tempId, id }: { tempId?: string; id?: string }) => {
 		setFloatingControl,
 		setLabelControlItem,
 		setTypeControlItem,
+		isFullScreen,
+		setIsFullScreen,
 	} = useLayoutStore();
+
+	useEffect(() => {
+		if (searchParams.get("fullScreen") === "true") {
+			setIsFullScreen(true);
+		}
+	}, [searchParams, setIsFullScreen]);
 	const isLargeScreen = useIsLargeScreen();
 
 	useTimelineEvents();
@@ -301,11 +311,13 @@ const Editor = ({ tempId, id }: { tempId?: string; id?: string }) => {
 
 	return (
 		<div className="flex h-screen w-screen flex-col">
-			<Navbar
-				projectName={projectName}
-				stateManager={stateManager}
-				setProjectName={setProjectName}
-			/>
+			{!isFullScreen && (
+				<Navbar
+					projectName={projectName}
+					stateManager={stateManager}
+					setProjectName={setProjectName}
+				/>
+			)}
 
 			<div className="flex flex-1 min-h-0">
 				<SceneContainer

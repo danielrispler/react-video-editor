@@ -1,3 +1,4 @@
+import { promises as fsp } from "node:fs";
 import type { EnvConfig } from "../../../config/env.ts";
 import type {
 	AudioSource,
@@ -57,56 +58,60 @@ export class VideoRenderUseCase {
 		const totalDuration = calculateTotalDurationSegments(keepSegments);
 		const tempDir = await createTempDir("render-");
 
-		const sourcePath = await processSources(
-			input.sources,
-			tempDir,
-			this.storage,
-			this.config,
-		);
-		const segmentPaths = await extractSegments(
-			sourcePath,
-			keepSegments,
-			tempDir,
-			this.config,
-		);
-		const [{ overlayInputs, hasOverlays }, { audioPaths, hasAudio }] =
-			await Promise.all([
-				prepareOverlays(input.overlays, tempDir, this.storage, this.config),
-				prepareAudioSources(
-					input.audioSources ?? [],
-					tempDir,
-					totalDuration,
-					this.storage,
-					this.config,
-				),
-			]);
+		try {
+			const sourcePath = await processSources(
+				input.sources,
+				tempDir,
+				this.storage,
+				this.config,
+			);
+			const segmentPaths = await extractSegments(
+				sourcePath,
+				keepSegments,
+				tempDir,
+				this.config,
+			);
+			const [{ overlayInputs, hasOverlays }, { audioPaths, hasAudio }] =
+				await Promise.all([
+					prepareOverlays(input.overlays, tempDir, this.storage, this.config),
+					prepareAudioSources(
+						input.audioSources ?? [],
+						tempDir,
+						totalDuration,
+						this.storage,
+						this.config,
+					),
+				]);
 
-		const result = await finalRenderToS3(
-			segmentPaths,
-			overlayInputs,
-			input.overlays,
-			keepSegments,
-			totalDuration,
-			hasOverlays,
-			input.sources,
-			tempDir,
-			input.format,
-			audioPaths,
-			hasAudio,
-			input.audioMixMode,
-			input.frameTimeMs,
-			s3Key,
-			this.storage,
-			this.config,
-			86400,
-			onProgress
-				? async (p: number) => {
-						await onProgress(p);
-					}
-				: undefined,
-			input.cropRegion,
-		);
+			const result = await finalRenderToS3(
+				segmentPaths,
+				overlayInputs,
+				input.overlays,
+				keepSegments,
+				totalDuration,
+				hasOverlays,
+				input.sources,
+				tempDir,
+				input.format,
+				audioPaths,
+				hasAudio,
+				input.audioMixMode,
+				input.frameTimeMs,
+				s3Key,
+				this.storage,
+				this.config,
+				this.config.RENDER_URL_EXPIRY_SECONDS,
+				onProgress
+					? async (p: number) => {
+							await onProgress(p);
+						}
+					: undefined,
+				input.cropRegion,
+			);
 
-		return { s3Key: result.s3Key, url: result.url, segments: keepSegments };
+			return { s3Key: result.s3Key, url: result.url, segments: keepSegments };
+		} finally {
+			await fsp.rm(tempDir, { recursive: true, force: true });
+		}
 	}
 }

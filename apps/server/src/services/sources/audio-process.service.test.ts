@@ -46,6 +46,7 @@ const testConfig: EnvConfig = {
 	REDIS_PORT: 6379,
 	REDIS_PASSWORD: "",
 	JOB_PROGRESS_TTL_SECONDS: 600,
+	RENDER_URL_EXPIRY_SECONDS: 86400,
 };
 
 const tempDirs: string[] = [];

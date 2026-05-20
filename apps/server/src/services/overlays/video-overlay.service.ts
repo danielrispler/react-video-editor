@@ -190,6 +190,12 @@ export const prepareVideoOverlay = async (
 	const trimFrom = normalizeFfmpegTime(rawTrimFrom);
 	const trimTo = overlay.trimTo;
 
+	if (trimTo !== undefined && trimTo <= rawTrimFrom) {
+		throw new Error(
+			`Invalid overlay trim: trimFrom (${rawTrimFrom}) must be less than trimTo (${trimTo})`,
+		);
+	}
+
 	await runFfmpeg((command) => {
 		const ffmpegCommand = command
 			.addOption(FFMPEG_COMMAND.HIDE_BANNER)

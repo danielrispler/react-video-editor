@@ -9,8 +9,9 @@ pnpm + Turborepo monorepo. Workspace root is `apps/*` and `packages/*`.
 
 ```
 apps/
-  frontend/   — Vite + React 19 + React Router v7 (port 3000)
-  server/     — Fastify + Node.js (port 4000)
+  frontend/    — Vite + React 19 + React Router v7 (port 3000)
+  server/      — Fastify + Node.js (port 4000)
+  iframe-demo/ — Angular 21 demo harness for iframe integration (port 4200)
 packages/
   editor-contract/  — shared postMessage contract (@video-editor/iframe-contract)
 ```
@@ -32,8 +33,9 @@ pnpm lint
 pnpm build
 
 # Per-app
-cd apps/frontend && pnpm dev
-cd apps/server   && pnpm dev    # node runs TypeScript directly in watch mode
+cd apps/frontend    && pnpm dev
+cd apps/server      && pnpm dev    # node runs TypeScript directly in watch mode
+cd apps/iframe-demo && pnpm dev    # Angular dev server on port 4200
 
 # Type check
 cd apps/frontend && pnpm exec tsc --noEmit
@@ -70,7 +72,6 @@ Configure `apps/server/.env`. Frontend needs no `.env` in dev. The server defaul
 - `/` → `src/pages/Home.tsx`
 - `/edit` / `/edit/:id` → `src/pages/EditPage.tsx`
 - `/editor/embed` → `src/pages/EditPage.tsx` (editor as embeddable iframe target)
-- `/editor/iframe-demo` → `src/pages/IframeDemoPage.tsx` (dev harness for testing iframe postMessage flow)
 
 **Path alias:** `@/` maps to `apps/frontend/src/`.
 
@@ -90,7 +91,14 @@ Configure `apps/server/.env`. Frontend needs no `.env` in dev. The server defaul
 
 Responses are sent back via `postMessage` to the parent. Allowed origins are configured via `VITE_EDITOR_PARENT_ORIGINS` (defaults to `window.location.origin`).
 
-**`/editor/iframe-demo` (`src/pages/IframeDemoPage.tsx`):** Dev harness for the iframe postMessage flow. Embeds `/editor/embed` in an iframe and provides a control panel to send `EDITOR_ADD_PREVIEW_ITEM` (`recording-range` kind) and `EDITOR_CLEAR_PROJECT` messages. Displays outgoing payload and last response. This is the primary page used for development and testing of the iframe integration.
+**Iframe demo (`apps/iframe-demo`):** Standalone Angular 21 app (port 4200) that embeds `/editor/embed` in a floating, draggable/resizable iframe. Provides a control panel to send `EDITOR_ADD_PREVIEW_ITEM` (`recording-range` kind) and `EDITOR_CLEAR_PROJECT` messages and displays outgoing payload and last response. This is the primary harness for testing the iframe integration. Key files:
+- `src/app/pages/editor-page/editor-page.component.ts` — main page with iframe hosting, drag/resize, and postMessage logic
+- `src/app/pages/media-page/media-page.component.ts` — secondary page
+- `src/app/services/editor-bridge.service.ts` — Angular signal-based queue for cross-page item injection
+- `src/app/message-types.ts` — local type mirror of the postMessage contract
+- `src/environments/environment.ts` — `editorUrl` points to `http://localhost:3000/editor/embed`
+
+Run: `cd apps/iframe-demo && pnpm dev` (starts on port 4200).
 
 **State management:** Zustand (`src/features/editor/store/`). Global scene store at `src/store/use-scene-store.ts`.
 
@@ -128,6 +136,9 @@ Responses are sent back via `postMessage` to the parent. Allowed origins are con
 **Storage:** `src/plugins/storage.plugin.ts` — AWS SDK v3 S3 client, configured for MinIO locally via `S3_*` env vars.
 **State:** Redis is required for render/edit job status.
 
+**Notable env vars (`apps/server/.env`):**
+- `RENDER_URL_EXPIRY_SECONDS` — TTL for signed render output URLs (default: 86400)
+
 **Tests:** Use Node.js built-in test runner (`node:test` / `node:assert`). Test files are co-located with source as `*.test.ts`.
 
 ### Packages (`packages/editor-contract`)
@@ -137,6 +148,7 @@ Published as `@video-editor/iframe-contract`. Defines Zod schemas and TypeScript
 - Message types: `ParentToEditorMessage`, `EditorToParentMessage` and their subtypes.
 - `createPreviewItemAddedMessage`, `createPreviewItemRejectedMessage`, `createProjectClearedMessage` — response factories.
 - `PreviewItemPayload` — union of `recording-range`, `media`, and `audio-range` payload shapes.
+- `EditorReadyMessage` (`type: "EDITOR_READY"`) — sent by editor to parent when iframe is initialized and ready to accept messages.
 
 Build: `pnpm build` in the package directory. Exports point directly to `src/` (no separate build required for development via `exports` field in `package.json`).
 

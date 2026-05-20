@@ -19,10 +19,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import AutosizeInput from "@/components/ui/autosize-input";
 import useStore from "@/features/editor/store/use-store";
-import {
-	useIsLargeScreen,
-	useIsSmallScreen,
-} from "@/hooks/use-media-query";
+import { useIsLargeScreen, useIsSmallScreen } from "@/hooks/use-media-query";
 import type StateManager from "@designcombo/state";
 import { generateId } from "@designcombo/timeline";
 import type { IDesign } from "@designcombo/types";

@@ -17,15 +17,8 @@ export const hexToRgb = (hex: string, opacity: number): string => {
 	return `0x${validHex}${alpha}`;
 };
 
-const reverseSentenceAndWords = (sentence: string): string => {
-	return sentence
-		.split(" ")
-		.reverse()
-		.map((word) => word.split("").reverse().join(""))
-		.join(" ");
-};
 export const escapeTextForFFmpeg = (text: string): string => {
-	return reverseSentenceAndWords(text)
+	return text
 		.replace(/\\/g, "\\\\")
 		.replace(/:/g, "\\:")
 		.replace(/'/g, "\\'")

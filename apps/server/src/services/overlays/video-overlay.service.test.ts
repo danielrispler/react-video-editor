@@ -47,6 +47,7 @@ const testConfig: EnvConfig = {
 	MAX_PREVIEW_DURATION_MS: 3600000,
 	PREVIEW_JOB_TTL_SECONDS: 86400,
 	S3_PREVIEW_PREFIX: "preview",
+	RENDER_URL_EXPIRY_SECONDS: 86400,
 };
 
 const probeDuration = async (filePath: string): Promise<number> => {

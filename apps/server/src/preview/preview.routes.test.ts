@@ -90,6 +90,7 @@ const baseConfig: EnvConfig = {
 	REDIS_PORT: 6379,
 	REDIS_PASSWORD: "",
 	JOB_PROGRESS_TTL_SECONDS: 600,
+	RENDER_URL_EXPIRY_SECONDS: 86400,
 };
 
 function buildApp(configOverrides: Partial<EnvConfig> = {}) {
@@ -486,7 +487,7 @@ describe("POST /api/editor/preview-source — channel API (mocked fetch)", () =>
 				_url: string | URL | Request,
 				init?: RequestInit,
 			): Promise<Response> => {
-				const urlStr = url.toString();
+				const urlStr = _url.toString();
 
 				if (urlStr.includes("/channels/") && urlStr.includes("/play")) {
 					return new Response(

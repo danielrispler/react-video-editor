@@ -60,10 +60,18 @@ export const previewRouter: FastifyPluginAsync = async (
 			return reply.status(400).send({ error: "Missing url or token" });
 		}
 
+		if (!/^[A-Za-z0-9_=-]*$/.test(url)) {
+			return reply.status(400).send({ error: "Invalid url encoding" });
+		}
+
 		let decoded: string;
 		try {
 			decoded = Buffer.from(url, "base64url").toString("utf8");
 		} catch {
+			return reply.status(400).send({ error: "Invalid url encoding" });
+		}
+
+		if (decoded.includes("�")) {
 			return reply.status(400).send({ error: "Invalid url encoding" });
 		}
 

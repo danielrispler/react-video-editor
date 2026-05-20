@@ -62,7 +62,11 @@ export const buildImageOverlayFilter = (
 	const imgInput = `[${imageInputIndex}:v]`;
 	const loopedImgLabel = `looped${imageInputIndex}`;
 	const scaledImgLabel = `scaled${imageInputIndex}`;
-	const loopSize = Math.ceil(videoDuration * 30);
+	const MAX_LOOP_BUFFER_FRAMES = 300;
+	const loopSize = Math.min(
+		Math.ceil(videoDuration * 30),
+		MAX_LOOP_BUFFER_FRAMES,
+	);
 
 	return `${imgInput}loop=loop=-1:size=${loopSize}:start=0[${loopedImgLabel}];[${loopedImgLabel}]scale=w=${widthPixels}:h=${heightPixels}:force_original_aspect_ratio=decrease[${scaledImgLabel}];${currentStream}[${scaledImgLabel}]overlay=${x}:${y}:enable='${enable}'[${outputLabel}]`;
 };

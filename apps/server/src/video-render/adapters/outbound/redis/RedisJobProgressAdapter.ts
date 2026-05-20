@@ -24,8 +24,12 @@ export class RedisJobProgressAdapter implements JobProgressPort {
 	async getProgress(jobId: string): Promise<number | null> {
 		const data = await this.redis.get(progressKey(jobId));
 		if (!data) return null;
-		const parsed = JSON.parse(data) as { progress: number };
-		return parsed.progress ?? null;
+		try {
+			const parsed = JSON.parse(data) as { progress: number };
+			return parsed.progress ?? null;
+		} catch {
+			return null;
+		}
 	}
 
 	async deleteProgress(jobId: string): Promise<void> {

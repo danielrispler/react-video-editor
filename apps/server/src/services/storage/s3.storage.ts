@@ -147,6 +147,9 @@ export class S3Storage implements StorageProvider {
 		key: string,
 		expiresIn = 3600,
 	): Promise<string> => {
+		if (expiresIn <= 0) {
+			throw new Error(`expiresIn must be positive, got ${expiresIn}`);
+		}
 		const command = new GetObjectCommand({
 			Bucket: this.bucket,
 			Key: key,
@@ -160,6 +163,9 @@ export class S3Storage implements StorageProvider {
 		contentType?: string,
 		expiresIn = 3600,
 	): Promise<string> => {
+		if (expiresIn <= 0) {
+			throw new Error(`expiresIn must be positive, got ${expiresIn}`);
+		}
 		const command = new PutObjectCommand({
 			Bucket: this.bucket,
 			Key: key,

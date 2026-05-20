@@ -21,7 +21,9 @@ export interface ILayoutState {
 	controItemDrawerOpen: boolean;
 	typeControlItem: string;
 	labelControlItem: string;
+	isFullScreen: boolean;
 	setCropTarget: (cropTarget: ITrackItem | null) => void;
+	setIsFullScreen: (isFullScreen: boolean) => void;
 	setActiveMenuItem: (showMenu: IMenuItem | null) => void;
 	setShowMenuItem: (showMenuItem: boolean) => void;
 	setShowControlItem: (showControlItem: boolean) => void;

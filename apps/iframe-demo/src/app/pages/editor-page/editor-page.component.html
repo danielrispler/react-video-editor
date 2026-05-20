@@ -1,0 +1,90 @@
+<div class="page">
+  <!-- Free area for iframe -->
+  <div class="iframe-area">
+    <div
+      class="iframe-window"
+      [class.iframe-window--full]="fullMode()"
+      [style.left.px]="fullMode() ? null : box().x"
+      [style.top.px]="fullMode() ? null : box().y"
+      [style.width.px]="fullMode() ? null : box().w"
+      [style.height.px]="fullMode() ? null : box().h"
+    >
+      <!-- Title bar (drag disabled in full mode) -->
+      <div class="title-bar" (mousedown)="fullMode() ? null : startDrag($event)">
+        <span class="dot red"></span>
+        <span class="dot yellow"></span>
+        <span class="dot green"></span>
+        <span class="title-label">Editor</span>
+      </div>
+
+      <iframe
+        #iframeEl
+        title="Editor"
+        [src]="editorUrl()"
+        class="editor-iframe"
+        (load)="onIframeLoad()"
+      ></iframe>
+
+      <!-- Resize handles (resizable mode only) -->
+      @if (!fullMode()) {
+        @for (dir of corners; track dir) {
+          <div [style]="cornerStyle(dir)" (mousedown)="startResize(dir, $event)"></div>
+        }
+        @for (dir of edges; track dir) {
+          <div [style]="edgeStyle(dir)" (mousedown)="startResize(dir, $event)"></div>
+        }
+      }
+    </div>
+  </div>
+
+  <!-- Right panel -->
+  <aside class="panel">
+    <div>
+      <h1 class="panel-title">Iframe demo</h1>
+      <p class="panel-desc">
+        Send postMessages to the embedded editor.
+        Items queued from the <strong>Media</strong> page are auto-sent on arrival.
+      </p>
+    </div>
+
+    <!-- Recording range form -->
+    <section class="form-section">
+      <h2 class="section-title">Recording range</h2>
+      <label class="field">
+        <span>Channel ID</span>
+        <input [value]="channelId()" (input)="channelId.set($any($event.target).value)" />
+      </label>
+      <label class="field">
+        <span>Start time ms</span>
+        <input type="number" [value]="startTimeMs()" (input)="startTimeMs.set(+$any($event.target).value)" />
+      </label>
+      <label class="field">
+        <span>End time ms</span>
+        <input type="number" [value]="endTimeMs()" (input)="endTimeMs.set(+$any($event.target).value)" />
+      </label>
+    </section>
+
+    <div class="actions">
+      <button class="btn-primary" (click)="addRecordingRange()">Add recording</button>
+      <button class="btn-secondary" (click)="clearProject()">Clear project</button>
+    </div>
+
+    <div class="mode-toggle">
+      <span class="section-title">Iframe mode</span>
+      <div class="toggle-row">
+        <button
+          class="btn-mode"
+          [class.active]="!fullMode()"
+          (click)="fullMode.set(false)"
+        >Resizable</button>
+        <button
+          class="btn-mode"
+          [class.active]="fullMode()"
+          (click)="fullMode.set(true)"
+        >Full</button>
+      </div>
+    </div>
+
+    <pre class="json-display">{{ stringify({ outgoing: outgoingPayload(), lastResponse: lastResponse() }) }}</pre>
+  </aside>
+</div>

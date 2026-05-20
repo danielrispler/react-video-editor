@@ -58,7 +58,7 @@ export function escapeFontPathForFFmpeg(fontPath: string): string {
 	escaped = escaped.replace(/\]/g, "\\]");
 	escaped = escaped.replace(/,/g, "\\,");
 	escaped = escaped.replace(/;/g, "\\;");
-	escaped = escaped.replace(/'/g, "'\\''");
+	escaped = escaped.replace(/'/g, "\\'");
 	return escaped;
 }
 

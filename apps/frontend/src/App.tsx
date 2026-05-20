@@ -1,6 +1,5 @@
 import EditPage from "@/pages/EditPage";
 import Home from "@/pages/Home";
-import IframeDemoPage from "@/pages/IframeDemoPage";
 import { Route, Routes } from "react-router-dom";
 
 export default function App() {
@@ -10,7 +9,6 @@ export default function App() {
 			<Route path="/edit" element={<EditPage />} />
 			<Route path="/edit/:id" element={<EditPage />} />
 			<Route path="/editor/embed" element={<EditPage />} />
-			<Route path="/editor/iframe-demo" element={<IframeDemoPage />} />
 		</Routes>
 	);
 }

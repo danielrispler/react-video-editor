@@ -94,8 +94,13 @@ export const UploadHandler = (uploadUseCase: UploadUseCase): UploadHandler => {
 					}
 				}
 
-				if (!uploadResult || !fileName || !contentType) {
+				if (!fileName || !contentType) {
 					return reply.status(400).send({ error: "file field is required" });
+				}
+				if (!uploadResult) {
+					return reply
+						.status(500)
+						.send({ error: "Upload failed: no result returned" });
 				}
 
 				return reply.status(200).send({

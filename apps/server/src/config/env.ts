@@ -38,6 +38,7 @@ export const envSchema = Type.Object({
 	REDIS_PORT: Type.Number({ default: 6379 }),
 	REDIS_PASSWORD: Type.String({ default: "" }),
 	JOB_PROGRESS_TTL_SECONDS: Type.Number({ default: 600 }),
+	RENDER_URL_EXPIRY_SECONDS: Type.Number({ default: 86400 }),
 });
 
 export type EnvConfig = Static<typeof envSchema>;
